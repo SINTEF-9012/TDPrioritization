@@ -1,0 +1,14 @@
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environment
+virtual_env/
+
+.DS_Store
+
+# Ignore the projects we use to test the prioritizer as they are cloned from other open-source repos. 
+projects/
+
+# Ignore python_smells_detector codebase since it is cloned from another repo.
+python_smells_detector/
