@@ -6,6 +6,10 @@ from haystack.components.builders.prompt_builder import PromptBuilder
 
 import requests
 import csv
+import pandas as pd
+import os
+from utils import get_entity_snippet_from_line
+
 
 @component
 class OllamaGenerator:
@@ -33,13 +37,37 @@ class OllamaGenerator:
 
 
 def main():
+    documents = []
+    data_frame = pd.read_csv("python_smells_detector/code_quality_report.csv")
+    base_dir = os.path.dirname("python_smells_detector/code_quality_report.csv")
+
+    for _, column in data_frame.iterrows():
+
+        file_path = os.path.normpath(os.path.join(base_dir, column["File"])) 
+        code_segment = ""
+
+        if os.path.isfile(file_path): 
+            code_segment = get_entity_snippet_from_line(column['Line Number'], file_path )
+        
+        content = (
+            f"Type of smell: {column['Type']}\n"
+            f"Name: {column['Name']}\n"
+            f"Description: {column['Description']}\n"
+            f"File: {column['File']}\n"
+            f"Module/Class: {column['Module/Class']}\n"
+            f"Line Number: {column['Line Number']}\n"
+            f"Severity: {column['Severity']}\n"
+            f"Code segment: {code_segment}\n"
+            f"\n"
+        )
+
+        documents.append(Document(content=content))
+
     # Write documents to InMemoryDocumentStore
     document_store = InMemoryDocumentStore()
-    document_store.write_documents([
-        Document(content="My name is Jean and I live in Paris."),
-        Document(content="My name is Mark and I live in Berlin."),
-        Document(content="My name is Giorgio and I live in Rome.")
-    ])
+    document_store.write_documents(documents)
+
+    #print(document_store.count_documents())
 
     # Build a RAG pipeline
     prompt_template = """
@@ -53,8 +81,9 @@ Answer:
     # Define required variables explicitly
     prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents"})
 
-    retriever = InMemoryBM25Retriever(document_store=document_store)
-    llm = OllamaGenerator(model="llama3.2:latest", save_to_file=True, save_file="output.csv")
+    # top_k tells the retriever that we want the n most relevant documents.
+    retriever = InMemoryBM25Retriever(document_store=document_store, top_k=10)
+    llm = OllamaGenerator(model="llama3.2:latest", save_to_file=True, save_file="output.txt")
 
     rag_pipeline = Pipeline()
     rag_pipeline.add_component("retriever", retriever)
@@ -64,7 +93,7 @@ Answer:
     rag_pipeline.connect("prompt_builder", "llm")
 
     # Ask a question
-    question = "Who lives in Paris?"
+    question = "Can you prioritize the smells provided in the documents in regard to how important it is to refactor them?"
     results = rag_pipeline.run(
         {
             "retriever": {"query": question},
@@ -72,6 +101,6 @@ Answer:
         }
     )
 
-    print(results["llm"]["replies"])
+    print(results["llm"]["replies"][0])
 
 main()
