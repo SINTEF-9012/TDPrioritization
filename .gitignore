@@ -12,3 +12,5 @@ projects/
 
 # Ignore python_smells_detector codebase since it is cloned from another repo.
 python_smells_detector/
+
+.last_project

@@ -4,12 +4,13 @@ from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.components.retrievers.in_memory import InMemoryBM25Retriever
 from haystack.components.builders.prompt_builder import PromptBuilder
 
+import argparse
 import requests
 import csv
 import pandas as pd
 import os
 from utils import get_entity_snippet_from_line
-
+from git import Repo
 
 @component
 class OllamaGenerator:
@@ -37,11 +38,22 @@ class OllamaGenerator:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Analyze and prioritize code smells for a project.")
+    parser.add_argument("project", help="Name of the project directory (e.g., cerberus)")
+    parser.add_argument("--model", default="llama3.2:latest", help="Which Ollama LLM model to use")
+    parser.add_argument("--output", default="output.txt", help="File to save results from the LLM")
+
+    args = parser.parse_args()
+
     documents = []
     data_frame = pd.read_csv("python_smells_detector/code_quality_report.csv")
     base_dir = os.path.dirname("python_smells_detector/code_quality_report.csv")
+    smells = ['Duplicate Code', 'Long Method', 'Large Class'] 
+    repo = Repo(f"projects/{args.project}")
 
     for _, column in data_frame.iterrows():
+        if column['Name'] not in smells: continue
+
 
         file_path = os.path.normpath(os.path.join(base_dir, column["File"])) 
         code_segment = ""
@@ -63,6 +75,11 @@ def main():
 
         documents.append(Document(content=content))
 
+    # There are no documents.
+    if len(documents) == 0:
+        print("The project does not contain any of the code smells you inquired about")
+        return 0
+
     # Write documents to InMemoryDocumentStore
     document_store = InMemoryDocumentStore()
     document_store.write_documents(documents)
@@ -71,9 +88,15 @@ def main():
 
     # Build a RAG pipeline
     prompt_template = """
-You are a helpful assistant.
-Given these documents, answer the question.\n
+You are a helpful assistant specialized in software quality and technical debt.
+Given these documents, analyze and prioritize the identified code smells.\n
 Documents:\n{% for doc in documents %}{{ doc.content }}{% endfor %}\n
+
+When answering, consider:
+- Contextual relevance: How Retrieval-Augmented Generation (RAG) enriches prioritization by grounding in the provided documents.
+- Risk factors: Change-proneness and fault-proneness (i.e., likelihood of a component to be modified or fail in the future).
+- Workflow integration: How the prioritization would fit into practical developer workflows (IDEs, CI/CD, code review), focusing on actionable insights.
+
 Question: {{question}}\n
 Answer:
 """
@@ -83,7 +106,7 @@ Answer:
 
     # top_k tells the retriever that we want the n most relevant documents.
     retriever = InMemoryBM25Retriever(document_store=document_store, top_k=10)
-    llm = OllamaGenerator(model="llama3.2:latest", save_to_file=True, save_file="output.txt")
+    llm = OllamaGenerator(model=args.model, save_to_file=True, save_file=args.output)
 
     rag_pipeline = Pipeline()
     rag_pipeline.add_component("retriever", retriever)
@@ -92,8 +115,7 @@ Answer:
     rag_pipeline.connect("retriever", "prompt_builder.documents")
     rag_pipeline.connect("prompt_builder", "llm")
 
-    # Ask a question
-    question = "Can you prioritize the smells provided in the documents in regard to how important it is to refactor them?"
+    question = "Based on the documents, can you prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows?"
     results = rag_pipeline.run(
         {
             "retriever": {"query": question},
