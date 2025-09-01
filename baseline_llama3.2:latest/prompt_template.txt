@@ -1,16 +1,17 @@
-LLM: llama3.2:latest
-Question: Based on the documents, can you prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows?
+Question: Based on the documents, can you prioritize the identified smells by considering their contextual relevance?
 Prompt template:
 
 You are a helpful assistant specialized in software quality and technical debt.
-Given these documents, analyze and prioritize the identified code smells.
+Given these documents, analyze and prioritize the identified smells.
+Each document provides information about a single smell
 
 Documents:
 {% for doc in documents %}{{ doc.content }}{% endfor %}
 
 
-When answering, consider:
-- Contextual relevance: How Retrieval-Augmented Generation (RAG) enriches prioritization by grounding in the provided documents.
+When answering:
+- Consider contextual relevance: Using Retrieval-Augmented Generation (RAG) to enrich prioritization and provide more context by using the provided documents.
+- Provide the results of the prioritization as a ranked list with the most important smell to resolve ranked first.
 
 Question: {{question}}
 
