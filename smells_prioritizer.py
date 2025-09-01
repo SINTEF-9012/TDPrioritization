@@ -32,7 +32,7 @@ class OllamaGenerator:
         if self.save_to_file:
             with open(self.save_file, "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
-                writer.writerow([prompt, result["response"]])
+                writer.writerow([result["response"]])
 
         return {"replies": [result["response"]]}
 
@@ -41,39 +41,54 @@ def main():
     parser = argparse.ArgumentParser(description="Analyze and prioritize code smells for a project.")
     parser.add_argument("project", help="Name of the project directory (e.g., cerberus)")
     parser.add_argument("--model", default="llama3.2:latest", help="Which Ollama LLM model to use")
-    parser.add_argument("--output", default="output.txt", help="File to save results from the LLM")
+    parser.add_argument("--output", default="llm_output.txt", help="File to save results from the LLM")
+    parser.add_argument("--base_line", default="base_line", help="directory where the different files should be stored")
+    parser.add_argument("--outdir", default="baseline", help="Directory where the output files should be stored")
 
     args = parser.parse_args()
 
     documents = []
     data_frame = pd.read_csv("python_smells_detector/code_quality_report.csv")
-    base_dir = os.path.dirname("python_smells_detector/code_quality_report.csv")
+    report_dir = os.path.dirname("python_smells_detector/code_quality_report.csv")
     smells = ['Duplicate Code', 'Long Method', 'Large Class'] 
     repo = Repo(f"projects/{args.project}")
 
-    for _, column in data_frame.iterrows():
-        if column['Name'] not in smells: continue
+    os.makedirs(args.outdir, exist_ok=True)
+    smells_file = os.path.join(args.outdir, "smells.txt")
+    documents_file = os.path.join(args.outdir, "documents.txt")
+    output_file = os.path.join(args.outdir, args.output)
+    prompt_file = os.path.join(args.outdir, "prompt_template.txt")
 
 
-        file_path = os.path.normpath(os.path.join(base_dir, column["File"])) 
-        code_segment = ""
+    with open(smells_file, "w") as f, open(documents_file, "w") as f2:
+        f.write("------ CODE SMELLS TO BE PRIORITIZED BY THE LLM ------\n")
+        f2.write("------ CREATED DOCUMENTS ------\n")
 
-        if os.path.isfile(file_path): 
-            code_segment = get_entity_snippet_from_line(column['Line Number'], file_path )
-        
-        content = (
-            f"Type of smell: {column['Type']}\n"
-            f"Name: {column['Name']}\n"
-            f"Description: {column['Description']}\n"
-            f"File: {column['File']}\n"
-            f"Module/Class: {column['Module/Class']}\n"
-            f"Line Number: {column['Line Number']}\n"
-            f"Severity: {column['Severity']}\n"
-            f"Code segment: {code_segment}\n"
-            f"\n"
-        )
+        for _, column in data_frame.iterrows():
+            if column['Name'] not in smells: continue
 
-        documents.append(Document(content=content))
+            f.write(str(column) + "\n\n")
+
+            file_path = os.path.normpath(os.path.join(report_dir, column["File"])) 
+            code_segment = ""
+
+            if os.path.isfile(file_path): 
+                code_segment = get_entity_snippet_from_line(column['Line Number'], file_path )
+            
+            content = (
+                f"Type of smell: {column['Type']}\n"
+                f"Name: {column['Name']}\n"
+                f"Description: {column['Description']}\n"
+                f"File: {column['File']}\n"
+                f"Module/Class: {column['Module/Class']}\n"
+                f"Line Number: {column['Line Number']}\n"
+                #f"Severity: {column['Severity']}\n"
+                f"Code segment:\n{code_segment}\n"
+                f"\n"
+            )
+
+            f2.write(content)
+            documents.append(Document(content=content))
 
     # There are no documents.
     if len(documents) == 0:
@@ -94,19 +109,25 @@ Documents:\n{% for doc in documents %}{{ doc.content }}{% endfor %}\n
 
 When answering, consider:
 - Contextual relevance: How Retrieval-Augmented Generation (RAG) enriches prioritization by grounding in the provided documents.
-- Risk factors: Change-proneness and fault-proneness (i.e., likelihood of a component to be modified or fail in the future).
-- Workflow integration: How the prioritization would fit into practical developer workflows (IDEs, CI/CD, code review), focusing on actionable insights.
 
 Question: {{question}}\n
 Answer:
 """
 
+    question = "Based on the documents, can you prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows?"
+    
     # Define required variables explicitly
     prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents"})
 
     # top_k tells the retriever that we want the n most relevant documents.
     retriever = InMemoryBM25Retriever(document_store=document_store, top_k=10)
-    llm = OllamaGenerator(model=args.model, save_to_file=True, save_file=args.output)
+    llm = OllamaGenerator(model=args.model, save_to_file=True, save_file=output_file)
+
+    with open(prompt_file, "w") as f:
+        f.write("LLM: "+ args.model + "\n")
+        f.write("Question: " + question+"\n")
+        f.write("Prompt template:\n")
+        f.write(prompt_template)
 
     rag_pipeline = Pipeline()
     rag_pipeline.add_component("retriever", retriever)
@@ -115,7 +136,6 @@ Answer:
     rag_pipeline.connect("retriever", "prompt_builder.documents")
     rag_pipeline.connect("prompt_builder", "llm")
 
-    question = "Based on the documents, can you prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows?"
     results = rag_pipeline.run(
         {
             "retriever": {"query": question},
@@ -123,6 +143,21 @@ Answer:
         }
     )
 
-    print(results["llm"]["replies"][0])
+    #print(results["llm"]["replies"][0])
+
 
 main()
+
+"""
+You are a helpful assistant specialized in software quality and technical debt.
+Given these documents, analyze and prioritize the identified code smells.\n
+Documents:\n{% for doc in documents %}{{ doc.content }}{% endfor %}\n
+
+When answering, consider:
+- Contextual relevance: How Retrieval-Augmented Generation (RAG) enriches prioritization by grounding in the provided documents.
+- Risk factors: Change-proneness and fault-proneness (i.e., likelihood of a component to be modified or fail in the future).
+- Workflow integration: How the prioritization would fit into practical developer workflows (IDEs, CI/CD, code review), focusing on actionable insights.
+
+Question: {{question}}\n
+Answer:
+"""

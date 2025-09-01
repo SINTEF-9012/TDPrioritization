@@ -1,0 +1,37 @@
+------ CODE SMELLS TO BE PRIORITIZED BY THE LLM ------
+Type                                                         Code
+Name                                                  Large Class
+Description     'BareValidator' has 66 non-trivial methods in ...
+File                   ../projects/cerberus/cerberus/validator.py
+Module/Class                                        BareValidator
+Line Number                                                  59.0
+Severity                                                   medium
+Name: 51, dtype: object
+
+Type                                                         Code
+Name                                                  Long Method
+Description     'test_bad_schema' has 50 lines in ../projects/...
+File            ../projects/cerberus/cerberus/tests/test_valid...
+Module/Class                                      test_bad_schema
+Line Number                                                 330.0
+Severity                                                      NaN
+Name: 63, dtype: object
+
+Type                                                         Code
+Name                                                  Long Method
+Description     'test_anyof_schema' has 50 lines in ../project...
+File            ../projects/cerberus/cerberus/tests/test_valid...
+Module/Class                                    test_anyof_schema
+Line Number                                                1430.0
+Severity                                                      NaN
+Name: 64, dtype: object
+
+Type                                                         Code
+Name                                                  Long Method
+Description     'test_nested_error_paths' has 128 lines in ../...
+File            ../projects/cerberus/cerberus/tests/test_error...
+Module/Class                              test_nested_error_paths
+Line Number                                                 103.0
+Severity                                                      NaN
+Name: 75, dtype: object
+

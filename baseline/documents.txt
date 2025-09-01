@@ -1,17 +1,13 @@
-"
-You are a helpful assistant specialized in software quality and technical debt.
-Given these documents, analyze and prioritize the identified code smells.
-
-Documents:
+------ CREATED DOCUMENTS ------
 Type of smell: Code
 Name: Large Class
 Description: 'BareValidator' has 66 non-trivial methods in ../projects/cerberus/cerberus/validator.py
 File: ../projects/cerberus/cerberus/validator.py
 Module/Class: BareValidator
 Line Number: 59.0
-Severity: medium
-Code segment: class BareValidator(object):
-    """"""
+Code segment:
+class BareValidator(object):
+    """
     Validator class. Normalizes and/or validates any mapping against a
     validation-schema which is provided as an argument at class instantiation
     or upon calling the :meth:`~cerberus.Validator.validate`,
@@ -56,19 +52,19 @@ Code segment: class BareValidator(object):
     :type error_handler: class or instance based on
                          :class:`~cerberus.errors.BaseErrorHandler` or
                          :class:`tuple`
-    """"""  # noqa: E501
+    """  # noqa: E501
 
     mandatory_validations = ('nullable',)
-    """"""
+    """
     Rules that are evaluated on any field, regardless whether defined in the schema or
     not.
     Type: :class:`tuple`
-    """"""
+    """
     priority_validations = ('nullable', 'readonly', 'type', 'empty')
-    """"""
+    """
     Rules that will be processed in that order before any other.
     Type: :class:`tuple`
-    """"""
+    """
     types_mapping = {
         'binary': TypeDefinition('binary', (bytes, bytearray), ()),
         'boolean': TypeDefinition('boolean', (bool,), ()),
@@ -83,64 +79,64 @@ Code segment: class BareValidator(object):
         'set': TypeDefinition('set', (set,), ()),
         'string': TypeDefinition('string', (_str_type,), ()),
     }
-    """"""
+    """
     This mapping holds all available constraints for the type rule and their assigned
     :class:`~cerberus.TypeDefinition`.
-    """"""
+    """
     _valid_schemas = set()
-    """"""
+    """
     A :class:`set` of hashes derived from validation schemas that are legit for a
     particular ``Validator`` class.
-    """"""
+    """
 
     def __init__(self, *args, **kwargs):
-        """"""
+        """
         The arguments will be treated as with this signature:
 
         __init__(self, schema=None, ignore_none_values=False,
                  allow_unknown=False, require_all=False,
                  purge_unknown=False, purge_readonly=False,
                  error_handler=errors.BasicErrorHandler)
-        """"""
+        """
 
         self.document = None
-        """""" The document that is or was recently processed.
-            Type: any :term:`mapping` """"""
+        """ The document that is or was recently processed.
+            Type: any :term:`mapping` """
         self._errors = errors.ErrorList()
-        """""" The list of errors that were encountered since the last document
+        """ The list of errors that were encountered since the last document
             processing was invoked.
-            Type: :class:`~cerberus.errors.ErrorList` """"""
+            Type: :class:`~cerberus.errors.ErrorList` """
         self.recent_error = None
-        """""" The last individual error that was submitted.
-            Type: :class:`~cerberus.errors.ValidationError` """"""
+        """ The last individual error that was submitted.
+            Type: :class:`~cerberus.errors.ValidationError` """
         self.document_error_tree = errors.DocumentErrorTree()
-        """""" A tree representiation of encountered errors following the
+        """ A tree representiation of encountered errors following the
             structure of the document.
-            Type: :class:`~cerberus.errors.DocumentErrorTree` """"""
+            Type: :class:`~cerberus.errors.DocumentErrorTree` """
         self.schema_error_tree = errors.SchemaErrorTree()
-        """""" A tree representiation of encountered errors following the
+        """ A tree representiation of encountered errors following the
             structure of the schema.
-            Type: :class:`~cerberus.errors.SchemaErrorTree` """"""
+            Type: :class:`~cerberus.errors.SchemaErrorTree` """
         self.document_path = ()
-        """""" The path within the document to the current sub-document.
-            Type: :class:`tuple` """"""
+        """ The path within the document to the current sub-document.
+            Type: :class:`tuple` """
         self.schema_path = ()
-        """""" The path within the schema to the current sub-schema.
-            Type: :class:`tuple` """"""
+        """ The path within the schema to the current sub-schema.
+            Type: :class:`tuple` """
         self.update = False
         self.error_handler = self.__init_error_handler(kwargs)
-        """""" The error handler used to format :attr:`~cerberus.Validator.errors`
+        """ The error handler used to format :attr:`~cerberus.Validator.errors`
             and process submitted errors with
             :meth:`~cerberus.Validator._error`.
-            Type: :class:`~cerberus.errors.BaseErrorHandler` """"""
+            Type: :class:`~cerberus.errors.BaseErrorHandler` """
         self.__store_config(args, kwargs)
         self.schema = kwargs.get('schema', None)
         self.allow_unknown = kwargs.get('allow_unknown', False)
         self.require_all = kwargs.get('require_all', False)
         self._remaining_rules = []
-        """""" Keeps track of the rules that are next in line to be evaluated
+        """ Keeps track of the rules that are next in line to be evaluated
             during the validation of a field.
-            Type: :class:`list` """"""
+            Type: :class:`list` """
 
         super(BareValidator, self).__init__()
 
@@ -161,7 +157,7 @@ Code segment: class BareValidator(object):
             raise RuntimeError('Invalid error_handler.')
 
     def __store_config(self, args, kwargs):
-        """"""Assign args to kwargs and store configuration.""""""
+        """Assign args to kwargs and store configuration."""
         signature = (
             'schema',
             'ignore_none_values',
@@ -172,21 +168,21 @@ Code segment: class BareValidator(object):
         )
         for i, p in enumerate(signature[: len(args)]):
             if p in kwargs:
-                raise TypeError(""__init__ got multiple values for argument "" ""'%s'"" % p)
+                raise TypeError("__init__ got multiple values for argument " "'%s'" % p)
             else:
                 kwargs[p] = args[i]
         self._config = kwargs
-        """""" This dictionary holds the configuration arguments that were used to
+        """ This dictionary holds the configuration arguments that were used to
             initialize the :class:`Validator` instance except the
-            ``error_handler``. """"""
+            ``error_handler``. """
 
     @classmethod
     def clear_caches(cls):
-        """"""Purge the cache of known valid schemas.""""""
+        """Purge the cache of known valid schemas."""
         cls._valid_schemas.clear()
 
     def _error(self, *args):
-        """"""
+        """
         Creates and adds one or multiple errors.
 
         :param args: Accepts different argument's signatures.
@@ -222,7 +218,7 @@ Code segment: class BareValidator(object):
                      A :class:`~cerberus.errors.ValidationError` instance will
                      be created and added to
                      :attr:`~cerberus.Validator._errors`.
-        """"""
+        """
         if len(args) == 1:
             self._errors.extend(args[0])
             self._errors.sort()
@@ -255,7 +251,7 @@ Code segment: class BareValidator(object):
                 elif rule == 'required':
                     constraint = rules_set.get(rule, self.require_all)
                     if rule not in rules_set:
-                        schema_path = ""__require_all__""
+                        schema_path = "__require_all__"
                 else:
                     constraint = rules_set[rule]
 
@@ -267,7 +263,7 @@ Code segment: class BareValidator(object):
             self._error([self.recent_error])
 
     def _get_child_validator(self, document_crumb=None, schema_crumb=None, **kwargs):
-        """"""
+        """
         Creates a new instance of Validator-(sub-)class. All initial parameters of the
         parent are passed to the initialization, unless a parameter is given as an
         explicit *keyword*-parameter.
@@ -284,7 +280,7 @@ Code segment: class BareValidator(object):
         :type kwargs: :class:`dict`
 
         :return: an instance of ``self.__class__``
-        """"""
+        """
         child_config = self._config.copy()
         child_config.update(kwargs)
         if not self.is_child:
@@ -318,20 +314,20 @@ Code segment: class BareValidator(object):
         result = getattr(self, methodname, None)
         if result is None:
             raise RuntimeError(
-                ""There's no handler for '{}' in the '{}' ""
-                ""domain."".format(rule, domain)
+                "There's no handler for '{}' in the '{}' "
+                "domain.".format(rule, domain)
             )
         return result
 
     def _drop_nodes_from_errorpaths(self, _errors, dp_items, sp_items):
-        """"""
+        """
         Removes nodes by index from an errorpath, relatively to the basepaths of self.
 
         :param errors: A list of :class:`errors.ValidationError` instances.
         :param dp_items: A list of integers, pointing at the nodes to drop from
                          the :attr:`document_path`.
         :param sp_items: Alike ``dp_items``, but for :attr:`schema_path`.
-        """"""
+        """
         dp_basedepth = len(self.document_path)
         sp_basedepth = len(self.schema_path)
         for error in _errors:
@@ -347,7 +343,7 @@ Code segment: class BareValidator(object):
                 self._drop_nodes_from_errorpaths(error.child_errors, dp_items, sp_items)
 
     def _lookup_field(self, path):
-        """"""
+        """
         Searches for a field as defined by path. This method is used by the
         ``dependency`` evaluation logic.
 
@@ -361,7 +357,7 @@ Code segment: class BareValidator(object):
         :returns: Either the found field name and its value or :obj:`None` for
                   both.
         :rtype: A two-value :class:`tuple`.
-        """"""
+        """
         if path.startswith('^'):
             path = path[1:]
             context = self.document if path.startswith('^') else self.root_document
@@ -394,12 +390,12 @@ Code segment: class BareValidator(object):
 
     @property
     def allow_unknown(self):
-        """"""
+        """
         If ``True`` unknown fields that are not defined in the schema will be ignored.
         If a mapping with a validation schema is given, any undefined field will be
         validated against its rules. Also see :ref:`allowing-the-unknown`.
         Type: :class:`bool` or any :term:`mapping`
-        """"""
+        """
         return self._config.get('allow_unknown', False)
 
     @allow_unknown.setter
@@ -410,10 +406,10 @@ Code segment: class BareValidator(object):
 
     @property
     def require_all(self):
-        """"""
+        """
         If ``True`` known fields that are defined in the schema will be required.
         Type: :class:`bool`
-        """"""
+        """
         return self._config.get('require_all', False)
 
     @require_all.setter
@@ -422,18 +418,18 @@ Code segment: class BareValidator(object):
 
     @property
     def errors(self):
-        """"""
+        """
         The errors of the last processing formatted by the handler that is bound to
         :attr:`~cerberus.Validator.error_handler`.
-        """"""
+        """
         return self.error_handler(self._errors)
 
     @property
     def ignore_none_values(self):
-        """"""
+        """
         Whether to not process :obj:`None`-values in a document or not.
         Type: :class:`bool`
-        """"""
+        """
         return self._config.get('ignore_none_values', False)
 
     @ignore_none_values.setter
@@ -442,16 +438,16 @@ Code segment: class BareValidator(object):
 
     @property
     def is_child(self):
-        """"""
+        """
         ``True`` for child-validators obtained with
         :meth:`~cerberus.Validator._get_child_validator`.
         Type: :class:`bool`
-        """"""
+        """
         return self._config.get('is_child', False)
 
     @property
     def _is_normalized(self):
-        """"""``True`` if the document is already normalized.""""""
+        """``True`` if the document is already normalized."""
         return self._config.get('_is_normalized', False)
 
     @_is_normalized.setter
@@ -460,12 +456,12 @@ Code segment: class BareValidator(object):
 
     @property
     def purge_unknown(self):
-        """"""
+        """
         If ``True``, unknown fields will be deleted from the document unless a
         validation is called with disabled normalization. Also see
         :ref:`purging-unknown-fields`.
         Type: :class:`bool`
-        """"""
+        """
         return self._config.get('purge_unknown', False)
 
     @purge_unknown.setter
@@ -474,11 +470,11 @@ Code segment: class BareValidator(object):
 
     @property
     def purge_readonly(self):
-        """"""
+        """
         If ``True``, fields declared as readonly will be deleted from the document
         unless a validation is called with disabled normalization.
         Type: :class:`bool`
-        """"""
+        """
         return self._config.get('purge_readonly', False)
 
     @purge_readonly.setter
@@ -487,34 +483,34 @@ Code segment: class BareValidator(object):
 
     @property
     def root_allow_unknown(self):
-        """"""
+        """
         The :attr:`~cerberus.Validator.allow_unknown` attribute of the first level
         ancestor of a child validator.
-        """"""
+        """
         return self._config.get('root_allow_unknown', self.allow_unknown)
 
     @property
     def root_require_all(self):
-        """"""
+        """
         The :attr:`~cerberus.Validator.require_all` attribute of the first level
         ancestor of a child validator.
-        """"""
+        """
         return self._config.get('root_require_all', self.require_all)
 
     @property
     def root_document(self):
-        """"""
+        """
         The :attr:`~cerberus.Validator.document` attribute of the first level ancestor
         of a child validator.
-        """"""
+        """
         return self._config.get('root_document', self.document)
 
     @property
     def rules_set_registry(self):
-        """"""
+        """
         The registry that holds referenced rules sets.
         Type: :class:`~cerberus.Registry`
-        """"""
+        """
         return self._config.get('rules_set_registry', rules_set_registry)
 
     @rules_set_registry.setter
@@ -523,19 +519,19 @@ Code segment: class BareValidator(object):
 
     @property
     def root_schema(self):
-        """"""
+        """
         The :attr:`~cerberus.Validator.schema` attribute of the first level ancestor of
         a child validator.
-        """"""
+        """
         return self._config.get('root_schema', self.schema)
 
     @property
     def schema(self):
-        """"""
+        """
         The validation schema of a validator. When a schema is passed to a method, it
         replaces this attribute.
         Type: any :term:`mapping` or :obj:`None`
-        """"""
+        """
         return self._schema
 
     @schema.setter
@@ -549,10 +545,10 @@ Code segment: class BareValidator(object):
 
     @property
     def schema_registry(self):
-        """"""
+        """
         The registry that holds referenced schemas.
         Type: :class:`~cerberus.Registry`
-        """"""
+        """
         return self._config.get('schema_registry', schema_registry)
 
     @schema_registry.setter
@@ -563,15 +559,15 @@ Code segment: class BareValidator(object):
     #       in the API docs
     @readonly_classproperty
     def types(cls):
-        """"""
+        """
         The constraints that can be used for the 'type' rule.
         Type: A tuple of strings.
-        """"""
+        """
         redundant_types = set(cls.types_mapping) & set(cls._types_from_methods)
         if redundant_types:
             warn(
-                ""These types are defined both with a method and in the""
-                ""'types_mapping' property of this validator: %s"" % redundant_types
+                "These types are defined both with a method and in the"
+                "'types_mapping' property of this validator: %s" % redundant_types
             )
 
         return tuple(cls.types_mapping) + cls._types_from_methods
@@ -601,11 +597,11 @@ Code segment: class BareValidator(object):
         self.error_handler.start(self)
 
     def _drop_remaining_rules(self, *rules):
-        """"""
+        """
         Drops rules from the queue of the rules that still need to be evaluated for the
         currently processed field. If no arguments are given, the whole queue is
         emptied.
-        """"""
+        """
         if rules:
             for rule in rules:
                 try:
@@ -618,7 +614,7 @@ Code segment: class BareValidator(object):
     # # Normalizing
 
     def normalized(self, document, schema=None, always_return_document=False):
-        """"""
+        """
         Returns the document normalized according to the specified rules of a schema.
 
         :param document: The document to normalize.
@@ -632,7 +628,7 @@ Code segment: class BareValidator(object):
         :type always_return_document: :class:`bool`
         :return: A normalized copy of the provided mapping or :obj:`None` if an
                  error occurred during normalization.
-        """"""
+        """
         self.__init_processing(document, schema)
         self.__normalize_mapping(self.document, self.schema)
         self.error_handler.end(self)
@@ -664,7 +660,7 @@ Code segment: class BareValidator(object):
         return mapping
 
     def _normalize_coerce(self, mapping, schema):
-        """"""
+        """
         {'oneof': [
             {'type': 'callable'},
             {'type': 'list',
@@ -672,7 +668,7 @@ Code segment: class BareValidator(object):
                                   {'type': 'string'}]}},
             {'type': 'string'}
         ]}
-        """"""
+        """
 
         error = errors.COERCION_FAILED
         for field in mapping:
@@ -766,8 +762,8 @@ Code segment: class BareValidator(object):
                 continue
             if result[k] in mapping[field]:
                 warn(
-                    ""Normalizing keys of {path}: {key} already exists, ""
-                    ""its value is replaced."".format(
+                    "Normalizing keys of {path}: {key} already exists, "
+                    "its value is replaced.".format(
                         path='.'.join(str(x) for x in self.document_path + (field,)),
                         key=k,
                     )
@@ -846,7 +842,7 @@ Code segment: class BareValidator(object):
 
     @staticmethod
     def _normalize_purge_unknown(mapping, schema):
-        """"""{'type': 'boolean'}""""""
+        """{'type': 'boolean'}"""
         for field in [x for x in mapping if x not in schema]:
             mapping.pop(field)
         return mapping
@@ -866,13 +862,13 @@ Code segment: class BareValidator(object):
         return mapping
 
     def _normalize_rename(self, mapping, schema, field):
-        """"""{'type': 'hashable'}""""""
+        """{'type': 'hashable'}"""
         if 'rename' in schema[field]:
             mapping[schema[field]['rename']] = mapping[field]
             del mapping[field]
 
     def _normalize_rename_handler(self, mapping, schema, field):
-        """"""
+        """
         {'oneof': [
             {'type': 'callable'},
             {'type': 'list',
@@ -880,7 +876,7 @@ Code segment: class BareValidator(object):
                                   {'type': 'string'}]}},
             {'type': 'string'}
         ]}
-        """"""
+        """
         if 'rename_handler' not in schema[field]:
             return
         new_name = self.__normalize_coerce(
@@ -942,16 +938,16 @@ Code segment: class BareValidator(object):
                 known_fields_states.add(fields_processing_state)
 
     def _normalize_default(self, mapping, schema, field):
-        """"""{'nullable': True}""""""
+        """{'nullable': True}"""
         mapping[field] = schema[field]['default']
 
     def _normalize_default_setter(self, mapping, schema, field):
-        """"""
+        """
         {'oneof': [
             {'type': 'callable'},
             {'type': 'string'}
         ]}
-        """"""
+        """
         if 'default_setter' in schema[field]:
             setter = schema[field]['default_setter']
             if isinstance(setter, _str_type):
@@ -961,7 +957,7 @@ Code segment: class BareValidator(object):
     # # Validating
 
     def validate(self, document, schema=None, update=False, normalize=True):
-        """"""
+        """
         Normalizes and validates a mapping against a validation-schema of defined rules.
 
         :param document: The document to normalize.
@@ -978,7 +974,7 @@ Code segment: class BareValidator(object):
         :return: ``True`` if validation succeeds, otherwise ``False``. Check
                  the :func:`errors` property for a list of processing errors.
         :rtype: :class:`bool`
-        """"""
+        """
         self.update = update
         self._unrequired_by_excludes = set()
 
@@ -1005,10 +1001,10 @@ Code segment: class BareValidator(object):
     __call__ = validate
 
     def validated(self, *args, **kwargs):
-        """"""
+        """
         Wrapper around :meth:`~cerberus.Validator.validate` that returns the normalized
         and validated document or :obj:`None` if validation failed.
-        """"""
+        """
         always_return_document = kwargs.pop('always_return_document', False)
         self.validate(*args, **kwargs)
         if self._errors and not always_return_document:
@@ -1032,7 +1028,7 @@ Code segment: class BareValidator(object):
             self._error(field, errors.UNKNOWN_FIELD)
 
     def __validate_definitions(self, definitions, field):
-        """"""Validate a field's value against its defined rules.""""""
+        """Validate a field's value against its defined rules."""
 
         def validate_rule(rule):
             validator = self.__get_rule_handler('validate', rule)
@@ -1074,13 +1070,13 @@ Code segment: class BareValidator(object):
     # sorted alphabetically
 
     _validate_allow_unknown = dummy_for_rule_validation(
-        """""" {'oneof': [{'type': 'boolean'},
+        """ {'oneof': [{'type': 'boolean'},
                        {'type': ['dict', 'string'],
-                        'check_with': 'bulk_schema'}]} """"""
+                        'check_with': 'bulk_schema'}]} """
     )
 
     def _validate_allowed(self, allowed_values, field, value):
-        """"""{'type': 'container'}""""""
+        """{'type': 'container'}"""
         if isinstance(value, Iterable) and not isinstance(value, _str_type):
             unallowed = tuple(x for x in value if x not in allowed_values)
             if unallowed:
@@ -1090,7 +1086,7 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.UNALLOWED_VALUE, value)
 
     def _validate_check_with(self, checks, field, value):
-        """"""
+        """
         {'oneof': [
             {'type': 'callable'},
             {'type': 'list',
@@ -1098,7 +1094,7 @@ Code segment: class BareValidator(object):
                                   {'type': 'string'}]}},
             {'type': 'string'}
         ]}
-        """"""
+        """
         if isinstance(checks, _str_type):
             try:
                 value_checker = self.__get_rule_handler('check_with', checks)
@@ -1106,8 +1102,8 @@ Code segment: class BareValidator(object):
             except RuntimeError:
                 value_checker = self.__get_rule_handler('validator', checks)
                 warn(
-                    ""The 'validator' rule was renamed to 'check_with'. Please update ""
-                    ""your schema and method names accordingly."",
+                    "The 'validator' rule was renamed to 'check_with'. Please update "
+                    "your schema and method names accordingly.",
                     DeprecationWarning,
                 )
             value_checker(field, value)
@@ -1118,7 +1114,7 @@ Code segment: class BareValidator(object):
             checks(field, value, self._error)
 
     def _validate_contains(self, expected_values, field, value):
-        """"""{'empty': False }""""""
+        """{'empty': False }"""
         if not isinstance(value, Iterable):
             return
 
@@ -1134,7 +1130,7 @@ Code segment: class BareValidator(object):
             self._error(field, errors.MISSING_MEMBERS, missing_values)
 
     def _validate_dependencies(self, dependencies, field, value):
-        """"""{'type': ('dict', 'hashable', 'list'), 'check_with': 'dependencies'}""""""
+        """{'type': ('dict', 'hashable', 'list'), 'check_with': 'dependencies'}"""
         if isinstance(dependencies, _str_type) or not isinstance(
             dependencies, (Iterable, Mapping)
         ):
@@ -1177,7 +1173,7 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.DEPENDENCIES_FIELD, dependency)
 
     def _validate_empty(self, empty, field, value):
-        """"""{'type': 'boolean'}""""""
+        """{'type': 'boolean'}"""
         if isinstance(value, Sized) and len(value) == 0:
             self._drop_remaining_rules(
                 'allowed',
@@ -1192,7 +1188,7 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.EMPTY_NOT_ALLOWED)
 
     def _validate_excludes(self, excluded_fields, field, value):
-        """"""{'type': ('hashable', 'list'), 'schema': {'type': 'hashable'}}""""""
+        """{'type': ('hashable', 'list'), 'schema': {'type': 'hashable'}}"""
         if isinstance(excluded_fields, Hashable):
             excluded_fields = [excluded_fields]
 
@@ -1209,12 +1205,12 @@ Code segment: class BareValidator(object):
 
         if any(excluded_field in self.document for excluded_field in excluded_fields):
             exclusion_str = ', '.join(
-                ""'{0}'"".format(field) for field in excluded_fields
+                "'{0}'".format(field) for field in excluded_fields
             )
             self._error(field, errors.EXCLUDES_FIELD, exclusion_str)
 
     def _validate_forbidden(self, forbidden_values, field, value):
-        """"""{'type': 'list'}""""""
+        """{'type': 'list'}"""
         if isinstance(value, Sequence) and not isinstance(value, _str_type):
             forbidden = set(value) & set(forbidden_values)
             if forbidden:
@@ -1224,7 +1220,7 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.FORBIDDEN_VALUE, value)
 
     def _validate_items(self, items, field, values):
-        """"""{'type': 'list', 'check_with': 'items'}""""""
+        """{'type': 'list', 'check_with': 'items'}"""
         if len(items) != len(values):
             self._error(field, errors.ITEMS_LENGTH, len(items), len(values))
         else:
@@ -1244,10 +1240,10 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.BAD_ITEMS, validator._errors)
 
     def __validate_logical(self, operator, definitions, field, value):
-        """"""
+        """
         Validates value against all definitions and logs errors according to the
         operator.
-        """"""
+        """
         valid_counter = 0
         _errors = errors.ErrorList()
 
@@ -1271,31 +1267,31 @@ Code segment: class BareValidator(object):
         return valid_counter, _errors
 
     def _validate_anyof(self, definitions, field, value):
-        """"""{'type': 'list', 'logical': 'anyof'}""""""
+        """{'type': 'list', 'logical': 'anyof'}"""
         valids, _errors = self.__validate_logical('anyof', definitions, field, value)
         if valids < 1:
             self._error(field, errors.ANYOF, _errors, valids, len(definitions))
 
     def _validate_allof(self, definitions, field, value):
-        """"""{'type': 'list', 'logical': 'allof'}""""""
+        """{'type': 'list', 'logical': 'allof'}"""
         valids, _errors = self.__validate_logical('allof', definitions, field, value)
         if valids < len(definitions):
             self._error(field, errors.ALLOF, _errors, valids, len(definitions))
 
     def _validate_noneof(self, definitions, field, value):
-        """"""{'type': 'list', 'logical': 'noneof'}""""""
+        """{'type': 'list', 'logical': 'noneof'}"""
         valids, _errors = self.__validate_logical('noneof', definitions, field, value)
         if valids > 0:
             self._error(field, errors.NONEOF, _errors, valids, len(definitions))
 
     def _validate_oneof(self, definitions, field, value):
-        """"""{'type': 'list', 'logical': 'oneof'}""""""
+        """{'type': 'list', 'logical': 'oneof'}"""
         valids, _errors = self.__validate_logical('oneof', definitions, field, value)
         if valids != 1:
             self._error(field, errors.ONEOF, _errors, valids, len(definitions))
 
     def _validate_max(self, max_value, field, value):
-        """"""{'nullable': False }""""""
+        """{'nullable': False }"""
         try:
             if value > max_value:
                 self._error(field, errors.MAX_VALUE)
@@ -1303,7 +1299,7 @@ Code segment: class BareValidator(object):
             pass
 
     def _validate_min(self, min_value, field, value):
-        """"""{'nullable': False }""""""
+        """{'nullable': False }"""
         try:
             if value < min_value:
                 self._error(field, errors.MIN_VALUE)
@@ -1311,26 +1307,26 @@ Code segment: class BareValidator(object):
             pass
 
     def _validate_maxlength(self, max_length, field, value):
-        """"""{'type': 'integer'}""""""
+        """{'type': 'integer'}"""
         if isinstance(value, Iterable) and len(value) > max_length:
             self._error(field, errors.MAX_LENGTH, len(value))
 
     _validate_meta = dummy_for_rule_validation('')
 
     def _validate_minlength(self, min_length, field, value):
-        """"""{'type': 'integer'}""""""
+        """{'type': 'integer'}"""
         if isinstance(value, Iterable) and len(value) < min_length:
             self._error(field, errors.MIN_LENGTH, len(value))
 
     def _validate_nullable(self, nullable, field, value):
-        """"""{'type': 'boolean'}""""""
+        """{'type': 'boolean'}"""
         if value is None:
             if not nullable:
                 self._error(field, errors.NOT_NULLABLE)
             self._drop_remaining_rules(
-                ""allof"",
+                "allof",
                 'allowed',
-                ""anyof"",
+                "anyof",
                 'empty',
                 'forbidden',
                 'items',
@@ -1339,8 +1335,8 @@ Code segment: class BareValidator(object):
                 'max',
                 'minlength',
                 'maxlength',
-                ""noneof"",
-                ""oneof"",
+                "noneof",
+                "oneof",
                 'regex',
                 'schema',
                 'type',
@@ -1348,11 +1344,11 @@ Code segment: class BareValidator(object):
             )
 
     def _validate_keysrules(self, schema, field, value):
-        """"""
+        """
         {'type': ['dict', 'string'],
          'check_with': 'bulk_schema',
          'forbidden': ['rename', 'rename_handler']}
-        """"""
+        """
         if isinstance(value, Mapping):
             validator = self._get_child_validator(
                 document_crumb=field,
@@ -1364,7 +1360,7 @@ Code segment: class BareValidator(object):
                 self._error(field, errors.KEYSRULES, validator._errors)
 
     def _validate_readonly(self, readonly, field, value):
-        """"""{'type': 'boolean'}""""""
+        """{'type': 'boolean'}"""
         if readonly:
             if not self._is_normalized:
                 self._error(field, errors.READONLY_FIELD)
@@ -1381,7 +1377,7 @@ Code segment: class BareValidator(object):
                 self._drop_remaining_rules()
 
     def _validate_regex(self, pattern, field, value):
-        """"""{'type': 'string'}""""""
+        """{'type': 'string'}"""
         if not isinstance(value, _str_type):
             return
         if not pattern.endswith('$'):
@@ -1390,16 +1386,16 @@ Code segment: class BareValidator(object):
         if not re_obj.match(value):
             self._error(field, errors.REGEX_MISMATCH)
 
-    _validate_required = dummy_for_rule_validation("""""" {'type': 'boolean'} """""")
+    _validate_required = dummy_for_rule_validation(""" {'type': 'boolean'} """)
 
-    _validate_require_all = dummy_for_rule_validation("""""" {'type': 'boolean'} """""")
+    _validate_require_all = dummy_for_rule_validation(""" {'type': 'boolean'} """)
 
     def __validate_required_fields(self, document):
-        """"""
+        """
         Validates that required fields are not missing.
 
         :param document: The document being validated.
-        """"""
+        """
         try:
             required = set(
                 field
@@ -1431,11 +1427,11 @@ Code segment: class BareValidator(object):
                     self._error(field, errors.REQUIRED_FIELD)
 
     def _validate_schema(self, schema, field, value):
-        """"""
+        """
         {'type': ['dict', 'string'],
          'anyof': [{'check_with': 'schema'},
                    {'check_with': 'bulk_schema'}]}
-        """"""
+        """
         if schema is None:
             return
 
@@ -1480,10 +1476,10 @@ Code segment: class BareValidator(object):
             self._error(field, errors.SEQUENCE_SCHEMA, validator._errors)
 
     def _validate_type(self, data_type, field, value):
-        """"""
+        """
         {'type': ['string', 'list'],
          'check_with': 'type'}
-        """"""
+        """
         if not data_type:
             return
 
@@ -1514,11 +1510,11 @@ Code segment: class BareValidator(object):
         self._drop_remaining_rules()
 
     def _validate_valuesrules(self, schema, field, value):
-        """"""
+        """
         {'type': ['dict', 'string'],
          'check_with': 'bulk_schema',
          'forbidden': ['rename', 'rename_handler']}
-        """"""
+        """
         schema_crumb = (field, 'valuesrules')
         if isinstance(value, Mapping):
             validator = self._get_child_validator(
@@ -1534,12 +1530,73 @@ Code segment: class BareValidator(object):
 
 Type of smell: Code
 Name: Long Method
+Description: 'test_bad_schema' has 50 lines in ../projects/cerberus/cerberus/tests/test_validation.py at line 330
+File: ../projects/cerberus/cerberus/tests/test_validation.py
+Module/Class: test_bad_schema
+Line Number: 330.0
+Code segment:
+def test_bad_schema():
+    field = 'a_dict'
+    subschema_field = 'address'
+    schema = {
+        field: {
+            'type': 'dict',
+            'schema': {
+                subschema_field: {'type': 'string'},
+                'city': {'type': 'string', 'required': True},
+            },
+        }
+    }
+    document = {field: {subschema_field: 34}}
+    validator = Validator(schema)
+
+    assert_fail(
+        document,
+        validator=validator,
+        error=(
+            field,
+            (field, 'schema'),
+            errors.MAPPING_SCHEMA,
+            validator.schema['a_dict']['schema'],
+        ),
+        child_errors=[
+            (
+                (field, subschema_field),
+                (field, 'schema', subschema_field, 'type'),
+                errors.BAD_TYPE,
+                'string',
+            ),
+            (
+                (field, 'city'),
+                (field, 'schema', 'city', 'required'),
+                errors.REQUIRED_FIELD,
+                True,
+            ),
+        ],
+    )
+
+    handler = errors.BasicErrorHandler
+    assert field in validator.errors
+    assert subschema_field in validator.errors[field][-1]
+    assert (
+        handler.messages[errors.BAD_TYPE.code].format(constraint='string')
+        in validator.errors[field][-1][subschema_field]
+    )
+    assert 'city' in validator.errors[field][-1]
+    assert (
+        handler.messages[errors.REQUIRED_FIELD.code]
+        in validator.errors[field][-1]['city']
+    )
+
+
+Type of smell: Code
+Name: Long Method
 Description: 'test_anyof_schema' has 50 lines in ../projects/cerberus/cerberus/tests/test_validation.py at line 1430
 File: ../projects/cerberus/cerberus/tests/test_validation.py
 Module/Class: test_anyof_schema
 Line Number: 1430.0
-Severity: nan
-Code segment: def test_anyof_schema(validator):
+Code segment:
+def test_anyof_schema(validator):
     # test that a list of schemas can be specified.
 
     valid_parts = [
@@ -1559,7 +1616,7 @@ Code segment: def test_anyof_schema(validator):
     # document is valid. each entry in 'parts' matches a type or schema
     assert_success(document, schema, validator=validator)
 
-    document['parts'].append({'product name': ""Monitors"", 'count': 18})
+    document['parts'].append({'product name': "Monitors", 'count': 18})
     # document is invalid. 'product name' does not match any valid schemas
     assert_fail(document, schema, validator=validator)
 
@@ -1567,7 +1624,7 @@ Code segment: def test_anyof_schema(validator):
     # document is valid again
     assert_success(document, schema, validator=validator)
 
-    document['parts'].append({'product name': ""Monitors"", 'count': 18})
+    document['parts'].append({'product name': "Monitors", 'count': 18})
     document['parts'].append(10)
     # and invalid. numbers are not allowed.
 
@@ -1596,13 +1653,13 @@ Code segment: def test_anyof_schema(validator):
     v_errors = validator.errors
     assert 'parts' in v_errors
     assert 3 in v_errors['parts'][-1]
-    assert v_errors['parts'][-1][3][0] == ""no definitions validate""
+    assert v_errors['parts'][-1][3][0] == "no definitions validate"
     scope = v_errors['parts'][-1][3][-1]
     assert 'anyof definition 0' in scope
     assert 'anyof definition 1' in scope
-    assert scope['anyof definition 0'] == [{""product name"": [""unknown field""]}]
-    assert scope['anyof definition 1'] == [{""product name"": [""unknown field""]}]
-    assert v_errors['parts'][-1][4] == [""must be of ['dict', 'string'] type""]
+    assert scope['anyof definition 0'] == [{"product name": ["unknown field"]}]
+    assert scope['anyof definition 1'] == [{"product name": ["unknown field"]}]
+    assert v_errors['parts'][-1][4] == ["must be of ['dict', 'string'] type"]
 
 
 Type of smell: Code
@@ -1611,8 +1668,8 @@ Description: 'test_nested_error_paths' has 128 lines in ../projects/cerberus/cer
 File: ../projects/cerberus/cerberus/tests/test_errors.py
 Module/Class: test_nested_error_paths
 Line Number: 103.0
-Severity: nan
-Code segment: def test_nested_error_paths(validator):
+Code segment:
+def test_nested_error_paths(validator):
     # interpreters of the same version on some platforms showed different sort results
     # over various runs:
     def assert_has_all_errors(errors, *ref_errs):
@@ -1757,108 +1814,3 @@ Code segment: def test_nested_error_paths(validator):
     assert set['a_list']['schema']['type'].errors[0] == ref_err5
 
 
-Type of smell: Code
-Name: Long Method
-Description: 'test_bad_schema' has 50 lines in ../projects/cerberus/cerberus/tests/test_validation.py at line 330
-File: ../projects/cerberus/cerberus/tests/test_validation.py
-Module/Class: test_bad_schema
-Line Number: 330.0
-Severity: nan
-Code segment: def test_bad_schema():
-    field = 'a_dict'
-    subschema_field = 'address'
-    schema = {
-        field: {
-            'type': 'dict',
-            'schema': {
-                subschema_field: {'type': 'string'},
-                'city': {'type': 'string', 'required': True},
-            },
-        }
-    }
-    document = {field: {subschema_field: 34}}
-    validator = Validator(schema)
-
-    assert_fail(
-        document,
-        validator=validator,
-        error=(
-            field,
-            (field, 'schema'),
-            errors.MAPPING_SCHEMA,
-            validator.schema['a_dict']['schema'],
-        ),
-        child_errors=[
-            (
-                (field, subschema_field),
-                (field, 'schema', subschema_field, 'type'),
-                errors.BAD_TYPE,
-                'string',
-            ),
-            (
-                (field, 'city'),
-                (field, 'schema', 'city', 'required'),
-                errors.REQUIRED_FIELD,
-                True,
-            ),
-        ],
-    )
-
-    handler = errors.BasicErrorHandler
-    assert field in validator.errors
-    assert subschema_field in validator.errors[field][-1]
-    assert (
-        handler.messages[errors.BAD_TYPE.code].format(constraint='string')
-        in validator.errors[field][-1][subschema_field]
-    )
-    assert 'city' in validator.errors[field][-1]
-    assert (
-        handler.messages[errors.REQUIRED_FIELD.code]
-        in validator.errors[field][-1]['city']
-    )
-
-
-
-
-
-When answering, consider:
-- Contextual relevance: How Retrieval-Augmented Generation (RAG) enriches prioritization by grounding in the provided documents.
-- Risk factors: Change-proneness and fault-proneness (i.e., likelihood of a component to be modified or fail in the future).
-- Workflow integration: How the prioritization would fit into practical developer workflows (IDEs, CI/CD, code review), focusing on actionable insights.
-
-Question: Based on the documents, can you prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows?
-
-Answer:","Based on the provided documents, I will attempt to prioritize the identified smells by considering their contextual relevance, long-term risk (change- and fault-proneness), and their impact on developer workflows.
-
-**Prioritized List of Smells**
-
-1. **Long Method: ""test_nested_error_paths""**
-	* Contextual Relevance: 9/10 - This smell is highly relevant to the testing framework's functionality and error handling.
-	* Long-term Risk: 8/10 - The complexity of this test case could lead to maintenance issues if the framework undergoes significant changes.
-	* Developer Workflow Impact: 8/10 - This smell may require additional investment in testing and debugging, which can be a significant barrier for developers.
-2. **Long Method: ""test_bad_schema""**
-	* Contextual Relevance: 7/10 - While this smell is relevant to the validation process, it might not be as critical as other smells that directly impact framework functionality.
-	* Long-term Risk: 6/10 - This smell may lead to issues if the schema changes significantly, but its impact on overall framework stability is relatively low.
-	* Developer Workflow Impact: 7/10 - This smell might require some adjustments in the validation process, which could be manageable for developers.
-3. **Long Method: ""test_nested_error_paths""** (second occurrence)
-	* Contextual Relevance: 9/10 - Similar to the first occurrence, this smell is highly relevant to error handling and testing.
-	* Long-term Risk: 8/10 - The repetition of this smell suggests a potential issue with the testing framework's design, which could lead to maintenance concerns.
-	* Developer Workflow Impact: 8/10 - This smell may require additional investment in testing and debugging, similar to the first occurrence.
-
-**Smell Prioritization**
-
-Based on the analysis, I prioritize the smells as follows:
-
-1. **test_nested_error_paths (first and second occurrences)**: High priority due to their relevance to error handling, potential for long-term maintenance issues, and impact on developer workflows.
-2. **test_bad_schema**: Medium-high priority due to its relevance to validation and potential for long-term issues if the schema changes significantly.
-3. **test_nested_error_paths (third occurrence)**: Medium priority, as it is similar to the first two occurrences but might be a result of the testing framework's design rather than a specific issue.
-
-**Recommendations**
-
-To address these smells, I recommend:
-
-1. Refactoring `test_nested_error_paths` to improve its test case structure and reduce complexity.
-2. Reviewing the validation process to ensure that schema changes are handled effectively and efficiently.
-3. Investigating potential issues with the testing framework's design and exploring solutions to mitigate long-term maintenance concerns.
-
-By prioritizing and addressing these smells, developers can improve the overall quality and maintainability of the testing framework, ultimately leading to a better developer experience and reduced technical debt."
