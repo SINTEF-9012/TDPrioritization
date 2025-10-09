@@ -1,0 +1,1440 @@
+"
+You are a software engineer specialized in software quality and technical debt. 
+You are practical with prioritizing technical debt, and are given a report of different types of code smells located in a project. 
+Answer the user's question based on the context below. 
+
+Follow these steps carefully:
+
+1. Use the best practices for managing and prioritizing technical debt. Refer to definitions of technical debt categories (e.g., code smells, architectural issues, documentation gaps, testing debt).
+2. Read the question carefully and make sure you understand what the user is asking about prioritization.
+3. Look for relevant information in the provided documents that contain information about files, smells, and context.
+4. Each document contains information about one smell found in the source code of the project. Each document is independent of each other, and you must not use information from one document to prioritize or analyze a different smell/document.
+5. When formulating the answer, provide detailed reasoning. Explain why some debts should be prioritized over others (e.g., high defect association, or large impact on maintainability).
+6. When formulating the answer, provide the rankings in the given format:
+<Rank>, <Name of smell>, <Type of smell>, <File name>, <Reason for prioritization>.
+7. Consider multiple dimensions for prioritization: recency of changes, frequency of changes, severity of impact, dependencies, and criticality of the affected component.
+8. You must include **all smells** from the documents in your ranking. 
+- If there are 8 documents, your answer must contain exactly 8 ranked items.
+- Do not merge, ignore, or drop any smells. Even if smells are similar, list them separately.
+9. Double-check before answering:
+- Did you include every smell from the documents?
+- Is each smell represented exactly once?
+- Does your ranking contain exactly 8 items?
+
+------ DOCUMENTS ------
+
+
+Type of smell: Structural
+Code smell: Long File
+Description: File 'tdsuite.trainers.td_trainer' has 294 meaningful lines of code
+File: ../projects/text_classification/tdsuite/trainers/td_trainer.py
+Module/Class: tdsuite.trainers.td_trainer
+Line Number: nan
+Severity: Medium
+Code segment (for context only, not analysis):
+""""""Specialized trainer for technical debt classification.""""""
+
+import os
+import json
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Union, Any, Tuple
+from sklearn.model_selection import KFold
+from transformers import TrainingArguments
+import torch
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, precision_score, recall_score, f1_score
+
+from .base import BaseTrainer
+from ..data.dataset import TDDataset
+
+
+class TDTrainer(BaseTrainer):
+    """"""Trainer for technical debt classification tasks.""""""
+
+    def __init__(
+        self,
+        model,
+        tokenizer,
+        training_args,
+        compute_metrics=None,
+        class_weights=None,
+        output_dir=None,
+        track_emissions=True,
+        n_splits=5,
+        random_state=42,
+        data_config=None,
+    ):
+        """"""
+        Initialize the trainer.
+
+        Args:
+            model: The model to train
+            tokenizer: The tokenizer
+            training_args: Training arguments
+            compute_metrics: Function to compute metrics
+            class_weights: Weights for each class
+            output_dir: Directory to save outputs
+            track_emissions: Whether to track carbon emissions
+            n_splits: Number of folds for cross-validation
+            random_state: Random state for reproducibility
+            data_config: Data configuration
+        """"""
+        super().__init__(
+            model=model,
+            tokenizer=tokenizer,
+            training_args=training_args,
+            compute_metrics=compute_metrics,
+            class_weights=class_weights,
+            output_dir=output_dir,
+            track_emissions=track_emissions,
+        )
+        self.n_splits = n_splits
+        self.random_state = random_state
+        self.data_config = data_config
+
+    def train_with_cross_validation(
+        self,
+        train_dataset,
+        eval_dataset=None,
+        cat2idx=None,
+        idx2cat=None,
+        is_binary=False,
+    ):
+        """"""
+        Train the model with k-fold cross-validation.
+
+        Args:
+            train_dataset: Training dataset
+            eval_dataset: Evaluation dataset
+            cat2idx: Mapping from categories to indices
+            idx2cat: Mapping from indices to categories
+            is_binary: Whether this is a binary classification task
+
+        Returns:
+            List of evaluation results for each fold
+        """"""
+        import datetime
+        from sklearn.model_selection import KFold
+        
+        # Create compute metrics function if not provided
+        if self.compute_metrics is None and cat2idx is not None and idx2cat is not None:
+            self.compute_metrics = self.create_compute_metrics(
+                self.output_dir, cat2idx, idx2cat, is_binary
+            )
+
+        # Initialize emissions tracker for the entire cross-validation process
+        emissions_tracker = None
+        if self.track_emissions:
+            try:
+                # Create emissions directory
+                emissions_dir = os.path.join(self.output_dir, ""emissions"")
+                os.makedirs(emissions_dir, exist_ok=True)
+                
+                # Configure tracker
+                from codecarbon import EmissionsTracker
+                emissions_tracker = EmissionsTracker(
+                    output_dir=emissions_dir,
+                    project_name=""cross_validation"",
+                    output_file=""cross_validation_emissions.csv"",
+                    allow_multiple_runs=True
+                )
+                emissions_tracker.start()
+                print(""🌱 Carbon emissions tracking started for cross-validation"")
+            except Exception as e:
+                print(f""\n⚠️ Warning: Failed to initialize emissions tracking: {str(e)}"")
+                emissions_tracker = None
+
+        # Initialize k-fold cross-validation
+        kf = KFold(n_splits=self.n_splits, shuffle=True, random_state=self.random_state)
+
+        # Initialize list to store metrics for each fold
+        fold_results = []
+
+        # Loop over folds
+        for fold_idx, (train_idx, val_idx) in enumerate(kf.split(train_dataset.labels)):
+            print(f""\n🔄 Training fold {fold_idx + 1}/{self.n_splits}"")
+            
+            # Create output directory for this fold
+            fold_output_dir = os.path.join(self.output_dir, f""fold_{fold_idx + 1}"")
+            os.makedirs(fold_output_dir, exist_ok=True)
+
+            # Create fold training arguments
+            fold_training_args = TrainingArguments(
+                output_dir=fold_output_dir,
+                num_train_epochs=self.training_args.num_train_epochs,
+                per_device_train_batch_size=self.training_args.per_device_train_batch_size,
+                per_device_eval_batch_size=self.training_args.per_device_eval_batch_size,
+                learning_rate=self.training_args.learning_rate,
+                weight_decay=self.training_args.weight_decay,
+                warmup_steps=self.training_args.warmup_steps,
+                gradient_accumulation_steps=self.training_args.gradient_accumulation_steps,
+                evaluation_strategy=""no"" if eval_dataset is None else self.training_args.evaluation_strategy,
+                save_strategy=self.training_args.save_strategy,
+                load_best_model_at_end=self.training_args.load_best_model_at_end,
+                metric_for_best_model=self.training_args.metric_for_best_model,
+                greater_is_better=self.training_args.greater_is_better,
+                logging_steps=self.training_args.logging_steps,
+                save_total_limit=self.training_args.save_total_limit,
+                remove_unused_columns=self.training_args.remove_unused_columns,
+                report_to=self.training_args.report_to,
+                disable_tqdm=self.training_args.disable_tqdm,
+                no_cuda=self.training_args.no_cuda,
+            )
+
+            # Create fold trainer
+            fold_trainer = TDTrainer(
+                model=self.model,
+                tokenizer=self.tokenizer,
+                training_args=fold_training_args,
+                compute_metrics=self.compute_metrics,
+                class_weights=self.class_weights,
+                output_dir=fold_output_dir,
+                track_emissions=False,  # Disable emissions tracking for individual folds
+                n_splits=self.n_splits,
+                random_state=self.random_state,
+                data_config=self.data_config,
+            )
+
+            # Create train and validation datasets for this fold
+            train_encodings = {}
+            for key, val in train_dataset.encodings.items():
+                if isinstance(val, torch.Tensor):
+                    train_encodings[key] = val[train_idx]
+                else:
+                    train_encodings[key] = torch.tensor([val[i] for i in train_idx])
+            train_labels = torch.tensor([train_dataset.labels[i] for i in train_idx])
+            train_fold_dataset = TDDataset(train_encodings, train_labels)
+
+            val_encodings = {}
+            for key, val in train_dataset.encodings.items():
+                if isinstance(val, torch.Tensor):
+                    val_encodings[key] = val[val_idx]
+                else:
+                    val_encodings[key] = torch.tensor([val[i] for i in val_idx])
+            val_labels = torch.tensor([train_dataset.labels[i] for i in val_idx])
+            val_fold_dataset = TDDataset(val_encodings, val_labels)
+
+            # Train the model
+            train_result = fold_trainer.train(
+                train_fold_dataset,
+                eval_dataset=val_fold_dataset,
+            )
+
+            # Save training metrics for this fold
+            train_metrics = {
+                ""train_loss"": train_result.training_loss,
+                ""train_runtime"": train_result.metrics.get(""train_runtime"", 0),
+                ""train_samples_per_second"": train_result.metrics.get(""train_samples_per_second"", 0),
+                ""train_steps_per_second"": train_result.metrics.get(""train_steps_per_second"", 0),
+                ""epoch"": train_result.metrics.get(""epoch"", 0),
+            }
+
+            # Evaluate the model
+            eval_result = fold_trainer.evaluate(val_fold_dataset)
+
+            # Save fold results
+            fold_metrics = {
+                ""training"": train_metrics,
+                ""evaluation"": eval_result.metrics
+            }
+            
+            # Save metrics for this fold
+            with open(os.path.join(fold_output_dir, ""metrics.json""), ""w"") as f:
+                json.dump(fold_metrics, f, indent=4)
+
+            # Add evaluation metrics to fold results
+            fold_results.append(eval_result.metrics)
+
+            # Plot metrics
+            if cat2idx is not None and idx2cat is not None:
+                if is_binary:
+                    self.plot_metrics(
+                        eval_result.label_ids,
+                        eval_result.predictions,
+                        fold_output_dir,
+                    )
+
+        # Visualize and save k-fold results
+        self.visualize_and_save_metrics_and_results(fold_results, self.output_dir)
+
+        # Stop emissions tracking
+        if emissions_tracker is not None:
+            try:
+                emissions = emissions_tracker.stop()
+                
+                # Save emissions data
+                emissions_dir = os.path.join(self.output_dir, ""emissions"")
+                tracker_path = os.path.join(emissions_dir, ""cross_validation_emissions.json"")
+                
+                if emissions is None:
+                    # Handle case where emissions data is None
+                    emissions_json = {
+                        ""emissions"": 0.0,
+                        ""unit"": ""kgCO2e"",
+                        ""timestamp"": datetime.datetime.now().isoformat(),
+                        ""error"": ""No emissions data was recorded""
+                    }
+                    print(""\n⚠️ Warning: No emissions data was recorded"")
+                else:
+                    try:
+                        emissions_value = float(emissions)
+                        emissions_json = {
+                            ""emissions"": emissions_value,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat()
+                        }
+                    except (TypeError, ValueError):
+                        # Handle case where emissions_data can't be converted to float
+                        emissions_json = {
+                            ""emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat(),
+                            ""error"": ""Emissions data couldn't be converted to float""
+                        }
+                        print(""\n⚠️ Warning: Emissions data couldn't be converted to float"")
+                
+                # Save the JSON file
+                with open(tracker_path, ""w"") as f:
+                    json.dump(emissions_json, f, indent=4)
+                
+                # Safely extract emissions value for display
+                emissions_value = emissions_json.get(""emissions"", 0.0)
+                if not isinstance(emissions_value, (int, float)):
+                    emissions_value = 0.0
+                
+                print(f""\n🌱 Total carbon emissions for cross-validation: {emissions_value:.6f} kgCO2e"")
+                print(f""🌱 Emissions data saved to {tracker_path}"")
+            
+            except Exception as e:
+                # Catch any unexpected errors during emissions tracking
+                print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")
+        
+        return fold_results
+
+    def train_with_early_stopping(
+        self,
+        train_dataset,
+        eval_dataset=None,
+        cat2idx=None,
+        idx2cat=None,
+        is_binary=False,
+        patience=3,
+        min_delta=0.01,
+    ):
+        """"""
+        Train the model with early stopping.
+
+        Args:
+            train_dataset: Training dataset
+            eval_dataset: Evaluation dataset
+            cat2idx: Mapping from categories to indices
+            idx2cat: Mapping from indices to categories
+            is_binary: Whether this is a binary classification task
+            patience: Number of epochs to wait before early stopping
+            min_delta: Minimum change in monitored quantity to qualify as an improvement
+
+        Returns:
+            Training results
+        """"""
+        # Create compute metrics function if not provided
+        if self.compute_metrics is None and cat2idx is not None and idx2cat is not None:
+            self.compute_metrics = self.create_compute_metrics(
+                self.output_dir, cat2idx, idx2cat, is_binary
+            )
+
+        # Update training arguments for early stopping
+        self.training_args.load_best_model_at_end = True
+        self.training_args.metric_for_best_model = ""eval_loss""
+        self.training_args.greater_is_better = False
+        self.training_args.eval_strategy = ""epoch""
+        self.training_args.save_strategy = ""epoch""
+        self.training_args.save_total_limit = patience + 1
+
+        # Train the model
+        train_result = self.train(train_dataset, eval_dataset)
+
+        # Plot metrics
+        if eval_dataset is not None and cat2idx is not None and idx2cat is not None:
+            eval_result = self.evaluate(eval_dataset)
+            if is_binary:
+                self.plot_metrics(
+                    eval_result.label_ids,
+                    eval_result.predictions,
+                    self.output_dir,
+                )
+
+        return train_result
+
+    def predict_with_confidence(
+        self,
+        test_dataset,
+        test_data,
+        idx2cat,
+        confidence_threshold=0.5,
+        top_n=1,
+    ):
+        """"""
+        Make predictions with confidence thresholds.
+
+        Args:
+            test_dataset: Test dataset
+            test_data: Test data DataFrame
+            idx2cat: Mapping from indices to categories
+            confidence_threshold: Confidence threshold for predictions
+            top_n: Number of top predictions to return
+
+        Returns:
+            DataFrame with predictions and probabilities
+        """"""
+        # Get predictions with probabilities
+        result_df = self.predict_with_probabilities(
+            test_dataset, test_data, idx2cat, top_n
+        )
+
+        # Add confidence column
+        result_df[""confidence""] = result_df[f""Top_{1}_Prob""]
+        result_df[""is_confident""] = result_df[""confidence""] >= confidence_threshold
+
+        return result_df
+
+    def predict_with_ensemble(
+        self,
+        test_dataset,
+        test_data,
+        idx2cat,
+        model_paths,
+        top_n=1,
+    ):
+        """"""
+        Make predictions using an ensemble of models.
+
+        Args:
+            test_dataset: Test dataset
+            test_data: Test data DataFrame
+            idx2cat: Mapping from indices to categories
+            model_paths: List of paths to saved models
+            top_n: Number of top predictions to return
+
+        Returns:
+            DataFrame with ensemble predictions and probabilities
+        """"""
+        # Initialize list to store predictions from each model
+        all_predictions = []
+
+        # Make predictions with each model
+        for model_path in model_paths:
+            # Load model
+            self.model = self.model.from_pretrained(model_path)
+
+            # Get predictions
+            predictions = self.evaluate(test_dataset)
+            all_predictions.append(predictions.predictions)
+
+        # Average predictions
+        ensemble_predictions = np.mean(all_predictions, axis=0)
+
+        # Convert logits to probabilities
+        probs = self.softmax(ensemble_predictions, axis=1)
+        probs = np.round(probs, 3)
+
+        # Convert probabilities to DataFrame
+        probs_df = pd.DataFrame(
+            probs, columns=[idx2cat[i] for i in range(probs.shape[1])]
+        )
+
+        # Find top probabilities and indices
+        top_probs = np.partition(-probs, top_n)[:, :top_n] * -1
+        top_indices = np.argpartition(-probs, top_n)[:, :top_n]
+
+        # Map indices to class names
+        top_class_names = np.vectorize(idx2cat.get)(top_indices)
+
+        # Convert to DataFrames
+        top_probs_df = pd.DataFrame(
+            top_probs, columns=[f""Top_{i+1}_Prob"" for i in range(top_n)]
+        )
+        top_class_names_df = pd.DataFrame(
+            top_class_names, columns=[f""Top_{i+1}_Class"" for i in range(top_n)]
+        )
+
+        # Concatenate with original data
+        result_df = pd.concat(
+            [
+                test_data.reset_index(drop=True),
+                probs_df.reset_index(drop=True),
+                top_probs_df.reset_index(drop=True),
+                top_class_names_df.reset_index(drop=True),
+            ],
+            axis=1,
+        )
+
+        return result_df
+
+    def plot_metrics(self, labels, logits, output_dir):
+        """"""
+        Plot metrics for binary classification.
+        
+        Args:
+            labels: Ground truth labels
+            logits: Model logits
+            output_dir: Directory to save plots
+        """"""
+        # Convert logits to probabilities
+        probabilities = torch.softmax(torch.tensor(logits), dim=1)
+        predictions = torch.argmax(probabilities, dim=1)
+        
+        # Compute metrics
+        accuracy = (predictions == labels).float().mean()
+        precision = precision_score(labels, predictions)
+        recall = recall_score(labels, predictions)
+        f1 = f1_score(labels, predictions)
+        
+        # Plot confusion matrix
+        plt.figure(figsize=(8, 6))
+        conf_matrix = confusion_matrix(labels, predictions)
+        sns.heatmap(conf_matrix, annot=True, fmt=""d"", cmap=""Blues"")
+        plt.xlabel(""Predicted"")
+        plt.ylabel(""True"")
+        plt.title(""Confusion Matrix"")
+        plt.savefig(os.path.join(output_dir, ""confusion_matrix.png""))
+        plt.close()
+        
+        # Plot ROC curve
+        fpr, tpr, _ = roc_curve(labels, probabilities[:, 1])
+        roc_auc = roc_auc_score(labels, probabilities[:, 1])
+        
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, label=f""ROC curve (AUC = {roc_auc:.2f})"")
+        plt.plot([0, 1], [0, 1], ""k--"")
+        plt.xlabel(""False Positive Rate"")
+        plt.ylabel(""True Positive Rate"")
+        plt.title(""ROC Curve"")
+        plt.legend()
+        plt.savefig(os.path.join(output_dir, ""roc_curve.png""))
+        plt.close()
+        
+        # Save metrics
+        metrics = {
+            ""accuracy"": float(accuracy),
+            ""precision"": float(precision),
+            ""recall"": float(recall),
+            ""f1"": float(f1),
+            ""roc_auc"": float(roc_auc)
+        }
+        
+        with open(os.path.join(output_dir, ""metrics.json""), ""w"") as f:
+            json.dump(metrics, f, indent=2) 
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'main' has 50 lines in ../projects/text_classification/hf_upload_example.py at line 11
+File: ../projects/text_classification/hf_upload_example.py
+Module/Class: main
+Line Number: 11.0
+Severity: nan
+Code segment (for context only, not analysis):
+def main():
+    """"""Run an example of uploading a model to Hugging Face Hub.""""""
+    # Get user input for token
+    print(""="" * 80)
+    print(""Hugging Face Upload Example"")
+    print(""="" * 80)
+    print(""\nThis script will guide you through uploading a model to Hugging Face Hub."")
+    print(""You will need a Hugging Face account and an access token with write permissions."")
+    print(""\nYou can create a token at: https://huggingface.co/settings/tokens"")
+    
+    # Get token
+    token = input(""\nEnter your Hugging Face token: "").strip()
+    if not token:
+        print(""❌ Token cannot be empty. Please try again."")
+        return
+    
+    # Get repository name
+    repo_name = input(""\nEnter repository name (format: username/repo-name): "").strip()
+    if not repo_name or ""/"" not in repo_name:
+        print(""❌ Invalid repository name. Format should be 'username/repo-name'"")
+        return
+    
+    # Get model path
+    model_path = input(""\nEnter path to the model directory: "").strip()
+    if not model_path or not os.path.exists(model_path):
+        print(f""❌ Model path '{model_path}' does not exist"")
+        return
+    
+    # Ask for visibility
+    visibility = input(""\nMake repository private? (y/n, default: n): "").strip().lower()
+    repo_visibility = ""private"" if visibility == ""y"" else ""public""
+    
+    # Ask for model card generation
+    generate_card = input(""\nGenerate model card? (y/n, default: y): "").strip().lower()
+    generate_card_flag = ""--generate_card"" if generate_card != ""n"" else """"
+    
+    # Build command
+    cmd = [
+        sys.executable,
+        ""tdsuite/upload_to_hf.py"",
+        ""--token"", token,
+        ""--repo_name"", repo_name,
+        ""--model_path"", model_path,
+        ""--repo_visibility"", repo_visibility,
+        ""--create_if_not_exists""
+    ]
+    
+    if generate_card_flag:
+        cmd.append(generate_card_flag)
+    
+    # Print command (without token)
+    safe_cmd = cmd.copy()
+    token_index = safe_cmd.index(""--token"") + 1
+    safe_cmd[token_index] = ""****""  # Hide token
+    print(""\nRunning command:"")
+    print("" "".join(safe_cmd))
+    
+    # Confirm
+    confirm = input(""\nProceed with upload? (y/n): "").strip().lower()
+    if confirm != ""y"":
+        print(""❌ Upload cancelled"")
+        return
+    
+    # Execute command
+    try:
+        subprocess.run(cmd, check=True)
+        print(""\n✅ Upload process completed"")
+    except subprocess.CalledProcessError as e:
+        print(f""\n❌ Error during upload: {e}"")
+        return
+
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'main' has 127 lines in ../projects/text_classification/tdsuite/inference.py at line 53
+File: ../projects/text_classification/tdsuite/inference.py
+Module/Class: main
+Line Number: 53.0
+Severity: nan
+Code segment (for context only, not analysis):
+def main():
+    """"""Main function for inference.""""""
+    # Parse arguments
+    args = parse_args()
+    
+    print(""Starting inference with arguments:"")
+    print(f""  model_path: {args.model_path}"")
+    print(f""  model_name: {args.model_name}"")
+    print(f""  model_paths: {args.model_paths}"")
+    print(f""  model_names: {args.model_names}"")
+    print(f""  input_file: {args.input_file}"")
+    print(f""  device: {args.device}"")
+    print(f""  weights: {args.weights}"")
+    
+    # Set device
+    device = args.device if args.device else (""cuda"" if torch.cuda.is_available() else ""cpu"")
+    print(f""Using device: {device}"")
+    
+    # Create timestamped results directory
+    timestamp = datetime.now().strftime(""%Y%m%d_%H%M%S"")
+    
+    # Determine the base directory for results
+    if args.model_path:
+        base_dir = os.path.dirname(args.model_path)
+    elif args.model_paths:
+        base_dir = os.path.dirname(args.model_paths[0])
+    else:
+        base_dir = ""outputs""
+    
+    # Create results directory
+    if args.results_dir:
+        results_dir = args.results_dir
+    else:
+        results_dir = os.path.join(base_dir, f""inference_{timestamp}"")
+    
+    print(f""Results will be saved to: {results_dir}"")
+    
+    # Create results directory if it doesn't exist
+    os.makedirs(results_dir, exist_ok=True)
+    
+    # Create emissions directory
+    emissions_dir = os.path.join(results_dir, ""emissions"")
+    os.makedirs(emissions_dir, exist_ok=True)
+    
+    # Initialize emissions tracker
+    emissions_tracker = EmissionsTracker(
+        output_dir=emissions_dir,
+        project_name=""inference"",
+        output_file=""inference_emissions.csv"",
+        allow_multiple_runs=True
+    )
+    emissions_tracker.start()
+    print(""📊 Emissions tracking started for inference"")
+    
+    try:
+        # Check if using ensemble
+        if args.model_paths or args.model_names:
+            print(""Creating ensemble inference engine"")
+            # Validate weights if provided
+            if args.weights:
+                num_models = max(len(args.model_paths or []), len(args.model_names or []))
+                if len(args.weights) != num_models:
+                    raise ValueError(f""Number of weights ({len(args.weights)}) must match number of models ({num_models})"")
+            
+            # Create ensemble inference engine
+            engine = EnsembleInferenceEngine(
+                model_paths=args.model_paths,
+                model_names=args.model_names,
+                max_length=args.max_length,
+                device=device,
+                weights=args.weights,
+            )
+        else:
+            print(""Creating single model inference engine"")
+            # Create single model inference engine
+            engine = InferenceEngine(
+                model_path=args.model_path,
+                model_name=args.model_name,
+                max_length=args.max_length,
+                device=device,
+            )
+        
+        # Set progress bar display
+        if 'predict_batch' in dir(engine):
+            engine.show_progress = not args.disable_progress_bar
+        
+        # Perform inference
+        if args.text is not None:
+            print(""Performing single text inference"")
+            result = engine.predict_single(args.text)
+            print(json.dumps(result, indent=2))
+        else:
+            print(f""Starting batch inference on {args.input_file}"")
+            # If output_file is not specified, use a default name in the results directory
+            if args.output_file is None:
+                input_filename = os.path.basename(args.input_file)
+                output_filename = f""predictions_{input_filename}""
+                args.output_file = os.path.join(results_dir, output_filename)
+            
+            print(f""Output will be saved to: {args.output_file}"")
+            df = engine.predict_from_file(
+                args.input_file,
+                output_file=args.output_file,
+                text_column=args.text_column,
+                batch_size=args.batch_size,
+            )
+            print(f""✅ Inference completed! Results saved to {args.output_file}"")
+            
+            # Compute and save metrics if ground truth labels are available
+            if ""label"" in df.columns:
+                from tdsuite.utils.metrics import compute_metrics
+                print(""📊 Computing metrics..."")
+                metrics_dir = os.path.join(results_dir, ""metrics"")
+                os.makedirs(metrics_dir, exist_ok=True)
+                metrics = compute_metrics(df, output_dir=metrics_dir, save_plots=True)
+                
+                # Save metrics to JSON file
+                metrics_file = os.path.join(metrics_dir, ""metrics.json"")
+                with open(metrics_file, ""w"") as f:
+                    json.dump(metrics, f, indent=2)
+                
+                print(""\n📊 Metrics:"")
+                print(json.dumps(metrics, indent=2))
+            
+            # Print results if no output file was specified
+            if args.output_file is None:
+                print(df.to_string())
+    
+    except Exception as e:
+        print(f""Error during inference: {str(e)}"")
+        raise
+    
+    finally:
+        # Stop emissions tracking
+        if args.track_emissions and emissions_tracker:
+            try:
+                emissions = emissions_tracker.stop()
+                
+                if emissions is None:
+                    # Handle case where emissions data is None
+                    emissions_json = {
+                        ""total_emissions"": 0.0,
+                        ""unit"": ""kgCO2e"",
+                        ""timestamp"": datetime.now().isoformat(),
+                        ""error"": ""No emissions data was recorded""
+                    }
+                    print(""\n⚠️ Warning: No emissions data was recorded"")
+                else:
+                    try:
+                        # Try to convert emissions to float
+                        emissions_value = float(emissions)
+                        emissions_json = {
+                            ""total_emissions"": emissions_value,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.now().isoformat()
+                        }
+                    except (TypeError, ValueError):
+                        # Handle case where emissions can't be converted to float
+                        emissions_json = {
+                            ""total_emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.now().isoformat(),
+                            ""error"": ""Emissions data couldn't be converted to float""
+                        }
+                        print(""\n⚠️ Warning: Emissions data couldn't be converted to float"")
+                
+                # Save emissions as JSON for easier access
+                emissions_json_path = os.path.join(emissions_dir, ""inference_emissions.json"")
+                with open(emissions_json_path, ""w"") as f:
+                    json.dump(emissions_json, f, indent=2)
+            
+            except Exception as e:
+                # Catch any unexpected errors during emissions tracking
+                print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")
+
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
+File: ../projects/text_classification/tdsuite/train.py
+Module/Class: main
+Line Number: 88.0
+Severity: nan
+Code segment (for context only, not analysis):
+def main():
+    """"""Main function.""""""
+    args = parse_args()
+    
+    # Check for GPU availability
+    if not torch.cuda.is_available():
+        raise RuntimeError(""No GPU available. This model requires a GPU to run."")
+    device = torch.device(""cuda"")
+    print(f""Using GPU: {torch.cuda.get_device_name(0)}"")
+    
+    # Set random seed
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+    
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    
+    # Create processor
+    processor = BinaryTDProcessor(tokenizer, max_length=args.max_length)
+    
+    # Load and prepare data
+    data = processor.load_data(
+        args.data_file,
+        text_column=args.text_column,
+        label_column=args.label_column
+    )
+    
+    data = processor.prepare_binary_data(
+        data,
+        positive_category=args.positive_category,
+        text_column=args.text_column,
+        label_column=args.label_column,
+        numeric_labels=args.numeric_labels
+    )
+    
+    # Split data into train and eval sets
+    train_data, eval_data = train_test_split(
+        data,
+        test_size=0.1,  # Use 10% for evaluation
+        random_state=args.seed,
+        stratify=data[""label_idx""]
+    )
+    
+    # Create datasets
+    train_dataset = processor.create_dataset(
+        train_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    eval_dataset = processor.create_dataset(
+        eval_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    # Create model
+    model = AutoModelForSequenceClassification.from_pretrained(
+        args.model_name,
+        num_labels=2
+    )
+    model.to(device)
+    
+    # Create training arguments
+    training_args = TrainingArguments(
+        output_dir=args.output_dir,
+        num_train_epochs=args.num_epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        warmup_steps=args.warmup_steps,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        evaluation_strategy=""epoch"",  # Always use epoch-based evaluation
+        save_strategy=""epoch"",
+        load_best_model_at_end=not args.cross_validation,  # Only load best model when not using cross-validation
+        metric_for_best_model=""eval_loss"",
+        greater_is_better=False,
+        logging_steps=10,
+        save_total_limit=2,
+        remove_unused_columns=False,
+        # Disable wandb and codecarbon by default
+        report_to=""none"",  # Disable wandb
+        disable_tqdm=False,  # Keep progress bars
+        no_cuda=False,  # Use CUDA if available
+    )
+    
+    # Create trainer
+    trainer = TDTrainer(
+        model=model,
+        tokenizer=tokenizer,
+        training_args=training_args,
+        output_dir=args.output_dir,
+        track_emissions=True,  # Enable emissions tracking by default
+        n_splits=args.n_splits,
+    )
+    
+    if args.cross_validation:
+        # Train with cross-validation
+        trainer.train_with_cross_validation(
+            train_dataset,
+            eval_dataset=eval_dataset,
+            is_binary=True
+        )
+    else:
+        # Train without cross-validation
+        trainer.train(train_dataset, eval_dataset=eval_dataset)
+    
+    # Save model and tokenizer
+    model.save_pretrained(args.output_dir)
+    tokenizer.save_pretrained(args.output_dir)
+    
+    # Save training configuration
+    with open(os.path.join(args.output_dir, ""training_config.json""), ""w"") as f:
+        json.dump(vars(args), f, indent=2)
+
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
+File: ../projects/text_classification/app.py
+Module/Class: fine_tune_model
+Line Number: 90.0
+Severity: nan
+Code segment (for context only, not analysis):
+def fine_tune_model(model_name):
+    """"""
+ it uses the selected dataset.
+    """"""
+ 
+    
+    dataset_train_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'train')
+
+          # Load only the train split of the dataset
+    if os.path.exists(dataset_train_path):
+        dataset = Dataset.load_from_disk(dataset_train_path)
+    
+    # Load model and tokenizer
+    model_path = f""./saved_models/{model_name}""
+
+    if os.path.exists(model_path) and model_name == ""binary_classification_train_TD"":
+
+        output_dir = ""./saved_models/finetuned_TD""
+        class_names = ['non_TD', 'TD']
+
+    
+    elif os.path.exists(model_path) and model_name == ""High_priority_roberta"":
+
+        output_dir = ""./saved_models/finetuned_Priority""
+        class_names = ['not_High_priority', 'High_priority']
+
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)  
+
+    tokenized_datasets = dataset.map(tokenize_function, batched=True)
+
+    tokenized_datasets = tokenized_datasets.train_test_split(test_size=0.020)  # Adjust the split ratio as needed
+    tokenized_datasets = DatasetDict({
+        'train': tokenized_datasets['train'],
+        'test': tokenized_datasets['test']
+    })
+
+    
+    # Fine-tuning
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        evaluation_strategy=""epoch"",  # or use ""steps"" to evaluate more frequently
+        learning_rate=2e-5,
+        per_device_train_batch_size=4,
+        num_train_epochs=2,
+        save_strategy=""no"",
+         # Load the best model at the end of training
+    )
+    
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_datasets[""train""],
+        eval_dataset=tokenized_datasets[""test""],  # Specify the evaluation dataset here
+    )
+    
+    trainer.train()
+    trainer.save_model() 
+    tokenizer.save_pretrained(training_args.output_dir)
+
+    dataset_test_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'test')
+
+    if os.path.exists(dataset_test_path):
+        test_dataset = Dataset.load_from_disk(dataset_test_path)
+        print(""Test dataset loaded successfully."")
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)
+
+    test_dataset = test_dataset.map(tokenize_function, batched=True)
+    test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    
+
+    output = trainer.predict(test_dataset)
+    logits = output.predictions
+    probs = softmax(logits, axis=1)
+    predictions = np.argmax(logits, axis=1)
+    positive_class_probs = probs[:, 1]
+    # Metrics and Confusion Matrix
+    labels = test_dataset['label']
+    accuracy = accuracy_score(labels, predictions)
+    conf_matrix = confusion_matrix(labels, predictions)
+    class_names = class_names 
+    report = classification_report(labels, predictions, target_names=class_names, output_dict=True)
+
+    # Convert the report dictionary to a DataFrame
+    df_classification_report = pd.DataFrame(report).transpose()
+
+    # Optionally, you can reset the index to have the class labels as a column
+    df_classification_report.reset_index(inplace=True)
+    df_classification_report.rename(columns={'index': 'class'}, inplace=True)
+    
+# Format the floating point columns to three decimal places directly
+    float_columns = ['precision', 'recall', 'f1-score', 'support']
+    df_classification_report[float_columns] = df_classification_report[float_columns].applymap(lambda x: f""{x:.3f}"")
+
+
+    # Update dataset with predictions
+    dataset_df = pd.DataFrame(test_dataset.remove_columns(['input_ids', 'attention_mask']).to_pandas())
+    dataset_df['predicted'] = predictions
+    dataset_df['probability'] = positive_class_probs
+    dataset_head = dataset_df.head()
+
+    # Save updated dataframe to CSV for download
+    csv_path = ""updated_dataset.xlsx""
+    dataset_df.to_excel(csv_path, index=True)
+    
+    # Plot confusion matrix
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', ax=ax, cmap=""Blues"", xticklabels=class_names, yticklabels=class_names)
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.title('Confusion Matrix')
+    plt.close(fig)  # Prevent the figure from displaying immediately
+
+    return ""Model fine-tuned."" , accuracy, df_classification_report , gr.Plot(fig), dataset_head, csv_path
+
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'generate_model_card' has 67 lines in ../projects/text_classification/tdsuite/upload_to_hf.py at line 54
+File: ../projects/text_classification/tdsuite/upload_to_hf.py
+Module/Class: generate_model_card
+Line Number: 54.0
+Severity: nan
+Code segment (for context only, not analysis):
+def generate_model_card(model_path: str) -> str:
+    """"""Generate a model card based on the training configuration.""""""
+    # Try to read configuration files
+    training_config = read_config_file(model_path, ""training_config.json"")
+    metrics = read_config_file(model_path, ""metrics.json"")
+    
+    # Default model card content
+    card_content = ""---\n""
+    card_content += ""language: en\n""
+    card_content += ""tags:\n""
+    card_content += ""- technical-debt\n""
+    card_content += ""- text-classification\n""
+    card_content += ""- transformers\n""
+    card_content += ""license: mit\n""
+    card_content += ""---\n\n""
+    card_content += ""# TD-Classifier Model\n\n""
+    card_content += ""This model was trained using the TD-Classifier Suite for technical debt classification.\n\n""
+    
+    # Add model information if available
+    if training_config:
+        card_content += ""## Model Information\n\n""
+        card_content += f""- Base Model: {training_config.get('model_name', 'Unknown')}\n""
+        card_content += f""- Training Dataset: {training_config.get('data_file', 'Unknown')}\n""
+        card_content += f""- Epochs: {training_config.get('num_epochs', 'Unknown')}\n""
+        card_content += f""- Batch Size: {training_config.get('batch_size', 'Unknown')}\n""
+        card_content += f""- Learning Rate: {training_config.get('learning_rate', 'Unknown')}\n""
+        card_content += f""- Max Sequence Length: {training_config.get('max_length', 'Unknown')}\n""
+        
+        if training_config.get('cross_validation'):
+            card_content += f""- Cross-Validation: Yes ({training_config.get('n_splits', 5)} folds)\n""
+        else:
+            card_content += ""- Cross-Validation: No\n""
+        
+        card_content += ""\n""
+    
+    # Add performance metrics if available
+    if metrics:
+        card_content += ""## Performance Metrics\n\n""
+        card_content += f""- Accuracy: {metrics.get('accuracy', 'Unknown'):.4f}\n""
+        card_content += f""- F1 Score: {metrics.get('f1', 'Unknown'):.4f}\n""
+        card_content += f""- Precision: {metrics.get('precision', 'Unknown'):.4f}\n""
+        card_content += f""- Recall: {metrics.get('recall', 'Unknown'):.4f}\n""
+        card_content += f""- ROC AUC: {metrics.get('roc_auc', 'Unknown'):.4f}\n""
+        card_content += ""\n""
+    
+    # Add usage information
+    card_content += ""## Usage\n\n""
+    card_content += ""```python\n""
+    card_content += ""from transformers import AutoTokenizer, AutoModelForSequenceClassification\n""
+    card_content += ""import torch\n\n""
+    card_content += ""# Load model and tokenizer\n""
+    card_content += ""tokenizer = AutoTokenizer.from_pretrained(\""REPO_NAME\"")\n""
+    card_content += ""model = AutoModelForSequenceClassification.from_pretrained(\""REPO_NAME\"")\n\n""
+    card_content += ""# Prepare text\n""
+    card_content += ""text = \""This code is a mess and needs refactoring.\""\n""
+    card_content += ""inputs = tokenizer(text, return_tensors=\""pt\"", padding=True, truncation=True, max_length=512)\n\n""
+    card_content += ""# Make prediction\n""
+    card_content += ""with torch.no_grad():\n""
+    card_content += ""    outputs = model(**inputs)\n""
+    card_content += ""    logits = outputs.logits\n""
+    card_content += ""    probabilities = torch.softmax(logits, dim=1)\n""
+    card_content += ""    prediction = torch.argmax(probabilities, dim=1).item()\n""
+    card_content += ""    confidence = probabilities[0][prediction].item()\n\n""
+    card_content += ""print(f\""Prediction: {'Technical Debt' if prediction == 1 else 'Not Technical Debt'}\"")\n""
+    card_content += ""print(f\""Confidence: {confidence:.4f}\"")\n""
+    card_content += ""```\n\n""
+    
+    # Add citation information
+    card_content += ""## Citation\n\n""
+    card_content += ""If you use this model in your research, please cite:\n\n""
+    card_content += ""```\n""
+    card_content += ""@misc{TD-Classifier,\n""
+    card_content += ""  author = {TD-Classifier Suite},\n""
+    card_content += ""  title = {Technical Debt Classification Model},\n""
+    card_content += ""  year = {2024},\n""
+    card_content += ""  publisher = {Hugging Face},\n""
+    card_content += ""  howpublished = {\\url{https://huggingface.co/REPO_NAME}},\n""
+    card_content += ""}\n""
+    card_content += ""```\n""
+    
+    return card_content
+
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'compute_metrics' has 118 lines in ../projects/text_classification/tdsuite/utils/metrics.py at line 15
+File: ../projects/text_classification/tdsuite/utils/metrics.py
+Module/Class: compute_metrics
+Line Number: 15.0
+Severity: nan
+Code segment (for context only, not analysis):
+def compute_metrics(df, output_dir=None, save_plots=True):
+    """"""
+    Compute and save classification metrics.
+    
+    Args:
+        df: DataFrame containing predictions and ground truth
+        output_dir: Directory to save metrics and plots
+        save_plots: Whether to save plots
+    
+    Returns:
+        Dictionary of metrics
+    """"""
+    # Extract predictions and ground truth
+    y_true = df[""label""]
+    y_pred = df[""predicted_class""]
+    
+    # Ensure labels are numeric
+    if y_true.dtype == 'object' and y_pred.dtype == 'object':
+        # Convert string labels to numeric
+        unique_labels = sorted(y_true.unique())
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        # Find the positive category (the one that doesn't start with ""non_"")
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            non_label = unique_labels[0]
+            positive_label = unique_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        y_true = y_true.map(label_map)
+        y_pred = y_pred.map(label_map)
+    elif y_true.dtype != 'object' and y_pred.dtype == 'object':
+        # Convert string predictions to numeric
+        unique_labels = y_pred.unique()
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        # Find the positive category (the one that doesn't start with ""non_"")
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            sorted_labels = sorted(unique_labels)
+            non_label = sorted_labels[0]
+            positive_label = sorted_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        y_pred = y_pred.map(label_map)
+    
+    # Compute metrics
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    mcc = matthews_corrcoef(y_true, y_pred)
+    conf_matrix = confusion_matrix(y_true, y_pred)
+    
+    # Try to compute ROC AUC if probabilities are available
+    roc_auc = None
+    if ""class_probabilities"" in df.columns:
+        # Extract positive class probability if it's a list
+        if isinstance(df[""class_probabilities""].iloc[0], list):
+            positive_probs = df[""class_probabilities""].apply(lambda x: x[1])
+            roc_auc = roc_auc_score(y_true, positive_probs)
+    elif ""predicted_probability"" in df.columns:
+        roc_auc = roc_auc_score(y_true, df[""predicted_probability""])
+    
+    # Create metrics dictionary
+    metrics = {
+        ""accuracy"": accuracy,
+        ""precision"": precision,
+        ""recall"": recall,
+        ""f1"": f1,
+        ""mcc"": mcc,
+        ""confusion_matrix"": conf_matrix.tolist()
+    }
+    if roc_auc is not None:
+        metrics[""roc_auc""] = roc_auc
+    
+    # Save metrics to file
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        with open(os.path.join(output_dir, ""metrics.json""), ""w"") as f:
+            json.dump(metrics, f, indent=2)
+        
+        # Save plots
+        if save_plots:
+            # Metrics summary bar chart
+            plt.figure(figsize=(10, 6))
+            metrics_names = [""Accuracy"", ""Precision"", ""Recall"", ""F1"", ""MCC""]
+            metrics_values = [accuracy, precision, recall, f1, mcc]
+            colors = [""blue"", ""green"", ""red"", ""purple"", ""orange""]
+            
+            if roc_auc is not None:
+                metrics_names.append(""ROC AUC"")
+                metrics_values.append(roc_auc)
+                colors.append(""brown"")
+            
+            bars = plt.bar(metrics_names, metrics_values, color=colors)
+            
+            # Add values on top of bars
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                        f'{height:.3f}', ha='center', va='bottom')
+            
+            plt.ylim(0, 1.1)
+            plt.ylabel(""Score"")
+            plt.title(""Binary Classification Metrics"")
+            plt.savefig(os.path.join(output_dir, ""metrics_summary.png""))
+            plt.close()
+            
+            # Confusion matrix
+            plt.figure(figsize=(8, 6))
+            sns.heatmap(conf_matrix, annot=True, fmt=""d"", cmap=""Blues"")
+            plt.xlabel(""Predicted"")
+            plt.ylabel(""True"")
+            plt.title(""Confusion Matrix"")
+            plt.savefig(os.path.join(output_dir, ""confusion_matrix.png""))
+            plt.close()
+            
+            # ROC curve
+            if roc_auc is not None:
+                probs_for_curve = None
+                if ""class_probabilities"" in df.columns:
+                    if isinstance(df[""class_probabilities""].iloc[0], list):
+                        probs_for_curve = df[""class_probabilities""].apply(lambda x: x[1])
+                elif ""predicted_probability"" in df.columns:
+                    probs_for_curve = df[""predicted_probability""]
+                
+                if probs_for_curve is not None:
+                    fpr, tpr, _ = roc_curve(y_true, probs_for_curve)
+                    plt.figure(figsize=(8, 6))
+                    plt.plot(fpr, tpr, label=f""ROC curve (AUC = {roc_auc:.3f})"")
+                    plt.plot([0, 1], [0, 1], ""k--"")
+                    plt.xlabel(""False Positive Rate"")
+                    plt.ylabel(""True Positive Rate"")
+                    plt.title(""ROC Curve"")
+                    plt.legend()
+                    plt.savefig(os.path.join(output_dir, ""roc_curve.png""))
+                    plt.close()
+    
+    return metrics 
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'split_data' has 73 lines in ../projects/text_classification/tdsuite/data/data_splitter.py at line 249
+File: ../projects/text_classification/tdsuite/data/data_splitter.py
+Module/Class: split_data
+Line Number: 249.0
+Severity: nan
+Code segment (for context only, not analysis):
+def split_data(
+    data_file: str,
+    output_dir: str,
+    is_numeric_labels: bool = False,
+    repo_column: Optional[str] = None,
+    is_huggingface_dataset: bool = False,
+    test_size: float = 0.2,
+    random_state: int = 42,
+) -> None:
+    """"""
+    Split data into training and test sets with balanced classes.
+    
+    Args:
+        data_file: Path to data file or Hugging Face dataset name
+        output_dir: Directory to save split data
+        is_numeric_labels: Whether the labels are already numeric (0 or 1)
+        repo_column: Name of the repository column (optional)
+        is_huggingface_dataset: Whether the data is a Hugging Face dataset
+        test_size: Proportion of data to use for testing
+        random_state: Random seed for reproducibility
+    """"""
+    # Load data
+    if is_huggingface_dataset:
+        dataset = load_dataset(data_file)
+        df = pd.DataFrame(dataset[""train""])
+    else:
+        if data_file.endswith("".csv""):
+            df = pd.read_csv(data_file)
+        elif data_file.endswith("".json"") or data_file.endswith("".jsonl""):
+            df = pd.read_json(data_file, lines=data_file.endswith("".jsonl""))
+        else:
+            raise ValueError(f""Unsupported file format: {data_file}"")
+    
+    # Ensure labels are numeric
+    if not is_numeric_labels:
+        # Find the positive category (the one that doesn't start with ""non_"")
+        unique_labels = df[""label""].unique()
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            sorted_labels = sorted(unique_labels)
+            non_label = sorted_labels[0]
+            positive_label = sorted_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        df[""label""] = df[""label""].map(label_map)
+    
+    # Split data
+    train_df, test_df = train_test_split(
+        df,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=df[""label""]
+    )
+    
+    # Extract top repositories if repo_column is provided
+    top_repos_df = None
+    if repo_column:
+        # Count positive samples per repository
+        repo_counts = df[df[""label""] == 1].groupby(repo_column).size()
+        top_repos = repo_counts.nlargest(10).index.tolist()
+        
+        # Filter data to include only top repositories
+        top_repos_df = df[df[repo_column].isin(top_repos)]
+        
+        # Balance classes in top repositories data
+        pos_samples = top_repos_df[top_repos_df[""label""] == 1]
+        neg_samples = top_repos_df[top_repos_df[""label""] == 0]
+        
+        # Get the minimum number of samples between positive and negative
+        min_samples = min(len(pos_samples), len(neg_samples))
+        
+        if min_samples > 0:
+            # Sample equal number of positive and negative samples
+            pos_samples = pos_samples.sample(n=min_samples, random_state=random_state)
+            neg_samples = neg_samples.sample(n=min_samples, random_state=random_state)
+            top_repos_df = pd.concat([pos_samples, neg_samples])
+        else:
+            # If one class is empty, just use the available samples
+            top_repos_df = pd.concat([pos_samples, neg_samples])
+    
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save split data
+    train_df.to_csv(os.path.join(output_dir, ""train.csv""), index=False)
+    test_df.to_csv(os.path.join(output_dir, ""test.csv""), index=False)
+    
+    if top_repos_df is not None:
+        top_repos_df.to_csv(os.path.join(output_dir, ""top_repos.csv""), index=False)
+    
+    return train_df, test_df, top_repos_df 
+
+
+
+------ END OF DOCUMENTS ------
+
+Question: Based on the provided code smells, how would you prioritize them?
+
+Now provide the ranked prioritization list of all 8 smells.
+    "

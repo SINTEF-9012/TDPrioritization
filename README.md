@@ -17,3 +17,4 @@ Create and activate a virtual environment, then install the dependencies:
 pip install haystack-ai
 pip install gitpython
 pip install --upgrade "pydantic>=2.0.0"
+pip install chroma-haystack

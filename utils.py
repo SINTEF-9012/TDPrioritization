@@ -2,6 +2,17 @@ import ast
 from typing import Optional
 import math
 
+import os
+import ast
+import radon.complexity as radon_cc
+import radon.metrics as radon_metrics
+from pylint.lint import Run
+from git import Repo
+from io import StringIO
+import contextlib
+from pylint.reporters.json_reporter import JSONReporter
+
+
 
 def get_entity_snippet_from_line(
     start_line: float,
@@ -49,3 +60,56 @@ def get_entity_snippet_from_line(
 
 
     return None 
+
+def analyze_file(file_path, repo_path=None):
+    metadata = {"file": file_path}
+    
+    # --- Radon Metrics ---
+    with open(file_path, "r", encoding="utf-8") as f:
+        code = f.read()
+
+    # Cyclomatic Complexity
+    cc_results = radon_cc.cc_visit(code)
+    metadata["complexity"] = {f.name: f.complexity for f in cc_results}
+    
+    # Maintainability Index
+    mi_score = radon_metrics.mi_visit(code, True)
+    metadata["maintainability_index"] = mi_score
+    
+    # --- AST Analysis ---
+    tree = ast.parse(code)
+    funcs = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+    metadata["functions"] = [{
+        "name": f.name,
+        "args": len(f.args.args),
+        "docstring": ast.get_docstring(f),
+        "nested_blocks": sum(isinstance(n, (ast.If, ast.For, ast.While)) for n in ast.walk(f))
+    } for f in funcs]
+        
+    
+    return metadata
+
+def get_pylint_metadata(file_path: str):
+    buffer = StringIO()
+    reporter = JSONReporter(output=buffer)
+
+    # Redirect output, run pylint
+    with contextlib.redirect_stdout(StringIO()):
+        Run([file_path], reporter=reporter, exit=False)
+
+    buffer.seek(0)
+    results = buffer.read()
+
+    # You now have a JSON string with all the pylint findings
+    # (errors, warnings, refactor suggestions, conventions, etc.)
+    return results
+
+
+# For debugging purposes
+if __name__ == "__main__":
+    repo_path = "projects/text-classification" 
+
+    meta = analyze_file("projects/text_classification/hf_upload_example.py")
+    pylint = get_pylint_metadata("projects/text_classification/hf_upload_example.py")
+    print(meta)
+    print(pylint)
