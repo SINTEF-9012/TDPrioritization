@@ -12,6 +12,8 @@ def convert_chunked_text_to_haystack_documents():
     for file_name, file_info_dic in chunked_dic.items():
         meta = file_info_dic["metadata"]
         text = file_info_dic["text"]
+        
+        meta.pop("encryption")
 
         meta["chunked"] = True
         meta["type"] = "article"
@@ -51,10 +53,13 @@ def chunk_documents(documents, chunk_size=10, overlap=2):
     splitter.warm_up()
     chunks = splitter.run(documents=documents)
 
+    for doc in chunks["documents"]:
+        doc.meta = {k: v for k, v in doc.meta.items() if not k.startswith("_split_overlap")}
+
+
     return chunks["documents"]
 
 if __name__ == "__main__":
     documents = convert_chunked_text_to_haystack_documents()
 
     print(len(documents))
-

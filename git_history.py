@@ -1,8 +1,7 @@
-import git
 from collections import defaultdict
-import os
 from datetime import datetime
 import statistics
+from git import Repo
 
 def normalize(file_stats: defaultdict): 
     scores = list(file_stats.values())
@@ -10,34 +9,6 @@ def normalize(file_stats: defaultdict):
 
     for f in file_stats:
         file_stats[f] = (file_stats[f] - min_score) / (max_score - min_score + 1e-9)
-
-def generate_score_for_commit_dates(commit_dates_for_files: defaultdict):
-    if len(commit_dates_for_files) < 2: return 0
-
-    file_stats = defaultdict()
-
-    for file in commit_dates_for_files:
-        commit_dates = commit_dates_for_files[file]
-        commit_dates.sort()
-
-        gaps = []
-        for i in range(1, len(commit_dates)):
-            # Time between the last two commits
-            delta_days = (datetime.fromtimestamp(commit_dates[i]) - datetime.fromtimestamp(commit_dates[i-1])).days
-            gaps.append(delta_days)
-
-        if len(gaps) < 2: 
-            file_stats[file] = 0 # Is there any use in doing anything differently when there are only two commits?
-            continue
-
-        mean_gap = statistics.mean(gaps)
-        recency = (datetime.now() - datetime.fromtimestamp(commit_dates[-1])).days
-        std_dev_gap = statistics.stdev(gaps)
-
-        commit_history_score_for_file = 1/(mean_gap+1) + 1/(std_dev_gap+1) + 1/(recency+1) # TODO score value should be calculated in a better way?
-        file_stats[file] = commit_history_score_for_file
-
-    return file_stats
 
 def calculate_change_proneness_score(commit_count, commit_churn, commit_score):
     change_proneness_score = defaultdict()
@@ -51,76 +22,130 @@ def calculate_change_proneness_score(commit_count, commit_churn, commit_score):
 
     return change_proneness_score
 
-def calculate_fault_proneness_score():
-    ...
+def get_git_stats(repo, file_filter=None):
+    commits = list(repo.iter_commits(repo.active_branch.name))
 
-def analyze_repo(repo_path):
-    """
-    Analyze change-proneness and fault-proneness metrics for each file in a Git repo.
-    
-    Metrics extracted:
-      - commit_count (change-proneness)
-      - churn (lines added + deleted)
-      - bug_fix_commits (fault-proneness proxy)
-    """
-
-    repo = git.Repo(repo_path)
-
-    branch = repo.active_branch.name    
-    print(f"[INFO] Using branch: {branch}")
-
-    commits = list(repo.iter_commits(branch))
-
-    # Data structures to hold metrics
-    commit_count = defaultdict(int)      # how often file changes
-    commit_dates = defaultdict(list)     # The dates for each commit for a file
-    churn = defaultdict(int)             # added + deleted lines
-    bug_fix_commits = defaultdict(int)   # how often file is in a bugfix commit
+    commit_count = defaultdict(int)
+    churn = defaultdict(int)
+    bug_fix_commits = defaultdict(int)
+    commit_dates = defaultdict(list)
+    authors = defaultdict(set)
+    commit_types = defaultdict(lambda: defaultdict(int))
 
     for commit in commits:
-        # Check if commit looks like a bugfix (simple heuristic)
-        is_bugfix = any(word in commit.message.lower() for word in ["fix", "bug", "issue", "error"]) # TODO Can we change it so that we ignore the keyword if it is part of the file name?
-        date = commit.committed_date
+        is_bugfix = any(k in commit.message.lower() for k in ["fix", "bug", "issue", "error"])
+        for file, stats in commit.stats.files.items():
+            if file_filter and file_filter not in file:
+                continue
 
-        for file in commit.stats.files:
+            change_type = stats.get("change_type", "M")
+            commit_types[file][change_type] += 1
+
             commit_count[file] += 1
-            commit_dates[file].append(date)
-            stats = commit.stats.files[file]
+            commit_dates[file].append(commit.committed_date)
             churn[file] += stats["lines"]
+            authors[file].add(commit.author.email)
 
             if is_bugfix:
                 bug_fix_commits[file] += 1
 
-    commits_score = generate_score_for_commit_dates(commit_dates)
-
-    change_proneness_score = calculate_change_proneness_score(commit_count=commit_count, commit_churn=churn, commit_score=commits_score)
-
-    print(change_proneness_score)
-
-    # Collect results
+    # Derive per-file summaries
+    now = datetime.now().timestamp()
     results = []
-    for file_path in commit_count:
-        results.append({
-            "file": file_path,
-            "commit_count": commit_count[file_path],
-            "commit_score": commits_score[file_path],
-            "churn": churn[file_path],
-            "bug_fix_commits": bug_fix_commits[file_path],
-        })
+    for f in commit_count:
+        dates = sorted(commit_dates[f])
+        first, last = datetime.fromtimestamp(dates[0]), datetime.fromtimestamp(dates[-1])
+        age_days = (now - dates[0]) / 86400
+        recency_days = (now - dates[-1]) / 86400
+        mean_gap = statistics.mean(
+            [(dates[i] - dates[i-1]) / 86400 for i in range(1, len(dates))]
+        ) if len(dates) > 1 else age_days
+
+        result = {
+            "file": f,
+            "commit_count": commit_count[f],
+            "churn": churn[f],
+            "bug_fix_commits": bug_fix_commits[f],
+            "developer_count": len(authors[f]),
+            "avg_commit_size": churn[f] / commit_count[f],
+            "first_commit_date": first.isoformat(),
+            "last_commit_date": last.isoformat(),
+            "days_since_last_commit": recency_days,
+            "mean_gap_days": mean_gap,
+            "commit_type_counts": dict(commit_types[f]),
+            #"fault_density": bug_fix_commits[f] / (commit_count[f] + 1e-9),
+            #"change_proneness_score": math.log(commit_count[f]+1) + math.log(churn[f]+1) - math.log(recency_days+1)
+        }
+        results.append(result)
 
     return results
+
+def create_git_stats_analysis_report(git_metrics: list) -> str:
+    """
+    Build a human-readable analytical summary of Git metrics for each file.
+    This helps the LLM understand code stability, change-proneness, and fault history.
+
+    Args:
+        git_metrics (list): A list of dicts (from get_git_stats()), each describing a file.
+
+    Returns:
+        str: A structured report string suitable for feeding into an LLM prompt.
+    """
+    if not git_metrics:
+        return "No Git history found for the analyzed files."
+
+    report_lines = []
+    report_lines.append("------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------\n")
+
+    for m in sorted(git_metrics, key=lambda x: x.get("change_proneness_score", 0), reverse=True):
+        file_name = m.get("file", "unknown file")
+
+        commit_count = m.get("commit_count", 0)
+        churn = m.get("churn", 0)
+        bug_fixes = m.get("bug_fix_commits", 0)
+        dev_count = m.get("developer_count", 0)
+        last_mod_days = int(m.get("days_since_last_commit", 9999))
+
+
+        # Qualitative interpretation
+        activity_level = (
+            "very active" if commit_count > 50
+            else "moderately active" if commit_count > 10
+            else "rarely changed"
+        )
+
+        recency_label = (
+            "recently modified" if last_mod_days < 30
+            else "inactive for a while" if last_mod_days < 365
+            else "stagnant or legacy code"
+        )
+
+        # Construct textual report
+        summary = (
+            f"File: {file_name}\n"
+            f"- Commit frequency: {commit_count} ({activity_level})\n"
+            f"- Total churn (lines changed): {churn}\n"
+            f"- Developers involved: {dev_count}\n"
+            f"- Last modified: {last_mod_days} days ago ({recency_label})\n"
+        )
+
+        report_lines.append(summary)
+        report_lines.append("-" * 60 + "\n")
+
+    return "\n".join(report_lines)
+
+def build_report(repo_path, filepath):
+    let = get_git_stats(repo_path, filepath)
+
+    return create_git_stats_analysis_report(let)
 
 
 # For debugging purposes
 if __name__ == "__main__":
-    repo_path = "projects/system-design-primer" 
-    metrics = analyze_repo(repo_path)
+    repo = Repo("projects/text_classification")
+    c = build_report(repo, "app.py")
 
-    # Pretty print results
-    for m in metrics:
-        print(
-            f"{m['file']}: commits={m['commit_count']}, churn={m['churn']}, bugfix_commits={m['bug_fix_commits']}, commit_date_score={m['commit_score']}"
-        )
+    print(c)
 
 
 # See if the LLM can create a scoring value itself and compare it to the way I have done it. 

@@ -1,7 +1,5 @@
-Question: Based on the provided code smells, how would you prioritize them?
-Prompt template:
-
-You are a software engineer specialized in software quality and technical debt. 
+PROMPT_TEMPLATE ="""
+You are a prioritizing agent specialized in analyzing software quality and prioritizing technical debt. 
 You are practical with prioritizing technical debt, and are given a report of different types of code smells located in a project. 
 Answer the user's question based on the context below. 
 
@@ -16,21 +14,72 @@ Follow these steps carefully:
 <Rank>, <Name of smell>, <Type of smell>, <File name>, <Reason for prioritization>.
 7. Consider multiple dimensions for prioritization: recency of changes, frequency of changes, severity of impact, dependencies, and criticality of the affected component.
 8. You must include **all smells** from the documents in your ranking. 
-- If there are 8 documents, your answer must contain exactly 8 ranked items.
+- Example: If there are 8 documents, your answer must contain exactly 8 ranked items.
 - Do not merge, ignore, or drop any smells. Even if smells are similar, list them separately.
 9. Double-check before answering:
 - Did you include every smell from the documents?
 - Is each smell represented exactly once?
-- Does your ranking contain exactly 8 items?
 
------- DOCUMENTS ------
+------ INFO ON CODE SMELLS AND TECHNICAL DEBT ------
 {% for doc in documents %}
 {{ doc.content }}
 {% endfor %}
 
------- END OF DOCUMENTS ------
+------ CODE SMELLS FOUND IN A PYTHON PROJECT ------
+{% for smell in smells %}
+{{ smell.content }}
+{% endfor %}
 
 Question: {{question}}
 
-Now provide the ranked prioritization list of all 8 smells.
-    
+Now provide the ranked prioritization list of all given smells.
+"""
+
+PROJECT_STRUCTURE = """
+text_classification/
+│
+├── tdsuite/
+│   ├── config/
+│   │   ├── __init__.py
+│   │   └── config.py
+│   │
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── data_splitter.py
+│   │   └── dataset.py
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   └── transformer.py
+│   │
+│   ├── trainers/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   └── td_trainer.py
+│   │
+│   └── utils/
+│       ├── __init__.py
+│       ├── data_utils.py
+│       ├── inference.py
+│       ├── logging.py
+│       └── metrics.py
+│
+├── __init__.py
+├── inference.py
+├── split_data.py
+├── train.py
+├── upload_to_hf.py
+│
+├── .gitignore
+├── app.py
+├── Dockerfile
+├── hf_upload_example.py
+├── HF_UPLOAD_README.md
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── run_training.py
+├── setup_upload_script.py
+└── setup.py
+"""

@@ -1,5 +1,5 @@
 "
-You are a software engineer specialized in software quality and technical debt. 
+You are a prioritizing agent specialized in analyzing software quality and prioritizing technical debt. 
 You are practical with prioritizing technical debt, and are given a report of different types of code smells located in a project. 
 Answer the user's question based on the context below. 
 
@@ -14,24 +14,320 @@ Follow these steps carefully:
 <Rank>, <Name of smell>, <Type of smell>, <File name>, <Reason for prioritization>.
 7. Consider multiple dimensions for prioritization: recency of changes, frequency of changes, severity of impact, dependencies, and criticality of the affected component.
 8. You must include **all smells** from the documents in your ranking. 
-- If there are 8 documents, your answer must contain exactly 8 ranked items.
+- Example: If there are 8 documents, your answer must contain exactly 8 ranked items.
 - Do not merge, ignore, or drop any smells. Even if smells are similar, list them separately.
 9. Double-check before answering:
 - Did you include every smell from the documents?
 - Is each smell represented exactly once?
-- Does your ranking contain exactly 8 items?
 
------- DOCUMENTS ------
+------ INFO ON CODE SMELLS AND TECHNICAL DEBT ------
 
+This severity has been obtained as a code smell
+severity index using the method described in the Code smell
+Severity Analysis section. The dataset prepared for analysis
+comprises a set of 10,550 classes, and the latest versions of
+Python software are considered (Phase 3).
+TABLE 2. Code smell severity index.
+A. CLASSIFICATION BASED MODEL SELECTION
+For classifying the severity intensities obtained above, the
+severity index obtained for each smell has been categorized
+into a range and taken as a labelled category for further
+multinomial classification modelling. Using the mentioned
+intensity levels in the Code Smell Severity Analysis section,
+it was observed that out of five code smells, one of the smells
+happened to lie in the Major range with an intensity value
+of 8.01. The remaining four are centered around the Moderate
+range, averaging 7.
+Furthermore, the acquired dataset has been tested against
+various multinomial supervised machine learning algorithms
+VOLUME 11, 2023
+119153
+A. Gupta et al.: Severity Assessment of Python Code Smells
+TABLE 3. Software metrics considered along with absolute comparator.
+
+
+Received 11 October 2023, accepted 22 October 2023, date of publication 25 October 2023, date of current version 1 November 2023.
+Digital Object Identifier 10.1109/ACCESS.2023.3327553
+A Severity Assessment of Python Code Smells
+AAKANSHI GUPTA
+1, RASHMI GANDHI
+1, NISHTHA JATANA
+2, DIVYA JATAIN
+2,
+SANDEEP KUMAR PANDA
+3, AND JANJHYAM VENKATA NAGA RAMESH
+4
+1Department of Computer Science and Engineering, ASET, AUUP, Noida 201303, India
+2Maharaja Surajmal Institute of Technology, Delhi 110058, India
+3Department of Artificial Intelligence and Data Science, Faculty of Science and Technology (IcfaiTech), The ICFAI Foundation for Higher Education, Hyderabad,
+Telangana 501203, India
+4Koneru Lakshmaiah Education Foundation, Vijayawada, Andhra Pradesh 522502, India
+Corresponding author: Sandeep Kumar Panda (sandeeppanda@ifheindia.org)
+This work was supported in part by the Faculty of Science and Technology (IcfaiTech), The ICFAI Foundation for Higher Education,
+Hyderabad, Telangana, India.
+ABSTRACT Presence of code smells complicate the source code and can obstruct the development and
+functionality of the software project. As they represent improper behavior that might have an adverse effect
+on software maintenance, code smells are behavioral in nature. Python is widely used for various software
+engineering activities and tends tool to contain code smells that affect its quality. This study investigates
+five code smells diffused in 20 Python software comprising 10550 classes and analyses its severity index
+using metric distribution at the class level. Subsequently, a behavioral analysis has been conducted over the
+considered modification period (phases) for the code smell undergoing class change proneness. Furthermore,
+it helps to investigate the accurate multinomial classifier for mining the severity index. It witnesses the change
+in severity at the class level over the modification period by mapping its characteristics over various statistical
+functions and hypotheses. Our findings reveal that the Cognitive Complexity of code smell is the most severe
+one. 
+
+119152
+VOLUME 11, 2023
+A. Gupta et al.: Severity Assessment of Python Code Smells
+FIGURE 2. Diffusion of code smells at the class level.
+The severity, as stated earlier, is examined for the smell-
+causing instances. Based upon the starting threshold point of
+the smelly instances and the extreme threshold point, four
+intervals are observed and treated over the metric distribution.
+These thresholds are called relative threshold points related to
+the metric values corresponding to smelly instances.
+The relative threshold percentile, mapped to their respec-
+tive values, also rests on the Comparator (>, <), referred
+to as the Absolute Comparator, for determining the side of
+the metric distribution where the probability of occurrence of
+smell is high. These comparators were obtained by applying a
+rule-based classification algorithm, particularly JRIP, on the
+essential software metrics extracted using feature selection
+methods.
+Step 2: The metric values are then compared with their
+threshold values obtained for the defined percentile. The
+intensity levels are defined as follows:
+[1-3.25): INFORMATIONAL
+[3.25-5.5): LOW
+[5.5-7.75): MODERATE
+[7.75-10): MAJOR
+[11]: CRITICAL
+∗INFORMATIONAL and CRITICAL are considered
+extreme thresholds.
+Step 3: The last step heads towards aggregating the inten-
+sity values obtained for each metric to obtain a single value
+at the class level by employing the Absolute Comparator
+obtained in step 1(e).
+
+
+Additionally, the effectiveness of the dataset utilized could
+potentially impede the outcomes.
+It should be noted that the severity assessment is based
+solely on the distribution of metrics for the considered
+Python software system and the establishment of thresholds.
+As severity estimation is subjective, other factors may be con-
+sidered to prioritise smells. The feature selection methodolo-
+gies utilised may be further refined by assessing the weights
+of different metrics. Using a single detection tool may impact
+the identification of code smells across the classes of software
+systems, and the evaluation has been conducted solely at the
+class level without considering method-level data. Also, some
+code smell scenarios are very challenging to detect, thus there
+is a potential that some code smells will go undetected.
+VI. CONCLUSION & FUTURE WORK
+This research implements multinomial machine-learning
+classification algorithms for Python code smells. Out of
+119158
+VOLUME 11, 2023
+A. Gupta et al.: Severity Assessment of Python Code Smells
+five code smells, the Cognitive Complexity smell falls
+under the major range with a severity index of 8.01. The
+remaining four smells are centered around the moderate
+range, averaging 7. 
+
+In this part of
+the research, the independent group belongs to the different
+code smells under observation, possessing severity in close
+proximity. The code smells were prioritized using the severity
+intensity discussed above, and each code smell was labelled
+using a numeric value (0-4) corresponding to the intensity
+ranges. The dataset used here refers to the severity index
+obtained for Phase 1 Python software.
+Hypothesis:
+H0: The distribution of samples of the severity of each code
+smell originates from an identical population.
+H1: The distribution of samples of the severity of at least
+one code smell comes from a different population than the
+others.
+Procedure:
+1. The severity index of Version 1 for each code smell is
+initially ranked from N groups. Version 1 is considered
+due to its initial development nature. Also, it has been
+utilized for calculating the changes in the further ver-
+sions.
+2. 
+
+Out of
+119158
+VOLUME 11, 2023
+A. Gupta et al.: Severity Assessment of Python Code Smells
+five code smells, the Cognitive Complexity smell falls
+under the major range with a severity index of 8.01. The
+remaining four smells are centered around the moderate
+range, averaging 7. The estimated class level severity inten-
+sity for each code smell was then tested for performance
+comparison of multinomial classifiers in combination with
+AdaBoost and outcomes with 92.8% accuracy for the J48
+algorithm.
+The analysed three phases estimate the class change prone-
+ness of the considered 20 Python software systems and
+produce a total of 899 common classes among them. The
+changes between the software metrics range from 2% to 9%
+for the considered code smells among the versions. It has
+been established that a comparison of the software versions
+with respect to Phase 1 represents an incremental nature
+of severity for three code smells, namely ‘‘Collapsible IF’’
+and ‘‘Naming Convention’’. In contrast, the other smells,
+‘‘Cognitive Complexity’’ and ‘‘Many Parameters,’’ have been
+observed to have decreasing values of severity index over
+the period. However, the ‘‘Unused Variable’’ smell shows an
+abrupt nature.
+Hypothesis testing using the Kruskal Wallis Test and
+Wilcoxon Signed Rank test has been implemented for ana-
+lyzing the differences in the distribution of the smells. The
+obtained mean ranks through Kruskal Wallis hypothesis test-
+ing reveal that each code smell differs from the other, express-
+ing a non-identical population distribution among the code
+smells.
+
+
+W =
+XNr
+i=1 [sgn
+ x2,i −x1,i
+
+.Ri
+(5)
+FIGURE 4. Box plot of the distribution of severity of considered code
+smells.
+FIGURE 5. Pairwise comparison of code smells based on mean rankings
+obtained through the Kruskal Wallis test.
+where,
+sgn= sign function
+Nr= reduced sample size
+Ri = Rank of the pair, starting with the smallest non-zero
+absolute difference.
+[ Note: Ties receive a rank equal to the average of the ranks
+they span.]
+For Nr ≥20, The z- score can be computed as:
+z = W
+σw
+(6)
+where,
+σw =
+√Nr(Nr + 1)(2Nr + 1)
+6
+(7)
+By performing the Wilcoxon test for the severity intensity
+values at class-level, the code smells exhibiting an incre-
+mental nature (Collapsible ‘‘IF’’and Naming Convention),
+as described in RQ2, possess more positive classes than the
+negative ones in terms of severity for the pair Phase 1 -
+Phase 2 and Phase 1 - Phase 3. Moreover, through this
+analysis, these smells prevail in an incremental nature of
+severity intensities, as concluded in RQ2. On the contrary,
+the code smells having a decremental nature was observed
+to have more negative classes over the modification period.
+This signifies an optimized performance of the software,
+VOLUME 11, 2023
+119157
+A. Gupta et al.: Severity Assessment of Python Code Smells
+which has minimized the effect of code smells and renders the
+users with optimal functionalities in various software systems
+developed in Python.
+These estimations have been described in Figure 6. for the
+‘‘Naming Convention’’ smell and Figure 7. for the ‘‘Cogni-
+tive Complexity’’ smell. 
+
+Hypothesis testing using the Kruskal Wallis Test and
+Wilcoxon Signed Rank test has been implemented for ana-
+lyzing the differences in the distribution of the smells. The
+obtained mean ranks through Kruskal Wallis hypothesis test-
+ing reveal that each code smell differs from the other, express-
+ing a non-identical population distribution among the code
+smells.
+The study of Wilcoxon signed Rank Test states that ‘‘Col-
+lapsible ‘IF’ and Naming Convention code smell possess
+more positive classes. However, the smells ‘‘Cognitive Com-
+plexity’’ and ‘‘Many Parameter’’ have been observed to have
+more negative classes, implicating a reduced severity value
+observed during estimations over the modification period.
+This concludes that some of the classes diffused with these
+smells have been refactored in the subsequent versions of the
+software, yielding good software quality. Despite the changes
+observed in severity at the class level for the ‘‘Unused
+Variable’’ smell, the examination revealed less significant
+changes over the modification period.
+The novelty of this work is attributed to the severity anal-
+ysis of the Python code smells using J48 and Adaboost
+algorithm. The work includes severity analysis of Python
+code smells, which has not been addressed in the available lit-
+erature. The contribution of this work would help the software
+developers prioritize the code smells in the pre-refactoring
+phase, thus saving ample time and resources spent in the
+development of projects. Subsequently, examining the behav-
+ior of the severity trend of code smell gives a glimpse to the
+developers for managing the code smells in the forthcoming
+releases for the primary software system. 
+
+Furthermore, the acquired dataset has been tested against
+various multinomial supervised machine learning algorithms
+VOLUME 11, 2023
+119153
+A. Gupta et al.: Severity Assessment of Python Code Smells
+TABLE 3. Software metrics considered along with absolute comparator.
+TABLE 4. Performance of multinomial classifier based on accuracy.
+TABLE 5. Performance measure of J48 algorithm.
+for each smell individually. Multinomial classification is per-
+formed by consideration of the nominal variable. The avail-
+able implementations of classifiers allow both multinomial
+and binary classification. These classifiers are combined with
+the ‘ADA Boost’ ensemble technique.
+
+
+To select subsets of code smell rather than focusing on
+complete sets, feature selection is being performed. To select
+the code smells, J48 and Adaboost are used as they are ver-
+satile and can be integrated for outlier detection, regression,
+and classifier. This integration handles the title data and is
+being trained to support weak classifier results. Although
+Adaboost may not perform well with noisy data and is slow
+to train, hybridization with J48 makes it easier to make the
+subset, while classifiers are not able to decide fast as the tree
+size is wider individually. As the literature states, J48 faces
+difficulty handling empty subsets, avoidable code smells, and
+overfitting the data being Adaboost.
+The RQ1 acknowledges the severity of Python code smells
+and the best-suited multinomial classification algorithm
+for inspecting the criticality of code smells using the
+ensemble technique (ADA Boost) through supervised learn-
+ing approaches.
+RQ2: How does the severity of the smell behave over
+the modification period?
+The analysis of the Python software concerning code
+smells and their severity compelled the researchers of this
+work to inspect the behavior of code smells for the prior
+versions of the software by analyzing its behavior over the
+period. The following criterion was devised for the selection
+of different versions of software in the form of ‘‘Phases’’
+under the name of modification period considered in this
+study:
+Phase 1: The software’s initial version is considered the
+development version with no modifications.
+Phase 2: The mid version of the software during its main-
+tenance phase is considered an in-modification version.
+
+
+
+------ CODE SMELLS FOUND IN A PYTHON PROJECT ------
 
 Type of smell: Structural
 Code smell: Long File
 Description: File 'tdsuite.trainers.td_trainer' has 294 meaningful lines of code
 File: ../projects/text_classification/tdsuite/trainers/td_trainer.py
-Module/Class: tdsuite.trainers.td_trainer
-Line Number: nan
 Severity: Medium
-Code segment (for context only, not analysis):
+Code segment (for context only):
 """"""Specialized trainer for technical debt classification.""""""
 
 import os
@@ -526,6 +822,43 @@ class TDTrainer(BaseTrainer):
         
         with open(os.path.join(output_dir, ""metrics.json""), ""w"") as f:
             json.dump(metrics, f, indent=2) 
+### File Analysis Report: projects/text_classification/tdsuite/trainers/td_trainer.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 494
+- Number of Classes: 1
+- Number of Functions: 6
+- Imports: 16
+- Average Cyclomatic Complexity: 6.71
+- Maximum Cyclomatic Complexity: 24
+- Maintainability Index: 54.38
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/trainers/td_trainer.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 576
+- Developers involved: 1
+- Last modified: 194 days ago (inactive for a while)
+
+------------------------------------------------------------
 
 
 
@@ -533,10 +866,8 @@ Type of smell: Code
 Code smell: Long Method
 Description: 'main' has 50 lines in ../projects/text_classification/hf_upload_example.py at line 11
 File: ../projects/text_classification/hf_upload_example.py
-Module/Class: main
-Line Number: 11.0
 Severity: nan
-Code segment (for context only, not analysis):
+Code segment (for context only):
 def main():
     """"""Run an example of uploading a model to Hugging Face Hub.""""""
     # Get user input for token
@@ -608,6 +939,370 @@ def main():
         print(f""\n❌ Error during upload: {e}"")
         return
 
+### File Analysis Report: projects/text_classification/hf_upload_example.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 84
+- Number of Classes: 0
+- Number of Functions: 1
+- Imports: 3
+- Average Cyclomatic Complexity: 11.00
+- Maximum Cyclomatic Complexity: 11
+- Maintainability Index: 71.86
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: hf_upload_example.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 84
+- Developers involved: 1
+- Last modified: 195 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
+File: ../projects/text_classification/app.py
+Severity: nan
+Code segment (for context only):
+def fine_tune_model(model_name):
+    """"""
+ it uses the selected dataset.
+    """"""
+ 
+    
+    dataset_train_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'train')
+
+          # Load only the train split of the dataset
+    if os.path.exists(dataset_train_path):
+        dataset = Dataset.load_from_disk(dataset_train_path)
+    
+    # Load model and tokenizer
+    model_path = f""./saved_models/{model_name}""
+
+    if os.path.exists(model_path) and model_name == ""binary_classification_train_TD"":
+
+        output_dir = ""./saved_models/finetuned_TD""
+        class_names = ['non_TD', 'TD']
+
+    
+    elif os.path.exists(model_path) and model_name == ""High_priority_roberta"":
+
+        output_dir = ""./saved_models/finetuned_Priority""
+        class_names = ['not_High_priority', 'High_priority']
+
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)  
+
+    tokenized_datasets = dataset.map(tokenize_function, batched=True)
+
+    tokenized_datasets = tokenized_datasets.train_test_split(test_size=0.020)  # Adjust the split ratio as needed
+    tokenized_datasets = DatasetDict({
+        'train': tokenized_datasets['train'],
+        'test': tokenized_datasets['test']
+    })
+
+    
+    # Fine-tuning
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        evaluation_strategy=""epoch"",  # or use ""steps"" to evaluate more frequently
+        learning_rate=2e-5,
+        per_device_train_batch_size=4,
+        num_train_epochs=2,
+        save_strategy=""no"",
+         # Load the best model at the end of training
+    )
+    
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_datasets[""train""],
+        eval_dataset=tokenized_datasets[""test""],  # Specify the evaluation dataset here
+    )
+    
+    trainer.train()
+    trainer.save_model() 
+    tokenizer.save_pretrained(training_args.output_dir)
+
+    dataset_test_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'test')
+
+    if os.path.exists(dataset_test_path):
+        test_dataset = Dataset.load_from_disk(dataset_test_path)
+        print(""Test dataset loaded successfully."")
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)
+
+    test_dataset = test_dataset.map(tokenize_function, batched=True)
+    test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    
+
+    output = trainer.predict(test_dataset)
+    logits = output.predictions
+    probs = softmax(logits, axis=1)
+    predictions = np.argmax(logits, axis=1)
+    positive_class_probs = probs[:, 1]
+    # Metrics and Confusion Matrix
+    labels = test_dataset['label']
+    accuracy = accuracy_score(labels, predictions)
+    conf_matrix = confusion_matrix(labels, predictions)
+    class_names = class_names 
+    report = classification_report(labels, predictions, target_names=class_names, output_dict=True)
+
+    # Convert the report dictionary to a DataFrame
+    df_classification_report = pd.DataFrame(report).transpose()
+
+    # Optionally, you can reset the index to have the class labels as a column
+    df_classification_report.reset_index(inplace=True)
+    df_classification_report.rename(columns={'index': 'class'}, inplace=True)
+    
+# Format the floating point columns to three decimal places directly
+    float_columns = ['precision', 'recall', 'f1-score', 'support']
+    df_classification_report[float_columns] = df_classification_report[float_columns].applymap(lambda x: f""{x:.3f}"")
+
+
+    # Update dataset with predictions
+    dataset_df = pd.DataFrame(test_dataset.remove_columns(['input_ids', 'attention_mask']).to_pandas())
+    dataset_df['predicted'] = predictions
+    dataset_df['probability'] = positive_class_probs
+    dataset_head = dataset_df.head()
+
+    # Save updated dataframe to CSV for download
+    csv_path = ""updated_dataset.xlsx""
+    dataset_df.to_excel(csv_path, index=True)
+    
+    # Plot confusion matrix
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', ax=ax, cmap=""Blues"", xticklabels=class_names, yticklabels=class_names)
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.title('Confusion Matrix')
+    plt.close(fig)  # Prevent the figure from displaying immediately
+
+    return ""Model fine-tuned."" , accuracy, df_classification_report , gr.Plot(fig), dataset_head, csv_path
+
+### File Analysis Report: projects/text_classification/app.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 380
+- Number of Classes: 0
+- Number of Functions: 10
+- Imports: 14
+- Average Cyclomatic Complexity: 4.12
+- Maximum Cyclomatic Complexity: 7
+- Maintainability Index: 48.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: app.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 380
+- Developers involved: 1
+- Last modified: 196 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+
+Type of smell: Code
+Code smell: Long Method
+Description: 'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
+File: ../projects/text_classification/tdsuite/train.py
+Severity: nan
+Code segment (for context only):
+def main():
+    """"""Main function.""""""
+    args = parse_args()
+    
+    # Check for GPU availability
+    if not torch.cuda.is_available():
+        raise RuntimeError(""No GPU available. This model requires a GPU to run."")
+    device = torch.device(""cuda"")
+    print(f""Using GPU: {torch.cuda.get_device_name(0)}"")
+    
+    # Set random seed
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+    
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    
+    # Create processor
+    processor = BinaryTDProcessor(tokenizer, max_length=args.max_length)
+    
+    # Load and prepare data
+    data = processor.load_data(
+        args.data_file,
+        text_column=args.text_column,
+        label_column=args.label_column
+    )
+    
+    data = processor.prepare_binary_data(
+        data,
+        positive_category=args.positive_category,
+        text_column=args.text_column,
+        label_column=args.label_column,
+        numeric_labels=args.numeric_labels
+    )
+    
+    # Split data into train and eval sets
+    train_data, eval_data = train_test_split(
+        data,
+        test_size=0.1,  # Use 10% for evaluation
+        random_state=args.seed,
+        stratify=data[""label_idx""]
+    )
+    
+    # Create datasets
+    train_dataset = processor.create_dataset(
+        train_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    eval_dataset = processor.create_dataset(
+        eval_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    # Create model
+    model = AutoModelForSequenceClassification.from_pretrained(
+        args.model_name,
+        num_labels=2
+    )
+    model.to(device)
+    
+    # Create training arguments
+    training_args = TrainingArguments(
+        output_dir=args.output_dir,
+        num_train_epochs=args.num_epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        warmup_steps=args.warmup_steps,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        evaluation_strategy=""epoch"",  # Always use epoch-based evaluation
+        save_strategy=""epoch"",
+        load_best_model_at_end=not args.cross_validation,  # Only load best model when not using cross-validation
+        metric_for_best_model=""eval_loss"",
+        greater_is_better=False,
+        logging_steps=10,
+        save_total_limit=2,
+        remove_unused_columns=False,
+        # Disable wandb and codecarbon by default
+        report_to=""none"",  # Disable wandb
+        disable_tqdm=False,  # Keep progress bars
+        no_cuda=False,  # Use CUDA if available
+    )
+    
+    # Create trainer
+    trainer = TDTrainer(
+        model=model,
+        tokenizer=tokenizer,
+        training_args=training_args,
+        output_dir=args.output_dir,
+        track_emissions=True,  # Enable emissions tracking by default
+        n_splits=args.n_splits,
+    )
+    
+    if args.cross_validation:
+        # Train with cross-validation
+        trainer.train_with_cross_validation(
+            train_dataset,
+            eval_dataset=eval_dataset,
+            is_binary=True
+        )
+    else:
+        # Train without cross-validation
+        trainer.train(train_dataset, eval_dataset=eval_dataset)
+    
+    # Save model and tokenizer
+    model.save_pretrained(args.output_dir)
+    tokenizer.save_pretrained(args.output_dir)
+    
+    # Save training configuration
+    with open(os.path.join(args.output_dir, ""training_config.json""), ""w"") as f:
+        json.dump(vars(args), f, indent=2)
+
+### File Analysis Report: projects/text_classification/tdsuite/train.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 207
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 16
+- Average Cyclomatic Complexity: 2.50
+- Maximum Cyclomatic Complexity: 4
+- Maintainability Index: 73.82
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/train.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 387
+- Developers involved: 1
+- Last modified: 195 days ago (inactive for a while)
+
+------------------------------------------------------------
 
 
 
@@ -615,10 +1310,8 @@ Type of smell: Code
 Code smell: Long Method
 Description: 'main' has 127 lines in ../projects/text_classification/tdsuite/inference.py at line 53
 File: ../projects/text_classification/tdsuite/inference.py
-Module/Class: main
-Line Number: 53.0
 Severity: nan
-Code segment (for context only, not analysis):
+Code segment (for context only):
 def main():
     """"""Main function for inference.""""""
     # Parse arguments
@@ -794,263 +1487,51 @@ def main():
                 # Catch any unexpected errors during emissions tracking
                 print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")
 
+### File Analysis Report: projects/text_classification/tdsuite/inference.py
 
+--- Static Code Metrics ---
+- Lines of Code (LOC): 230
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 11
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 23
+- Maintainability Index: 58.78
 
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
 
-Type of smell: Code
-Code smell: Long Method
-Description: 'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
-File: ../projects/text_classification/tdsuite/train.py
-Module/Class: main
-Line Number: 88.0
-Severity: nan
-Code segment (for context only, not analysis):
-def main():
-    """"""Main function.""""""
-    args = parse_args()
-    
-    # Check for GPU availability
-    if not torch.cuda.is_available():
-        raise RuntimeError(""No GPU available. This model requires a GPU to run."")
-    device = torch.device(""cuda"")
-    print(f""Using GPU: {torch.cuda.get_device_name(0)}"")
-    
-    # Set random seed
-    torch.manual_seed(args.seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(args.seed)
-    
-    # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-    
-    # Create processor
-    processor = BinaryTDProcessor(tokenizer, max_length=args.max_length)
-    
-    # Load and prepare data
-    data = processor.load_data(
-        args.data_file,
-        text_column=args.text_column,
-        label_column=args.label_column
-    )
-    
-    data = processor.prepare_binary_data(
-        data,
-        positive_category=args.positive_category,
-        text_column=args.text_column,
-        label_column=args.label_column,
-        numeric_labels=args.numeric_labels
-    )
-    
-    # Split data into train and eval sets
-    train_data, eval_data = train_test_split(
-        data,
-        test_size=0.1,  # Use 10% for evaluation
-        random_state=args.seed,
-        stratify=data[""label_idx""]
-    )
-    
-    # Create datasets
-    train_dataset = processor.create_dataset(
-        train_data,
-        text_column=args.text_column,
-        label_column=""label_idx""
-    )
-    
-    eval_dataset = processor.create_dataset(
-        eval_data,
-        text_column=args.text_column,
-        label_column=""label_idx""
-    )
-    
-    # Create model
-    model = AutoModelForSequenceClassification.from_pretrained(
-        args.model_name,
-        num_labels=2
-    )
-    model.to(device)
-    
-    # Create training arguments
-    training_args = TrainingArguments(
-        output_dir=args.output_dir,
-        num_train_epochs=args.num_epochs,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
-        learning_rate=args.learning_rate,
-        weight_decay=args.weight_decay,
-        warmup_steps=args.warmup_steps,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        evaluation_strategy=""epoch"",  # Always use epoch-based evaluation
-        save_strategy=""epoch"",
-        load_best_model_at_end=not args.cross_validation,  # Only load best model when not using cross-validation
-        metric_for_best_model=""eval_loss"",
-        greater_is_better=False,
-        logging_steps=10,
-        save_total_limit=2,
-        remove_unused_columns=False,
-        # Disable wandb and codecarbon by default
-        report_to=""none"",  # Disable wandb
-        disable_tqdm=False,  # Keep progress bars
-        no_cuda=False,  # Use CUDA if available
-    )
-    
-    # Create trainer
-    trainer = TDTrainer(
-        model=model,
-        tokenizer=tokenizer,
-        training_args=training_args,
-        output_dir=args.output_dir,
-        track_emissions=True,  # Enable emissions tracking by default
-        n_splits=args.n_splits,
-    )
-    
-    if args.cross_validation:
-        # Train with cross-validation
-        trainer.train_with_cross_validation(
-            train_dataset,
-            eval_dataset=eval_dataset,
-            is_binary=True
-        )
-    else:
-        # Train without cross-validation
-        trainer.train(train_dataset, eval_dataset=eval_dataset)
-    
-    # Save model and tokenizer
-    model.save_pretrained(args.output_dir)
-    tokenizer.save_pretrained(args.output_dir)
-    
-    # Save training configuration
-    with open(os.path.join(args.output_dir, ""training_config.json""), ""w"") as f:
-        json.dump(vars(args), f, indent=2)
+--- Example Lint Messages ---
+No specific linting issues found.
 
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
 
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 194 days ago (inactive for a while)
 
-Type of smell: Code
-Code smell: Long Method
-Description: 'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
-File: ../projects/text_classification/app.py
-Module/Class: fine_tune_model
-Line Number: 90.0
-Severity: nan
-Code segment (for context only, not analysis):
-def fine_tune_model(model_name):
-    """"""
- it uses the selected dataset.
-    """"""
- 
-    
-    dataset_train_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'train')
+------------------------------------------------------------
 
-          # Load only the train split of the dataset
-    if os.path.exists(dataset_train_path):
-        dataset = Dataset.load_from_disk(dataset_train_path)
-    
-    # Load model and tokenizer
-    model_path = f""./saved_models/{model_name}""
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 194 days ago (inactive for a while)
 
-    if os.path.exists(model_path) and model_name == ""binary_classification_train_TD"":
-
-        output_dir = ""./saved_models/finetuned_TD""
-        class_names = ['non_TD', 'TD']
-
-    
-    elif os.path.exists(model_path) and model_name == ""High_priority_roberta"":
-
-        output_dir = ""./saved_models/finetuned_Priority""
-        class_names = ['not_High_priority', 'High_priority']
-
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForSequenceClassification.from_pretrained(model_path)
-    def tokenize_function(examples):
-        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)  
-
-    tokenized_datasets = dataset.map(tokenize_function, batched=True)
-
-    tokenized_datasets = tokenized_datasets.train_test_split(test_size=0.020)  # Adjust the split ratio as needed
-    tokenized_datasets = DatasetDict({
-        'train': tokenized_datasets['train'],
-        'test': tokenized_datasets['test']
-    })
-
-    
-    # Fine-tuning
-    training_args = TrainingArguments(
-        output_dir=output_dir,
-        evaluation_strategy=""epoch"",  # or use ""steps"" to evaluate more frequently
-        learning_rate=2e-5,
-        per_device_train_batch_size=4,
-        num_train_epochs=2,
-        save_strategy=""no"",
-         # Load the best model at the end of training
-    )
-    
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=tokenized_datasets[""train""],
-        eval_dataset=tokenized_datasets[""test""],  # Specify the evaluation dataset here
-    )
-    
-    trainer.train()
-    trainer.save_model() 
-    tokenizer.save_pretrained(training_args.output_dir)
-
-    dataset_test_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'test')
-
-    if os.path.exists(dataset_test_path):
-        test_dataset = Dataset.load_from_disk(dataset_test_path)
-        print(""Test dataset loaded successfully."")
-    def tokenize_function(examples):
-        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)
-
-    test_dataset = test_dataset.map(tokenize_function, batched=True)
-    test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
-    
-
-    output = trainer.predict(test_dataset)
-    logits = output.predictions
-    probs = softmax(logits, axis=1)
-    predictions = np.argmax(logits, axis=1)
-    positive_class_probs = probs[:, 1]
-    # Metrics and Confusion Matrix
-    labels = test_dataset['label']
-    accuracy = accuracy_score(labels, predictions)
-    conf_matrix = confusion_matrix(labels, predictions)
-    class_names = class_names 
-    report = classification_report(labels, predictions, target_names=class_names, output_dict=True)
-
-    # Convert the report dictionary to a DataFrame
-    df_classification_report = pd.DataFrame(report).transpose()
-
-    # Optionally, you can reset the index to have the class labels as a column
-    df_classification_report.reset_index(inplace=True)
-    df_classification_report.rename(columns={'index': 'class'}, inplace=True)
-    
-# Format the floating point columns to three decimal places directly
-    float_columns = ['precision', 'recall', 'f1-score', 'support']
-    df_classification_report[float_columns] = df_classification_report[float_columns].applymap(lambda x: f""{x:.3f}"")
-
-
-    # Update dataset with predictions
-    dataset_df = pd.DataFrame(test_dataset.remove_columns(['input_ids', 'attention_mask']).to_pandas())
-    dataset_df['predicted'] = predictions
-    dataset_df['probability'] = positive_class_probs
-    dataset_head = dataset_df.head()
-
-    # Save updated dataframe to CSV for download
-    csv_path = ""updated_dataset.xlsx""
-    dataset_df.to_excel(csv_path, index=True)
-    
-    # Plot confusion matrix
-    fig, ax = plt.subplots(figsize=(8,6))
-    sns.heatmap(conf_matrix, annot=True, fmt='d', ax=ax, cmap=""Blues"", xticklabels=class_names, yticklabels=class_names)
-    plt.ylabel('Actual')
-    plt.xlabel('Predicted')
-    plt.title('Confusion Matrix')
-    plt.close(fig)  # Prevent the figure from displaying immediately
-
-    return ""Model fine-tuned."" , accuracy, df_classification_report , gr.Plot(fig), dataset_head, csv_path
-
+------------------------------------------------------------
 
 
 
@@ -1058,10 +1539,8 @@ Type of smell: Code
 Code smell: Long Method
 Description: 'generate_model_card' has 67 lines in ../projects/text_classification/tdsuite/upload_to_hf.py at line 54
 File: ../projects/text_classification/tdsuite/upload_to_hf.py
-Module/Class: generate_model_card
-Line Number: 54.0
 Severity: nan
-Code segment (for context only, not analysis):
+Code segment (for context only):
 def generate_model_card(model_path: str) -> str:
     """"""Generate a model card based on the training configuration.""""""
     # Try to read configuration files
@@ -1144,6 +1623,43 @@ def generate_model_card(model_path: str) -> str:
     
     return card_content
 
+### File Analysis Report: projects/text_classification/tdsuite/upload_to_hf.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 201
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 6
+- Average Cyclomatic Complexity: 3.25
+- Maximum Cyclomatic Complexity: 6
+- Maintainability Index: 52.04
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/upload_to_hf.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 201
+- Developers involved: 1
+- Last modified: 195 days ago (inactive for a while)
+
+------------------------------------------------------------
 
 
 
@@ -1151,10 +1667,8 @@ Type of smell: Code
 Code smell: Long Method
 Description: 'compute_metrics' has 118 lines in ../projects/text_classification/tdsuite/utils/metrics.py at line 15
 File: ../projects/text_classification/tdsuite/utils/metrics.py
-Module/Class: compute_metrics
-Line Number: 15.0
 Severity: nan
-Code segment (for context only, not analysis):
+Code segment (for context only):
 def compute_metrics(df, output_dir=None, save_plots=True):
     """"""
     Compute and save classification metrics.
@@ -1315,6 +1829,51 @@ def compute_metrics(df, output_dir=None, save_plots=True):
                     plt.close()
     
     return metrics 
+### File Analysis Report: projects/text_classification/tdsuite/utils/metrics.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 174
+- Number of Classes: 0
+- Number of Functions: 1
+- Imports: 7
+- Average Cyclomatic Complexity: 28.00
+- Maximum Cyclomatic Complexity: 28
+- Maintainability Index: 58.14
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/utils/metrics.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 412
+- Developers involved: 1
+- Last modified: 195 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: text_classifier/utils/metrics.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 400
+- Developers involved: 1
+- Last modified: 196 days ago (inactive for a while)
+
+------------------------------------------------------------
 
 
 
@@ -1322,10 +1881,8 @@ Type of smell: Code
 Code smell: Long Method
 Description: 'split_data' has 73 lines in ../projects/text_classification/tdsuite/data/data_splitter.py at line 249
 File: ../projects/text_classification/tdsuite/data/data_splitter.py
-Module/Class: split_data
-Line Number: 249.0
 Severity: nan
-Code segment (for context only, not analysis):
+Code segment (for context only):
 def split_data(
     data_file: str,
     output_dir: str,
@@ -1429,12 +1986,47 @@ def split_data(
         top_repos_df.to_csv(os.path.join(output_dir, ""top_repos.csv""), index=False)
     
     return train_df, test_df, top_repos_df 
+### File Analysis Report: projects/text_classification/tdsuite/data/data_splitter.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 351
+- Number of Classes: 1
+- Number of Functions: 6
+- Imports: 8
+- Average Cyclomatic Complexity: 6.71
+- Maximum Cyclomatic Complexity: 14
+- Maintainability Index: 55.71
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/data/data_splitter.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 417
+- Developers involved: 1
+- Last modified: 195 days ago (inactive for a while)
+
+------------------------------------------------------------
 
 
 
------- END OF DOCUMENTS ------
 
-Question: Based on the provided code smells, how would you prioritize them?
+Question: Considering both the cost of refactoring and the potential benefits to software quality, rank the provided code smells by the order in which they should be addressed. Explain briefly for each smell how its severity, propagation risk, and long-term impact justify its position.
 
-Now provide the ranked prioritization list of all 8 smells.
-    "
+Now provide the ranked prioritization list of all given smells."

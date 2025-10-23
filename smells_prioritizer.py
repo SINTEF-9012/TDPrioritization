@@ -14,8 +14,10 @@ import requests
 import csv
 import pandas as pd
 import os
-from utils import get_entity_snippet_from_line, get_pylint_metadata, analyze_file
+from utils import get_entity_snippet_from_line, build_llm_analysis_report, create_pylinter_and_jsonReporter_object
+from git_history import build_report
 from chunking import convert_chunked_text_to_haystack_documents
+from prompt_template import PROMPT_TEMPLATE
 from git import Repo
 
 @component
@@ -46,6 +48,61 @@ class OllamaGenerator:
             writer.writerow([prompt])
 
         return {"replies": [result["response"]]}
+    
+
+def read_code_smells_and_write_to_documents(csv_path, smell_filter, repo_path):
+    df = pd.read_csv(csv_path)
+    report_dir = os.path.dirname(csv_path)
+    docs = []
+    linter, reporter = create_pylinter_and_jsonReporter_object()
+
+    for _, row in df.iterrows():
+        if row["Name"] not in smell_filter:
+            continue
+
+        file_path = os.path.normpath(os.path.join(report_dir, row["File"]))
+        code_segment = ""
+        if os.path.isfile(file_path):
+            code_segment = get_entity_snippet_from_line(row["Line Number"], file_path)
+            code_metadata_report = build_llm_analysis_report(file_path, reporter, linter)["text"]
+            git_analysis_report = build_report(repo_path, file_path.split("/")[-1])
+
+
+        content = (
+            f"Type of smell: {row['Type']}\n"
+            f"Code smell: {row['Name']}\n"
+            f"Description: {row['Description']}\n"
+            f"File: {row['File']}\n"
+            f"Severity: {row['Severity']}\n"
+            f"Code segment (for context only):\n{code_segment}\n"
+            f"{code_metadata_report}\n"
+            f"{git_analysis_report}\n"
+        )
+        docs.append(Document(content=content, meta={"type": "smell"}))
+    return docs
+
+def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2"):
+    doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
+    query_embedder = SentenceTransformersTextEmbedder(model=model_name)
+    doc_embedder.warm_up()
+    query_embedder.warm_up()
+    return doc_embedder, query_embedder
+
+
+def build_rag_pipeline(document_store, prompt_template, model_name, prompt_file, llm_output_file):
+    retriever = ChromaEmbeddingRetriever(document_store=document_store)
+    prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents", "smells"})
+    llm = OllamaGenerator(model=model_name, save_to_file=True, save_file=llm_output_file, full_prompt_file=prompt_file)
+
+    pipeline = Pipeline()
+    pipeline.add_component("retriever", retriever)
+    pipeline.add_component("prompt_builder", prompt_builder)
+    pipeline.add_component("llm", llm)
+
+    pipeline.connect("retriever", "prompt_builder.documents")
+    pipeline.connect("prompt_builder", "llm")
+
+    return pipeline
 
 
 def main():
@@ -59,117 +116,35 @@ def main():
     args = parser.parse_args()
 
     code_smell_documents = []
-    data_frame = pd.read_csv("python_smells_detector/code_quality_report.csv")
-    report_dir = os.path.dirname("python_smells_detector/code_quality_report.csv")
     smells = ['Long Method', 'Large Class', 'Long File'] 
     repo = Repo(f"projects/{args.project}")
 
     dir_name = args.outdir+"_"+args.model
     os.makedirs(dir_name, exist_ok=True)
-    smells_file = os.path.join(dir_name, "smells.txt")
-    documents_file = os.path.join(dir_name, "documents.txt")
-    output_file = os.path.join(dir_name, args.output)
-    prompt_file = os.path.join(dir_name, "prompt_template.txt")
+    documents_file = os.path.join(dir_name, "full_prompt.txt")
+    llm_output_file = os.path.join(dir_name, "llm_output.txt")
 
-    with open(smells_file, "w") as f:
-        f.write("------ CODE SMELLS TO BE PRIORITIZED BY THE LLM ------\n")
-        counter = 0
 
-        for _, column in data_frame.iterrows():
-            if column['Name'] not in smells: continue
-
-            f.write(str(column) + "\n\n")
-
-            file_path = os.path.normpath(os.path.join(report_dir, column["File"])) 
-            code_segment = ""
-            code_metadata = None
-            pylint = None
-
-            if os.path.isfile(file_path): 
-                code_segment = get_entity_snippet_from_line(column['Line Number'], file_path )
-                #code_metadata = analyze_file(file_path)
-                #pylint = get_pylint_metadata(file_path)
-            
-            content = (
-                f"\nType of smell: {column['Type']}\n"
-                f"Code smell: {column['Name']}\n"
-                f"Description: {column['Description']}\n"
-                f"File: {column['File']}\n"
-                f"Module/Class: {column['Module/Class']}\n"
-                f"Line Number: {column['Line Number']}\n"
-                f"Severity: {column['Severity']}\n"
-                f"Code segment (for context only, not analysis):\n{code_segment}"
-                #f"Metadata received from pylint: {pylint}\n"
-                #f"General metadata received through radon: {code_metadata}\n"
-
-                f"\n"
-            )
-            
-            counter += 1
-            code_smell_documents.append(Document(content=content, meta={"type":"smell"}))
+    code_smell_documents = read_code_smells_and_write_to_documents("python_smells_detector/code_quality_report.csv", smells, repo)
 
     # There are no documents.
     if len(code_smell_documents) == 0:
         print("The project does not contain any of the code smells you inquired about")
         return 0
     
-    # Write documents to InMemoryDocumentStore
     document_store = ChromaDocumentStore()
 
     #print(document_store.count_documents())
 
-    # Build a RAG pipeline
-    prompt_template = """
-You are a prioritizing agent specialized in analyzing software quality and prioritizing technical debt. 
-You are practical with prioritizing technical debt, and are given a report of different types of code smells located in a project. 
-Answer the user's question based on the context below. 
-
-Follow these steps carefully:
-
-1. Use the best practices for managing and prioritizing technical debt. Refer to definitions of technical debt categories (e.g., code smells, architectural issues, documentation gaps, testing debt).
-2. Read the question carefully and make sure you understand what the user is asking about prioritization.
-3. Look for relevant information in the provided documents that contain information about files, smells, and context.
-4. Each document contains information about one smell found in the source code of the project. Each document is independent of each other, and you must not use information from one document to prioritize or analyze a different smell/document.
-5. When formulating the answer, provide detailed reasoning. Explain why some debts should be prioritized over others (e.g., high defect association, or large impact on maintainability).
-6. When formulating the answer, provide the rankings in the given format:
-<Rank>, <Name of smell>, <Type of smell>, <File name>, <Reason for prioritization>.
-7. Consider multiple dimensions for prioritization: recency of changes, frequency of changes, severity of impact, dependencies, and criticality of the affected component.
-8. You must include **all smells** from the documents in your ranking. 
-- Example: If there are 8 documents, your answer must contain exactly 8 ranked items.
-- Do not merge, ignore, or drop any smells. Even if smells are similar, list them separately.
-9. Double-check before answering:
-- Did you include every smell from the documents?
-- Is each smell represented exactly once?
-
------- INFO ON CODE SMELLS AND TECHNICAL DEBT ------
-{% for doc in documents %}
-{{ doc.content }}
-{% endfor %}
-
------- CODE SMELLS FOUND IN A PYTHON PROJECT ------
-{% for smell in smells %}
-{{ smell.content }}
-{% endfor %}
-
-Question: {{question}}
-
-Now provide the ranked prioritization list of all given smells.
-"""
-
     chunked_docs_of_articles = convert_chunked_text_to_haystack_documents()
 
-    question = "Based on the provided code smells, how would you prioritize them?"
-        
-    # Define required variables explicitly
-    prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents", "smells"})
-
-    # 3. Embed & write documents
-    doc_embedder = SentenceTransformersDocumentEmbedder(model="sentence-transformers/all-MiniLM-L6-v2")
-    query_embedder = SentenceTransformersTextEmbedder(model="sentence-transformers/all-MiniLM-L6-v2")
-
-    # Warm them up (loads the HF model)
-    doc_embedder.warm_up()
-    query_embedder.warm_up()
+    question = (
+        "Considering both the cost of refactoring and the potential benefits to software quality, "
+        "rank the provided code smells by the order in which they should be addressed. "
+        "Explain briefly for each smell how its severity, propagation risk, and long-term impact justify its position."
+    )
+            
+    doc_embedder, query_embedder = load_embedder_pair()
 
     embedded_articles = doc_embedder.run(documents=chunked_docs_of_articles)["documents"]
     print(f"Embedded {len(embedded_articles)} article chunks.")
@@ -183,26 +158,10 @@ Now provide the ranked prioritization list of all given smells.
     document_store.write_documents(embedded_articles)
     print("Wrote article chunks to Chroma.")
 
-
-    # top_k tells the retriever that we want the n most relevant documents.
-    retriever = ChromaEmbeddingRetriever(document_store=document_store)
-    llm = OllamaGenerator(model=args.model, save_to_file=True, save_file=output_file, full_prompt_file = documents_file)
-
     smells_text = "\n".join([doc.content for doc in code_smell_documents])
     query_embedding = query_embedder.run(smells_text)["embedding"]
 
-    with open(prompt_file, "w") as f:
-        f.write("Question: " + question+"\n")
-        f.write("Prompt template:\n")
-        f.write(prompt_template)
-
-    rag_pipeline = Pipeline()
-    rag_pipeline.add_component("retriever", retriever)
-    rag_pipeline.add_component("prompt_builder", prompt_builder)
-    rag_pipeline.add_component("llm", llm)
-
-    rag_pipeline.connect("retriever", "prompt_builder.documents")
-    rag_pipeline.connect("prompt_builder", "llm")
+    rag_pipeline = build_rag_pipeline(document_store, PROMPT_TEMPLATE, args.model, documents_file, llm_output_file)
 
     print("Running model: " + args.model)
     results = rag_pipeline.run(
