@@ -8,6 +8,7 @@ from pylint.lint import Run, PyLinter
 from io import StringIO
 from pylint.reporters.json_reporter import JSONReporter
 import json
+import os
 
 def patch_astroid_namespace_bug():
     import astroid.interpreter._import.util as util
@@ -23,6 +24,8 @@ def patch_astroid_namespace_bug():
             except AttributeError:
                 return False
         util.is_namespace = safe_is_namespace
+
+patch_astroid_namespace_bug()
 
 def get_entity_snippet_from_line(
     start_line: float,
@@ -251,10 +254,27 @@ or multiple convention/refactor issues should be ranked higher.
     }
 
 
+EXCLUDE_DIRS = {'.git', '__pycache__', '.venv', 'venv', '.idea', '.mypy_cache'}
+def build_project_structure(root_dir, indent="│   "):
+    structure = []
+    for root, dirs, files in os.walk(root_dir):
+        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
+
+        level = root.replace(root_dir, "").count(os.sep)
+        indent_str = "│   " * level
+        structure.append(f"{indent_str}├── {os.path.basename(root)}/")
+        for f in files:
+            structure.append(f"{indent_str}│   ├── {f}")
+    return "\n".join(structure)
+
+
 # For debugging the functions
 if __name__ == "__main__":
-    linter, reporter = create_pylinter_and_jsonReporter_object()
+    # Pylinter and Astroid is very slow. This is the reason their functions are commented out for the moment.
+    #linter, reporter = create_pylinter_and_jsonReporter_object()
+    #report = build_llm_analysis_report("projects/text_classification/app.py", reporter, linter)
+    #print(report["text"])
 
-    report = build_llm_analysis_report("projects/text_classification/app.py", reporter, linter)
+    PROJECT_STRUCTURE = build_project_structure("projects/text_classification")
 
-    print(report["text"])
+    print(PROJECT_STRUCTURE)

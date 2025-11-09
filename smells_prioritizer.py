@@ -14,7 +14,7 @@ import requests
 import csv
 import pandas as pd
 import os
-from utils import get_entity_snippet_from_line, build_llm_analysis_report, create_pylinter_and_jsonReporter_object
+from utils import get_entity_snippet_from_line, build_llm_analysis_report, create_pylinter_and_jsonReporter_object, build_project_structure
 from git_history import build_report
 from chunking import convert_chunked_text_to_haystack_documents
 from prompt_template import PROMPT_TEMPLATE
@@ -33,13 +33,22 @@ class OllamaGenerator:
         response = requests.post(self.url, json={
             "model": self.model,
             "prompt": prompt,
-            "stream": False
+            "stream": False,
+            "options": {
+                "temperature": 0.0, # TODO Do I need these parameters when the output is not always reproduced.
+                "seed": 42,
+                "top_p": 0,
+            }
         })
 
         result = response.json()
 
         if self.save_to_file:
-            with open(self.save_file, "w", newline="", encoding="utf-8") as f:
+            with open(self.save_file+".txt", "w", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerow([result["response"]])
+
+            with open(self.save_file+".csv", "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow([result["response"]])
         
@@ -50,11 +59,11 @@ class OllamaGenerator:
         return {"replies": [result["response"]]}
     
 
-def read_code_smells_and_write_to_documents(csv_path, smell_filter, repo_path):
+def read_code_smells_and_write_to_documents(csv_path, smell_filter, repo_path, git_stats, pylint_astroid):
     df = pd.read_csv(csv_path)
     report_dir = os.path.dirname(csv_path)
     docs = []
-    linter, reporter = create_pylinter_and_jsonReporter_object()
+    if pylint_astroid: linter, reporter = create_pylinter_and_jsonReporter_object()
 
     for _, row in df.iterrows():
         if row["Name"] not in smell_filter:
@@ -64,21 +73,46 @@ def read_code_smells_and_write_to_documents(csv_path, smell_filter, repo_path):
         code_segment = ""
         if os.path.isfile(file_path):
             code_segment = get_entity_snippet_from_line(row["Line Number"], file_path)
-            code_metadata_report = build_llm_analysis_report(file_path, reporter, linter)["text"]
-            git_analysis_report = build_report(repo_path, file_path.split("/")[-1])
+            if pylint_astroid: code_metadata_report = build_llm_analysis_report(file_path, reporter, linter)["text"]
+            if git_stats: git_analysis_report = build_report(repo_path, file_path.split("/")[-1])
 
 
         content = (
-            f"Type of smell: {row['Type']}\n"
-            f"Code smell: {row['Name']}\n"
-            f"Description: {row['Description']}\n"
-            f"File: {row['File']}\n"
-            f"Severity: {row['Severity']}\n"
-            f"Code segment (for context only):\n{code_segment}\n"
-            f"{code_metadata_report}\n"
-            f"{git_analysis_report}\n"
+            f"""
+### CODE SMELL REPORT
+
+**Type of smell:** {row['Type']}
+**Name of smell:** {row['Name']}
+**File:** {row['File']}
+**Name:** {row['Module/Class']}
+
+---
+### DESCRIPTION
+{row['Description'].strip()}
+
+---
+
+### STATIC ANALYSIS SUMMARY
+{code_metadata_report if pylint_astroid else "No static analysis report available."}
+
+---
+
+### GIT-BASED EVOLUTION SUMMARY
+{git_analysis_report if git_stats else "No git statistics have been calculated."}
+
+---
+
+### CODE SEGMENT (context only)
+```python
+{code_segment.strip()}  # truncate long code
+```
+
+--- END OF REPORT
+"""
         )
+
         docs.append(Document(content=content, meta={"type": "smell"}))
+
     return docs
 
 def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2"):
@@ -112,6 +146,30 @@ def main():
     parser.add_argument("--output", default="llm_output.txt", help="File to save results from the LLM")
     parser.add_argument("--base_line", default="base_line", help="directory where the different files should be stored")
     parser.add_argument("--outdir", default="baseline", help="Directory where the output files should be stored")
+    
+    parser.add_argument(
+        "--git_stats",
+        action="store_true",
+        help="Include Git statistics in the context."
+    )
+    parser.add_argument(
+        "--no_git_stats",
+        dest="git_stats",
+        action="store_false",
+        help="Disable Git statistics."
+    )
+
+    parser.add_argument(
+        "--pylint_astroid",
+        action="store_true",
+        help="Perform static analysis using pylint and astroid."
+    )
+    parser.add_argument(
+        "--no_pylint_astroid",
+        dest="pylint_astroid",
+        action="store_false",
+        help="Disable static analysis."
+    )
 
     args = parser.parse_args()
 
@@ -122,10 +180,10 @@ def main():
     dir_name = args.outdir+"_"+args.model
     os.makedirs(dir_name, exist_ok=True)
     documents_file = os.path.join(dir_name, "full_prompt.txt")
-    llm_output_file = os.path.join(dir_name, "llm_output.txt")
+    llm_output_file = os.path.join(dir_name, "llm_output") # TODO fix?
 
 
-    code_smell_documents = read_code_smells_and_write_to_documents("python_smells_detector/code_quality_report.csv", smells, repo)
+    code_smell_documents = read_code_smells_and_write_to_documents("python_smells_detector/code_quality_report.csv", smells, repo, args.git_stats, args.pylint_astroid)
 
     # There are no documents.
     if len(code_smell_documents) == 0:
@@ -169,7 +227,8 @@ def main():
             "retriever": {"query_embedding": query_embedding},
             "prompt_builder": {
                 "question": question,
-                "smells": embedded_smells_doc
+                "smells": embedded_smells_doc,
+                "PROJECT_STRUCTURE": build_project_structure(f"projects/{args.project}")
                 },
         }
     )
@@ -178,6 +237,11 @@ main()
 
 
 """
+What is left of the basline:
+- Refactor pylint and astroid funtions to decrease the runtime. 
+- Add more articles about TD and code smells.
+- Create a script/function that calculates similarity to ground truth.
+
 Send the code segment alone to the llm for it to analyze, store the text from it and use text as metadata to the relevant document?
 
 personification - Assign the role (minimal responsibility) - work as a prioritizing agent. 

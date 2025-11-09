@@ -147,27 +147,4 @@ if __name__ == "__main__":
 
     print(c)
 
-
-# See if the LLM can create a scoring value itself and compare it to the way I have done it. 
-# We have to give the LLM the actual metrics, scoring values should not be given to the llm. 
-# Comparison - give it just the history (my current metrics), then the score, then the message. THen we can try to introduce agents. 
-
-# Ground truth - How to meassure the correctness of the output. We choose two-three files, and anylyze the code smells and devide which are the most important. 
-# We decide beforehand which file has the most important smell. 
-
-# Ask Karthik which file/code smells are the most important. Use this as the ground truth for the correctness. 
-# Soft test - Plausibility of the LLM when testing. 
-# We need to find different ways of testing the plausibility of the LLMs. 
-# Baseline - Asking the LLM to prioritize the code smells the provided in the documents. Which metrics should be part 
-# the baseline. 
 # Plasubility score - defined by myself - should be justified. 
-
-# Make the use of LLMs scalable
-# Alter the prompt template
-# Add articles/documents to the RAG about code smells to help the LLM better prioritize.
-# Structurize the output 
-# Use remote API for LLMS
-# Give code smells to an agent
-# Use of agents in later iterations?
-# Should I use sonarQube?
-

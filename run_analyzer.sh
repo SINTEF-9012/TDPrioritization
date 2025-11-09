@@ -19,7 +19,7 @@ LAST_PROJECT_FILE=".last_project"
 
 # Check if detector needs to run
 if [ -f "$LAST_PROJECT_FILE" ] && [ "$(cat $LAST_PROJECT_FILE)" = "$PROJECT_NAME" ]; then
-    echo "Skipping detector - project '$PROJECT_NAME' already analyzed ✅"
+    echo "Skipping detector - project '$PROJECT_NAME' already analyzed."
 else
     echo "Running Python Smells Detector on $PROJECT_PATH ..."
     cd python_smells_detector
@@ -31,4 +31,7 @@ fi
 echo "Running Smells Prioritizer ..."
 time python3 smells_prioritizer.py "$PROJECT_NAME" "$@"
 
-echo "Analysis and prioritization complete! ✅ "
+echo -e "Analysis and prioritization complete!\n"
+
+#echo "Attempting to calculate similarity between ground truth and the llm's output:"
+#python3 rank_output.py

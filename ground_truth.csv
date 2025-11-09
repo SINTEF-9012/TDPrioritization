@@ -1,0 +1,9 @@
+Rank,Type of Smell,Name,File,Reason for Prioritization
+1,Long Method,main,../projects/text_classification/tdsuite/inference.py,"High complexity and Single Responsibility Principle (SRP) violation; difficult to test."
+2,Long Method,compute_metrics,../projects/text_classification/tdsuite/utils/metrics.py,"Violates SRP by mixing computation, data preparation, and visualization."
+3,Long File,tdsuite.trainers.td_trainer,../projects/text_classification/tdsuite/trainers/td_trainer.py,"A god object with excessive responsibilities (training, prediction, plotting)."
+4,Long Method,main,../projects/text_classification/tdsuite/train.py,"Monolithic script that entangles configuration with execution logic."
+5,Long Method,fine_tune_model,../projects/text_classification/app.py,"Orchestrator for a full fine-tuning pipeline in a single function."
+6,Long Method,split_data,../projects/text_classification/tdsuite/data/data_splitter.py,"Combines several logically distinct data preparation steps."
+7,Long Method,generate_model_card,../projects/text_classification/tdsuite/upload_to_hf.py,"Low complexity."
+8,Long Method,main,../projects/text_classification/hf_upload_example.py,"Low complexity."
