@@ -1,73 +1,196 @@
------- CODE SMELLS TO BE PRIORITIZED BY THE LLM ------
-Type                                                   Structural
-Name                                                    Long File
-Description     File 'tdsuite.trainers.td_trainer' has 294 mea...
-File            ../projects/text_classification/tdsuite/traine...
-Module/Class                          tdsuite.trainers.td_trainer
-Line Number                                                   NaN
-Severity                                                   Medium
-Name: 15, dtype: object
+Code smell 1
+Type of smell: Structural
+Name: High Cyclomatic Complexity
+File: ../projects/text_classification/tdsuite/utils/inference.py
+Module/class: tdsuite.utils.inference.InferenceEngine
+Description: Method 'predict_from_file' has cyclomatic complexity of 11
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'main' has 50 lines in ../projects/text_classi...
-File            ../projects/text_classification/hf_upload_exam...
-Module/Class                                                 main
-Line Number                                                  11.0
-Severity                                                      NaN
-Name: 28, dtype: object
+Code smell 2
+Type of smell: Structural
+Name: High Cyclomatic Complexity
+File: ../projects/text_classification/tdsuite/utils/inference.py
+Module/class: tdsuite.utils.inference.EnsembleInferenceEngine
+Description: Method 'predict_from_file' has cyclomatic complexity of 11
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'fine_tune_model' has 77 lines in ../projects/...
-File                       ../projects/text_classification/app.py
-Module/Class                                      fine_tune_model
-Line Number                                                  90.0
-Severity                                                      NaN
-Name: 29, dtype: object
+Code smell 3
+Type of smell: Structural
+Name: High Cyclomatic Complexity
+File: ../projects/text_classification/tdsuite/trainers/td_trainer.py
+Module/class: tdsuite.trainers.td_trainer.TDTrainer
+Description: Method 'train_with_cross_validation' has cyclomatic complexity of 19
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'main' has 86 lines in ../projects/text_classi...
-File             ../projects/text_classification/tdsuite/train.py
-Module/Class                                                 main
-Line Number                                                  88.0
-Severity                                                      NaN
-Name: 33, dtype: object
+Code smell 4
+Type of smell: Structural
+Name: High Cyclomatic Complexity
+File: ../projects/text_classification/tdsuite/trainers/base.py
+Module/class: tdsuite.trainers.base.BaseTrainer
+Description: Method 'train' has cyclomatic complexity of 13
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'main' has 127 lines in ../projects/text_class...
-File            ../projects/text_classification/tdsuite/infere...
-Module/Class                                                 main
-Line Number                                                  53.0
-Severity                                                      NaN
-Name: 36, dtype: object
+Code smell 5
+Type of smell: Structural
+Name: Long File
+File: ../projects/text_classification/tdsuite/trainers/td_trainer.py
+Module/class: tdsuite.trainers.td_trainer
+Description: File 'tdsuite.trainers.td_trainer' has 294 meaningful lines of code
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'generate_model_card' has 67 lines in ../proje...
-File            ../projects/text_classification/tdsuite/upload...
-Module/Class                                  generate_model_card
-Line Number                                                  54.0
-Severity                                                      NaN
-Name: 41, dtype: object
+Code smell 6
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/hf_upload_example.py
+Module/class: main
+Description: 'main' has 50 lines in ../projects/text_classification/hf_upload_example.py at line 11
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'compute_metrics' has 118 lines in ../projects...
-File            ../projects/text_classification/tdsuite/utils/...
-Module/Class                                      compute_metrics
-Line Number                                                  15.0
-Severity                                                      NaN
-Name: 46, dtype: object
+Code smell 7
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/app.py
+Module/class: fine_tune_model
+Description: 'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
 
-Type                                                         Code
-Name                                                  Long Method
-Description     'split_data' has 73 lines in ../projects/text_...
-File            ../projects/text_classification/tdsuite/data/d...
-Module/Class                                           split_data
-Line Number                                                 249.0
-Severity                                                      NaN
-Name: 54, dtype: object
+Code smell 8
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/app.py
+Module/class: process_and_save_csv
+Description: Method 'process_and_save_csv' makes 8 calls to 'df' but only 0 local calls in ../projects/text_classification/app.py
+
+Code smell 9
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/app.py
+Module/class: fine_tune_model
+Description: Method 'fine_tune_model' makes 6 calls to 'os' but only 0 local calls in ../projects/text_classification/app.py
+
+Code smell 10
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/app.py
+Module/class: evaluate_model
+Description: Method 'evaluate_model' makes 4 calls to 'torch' but only 0 local calls in ../projects/text_classification/app.py
+
+Code smell 11
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/tdsuite/train.py
+Module/class: main
+Description: 'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
+
+Code smell 12
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/train.py
+Module/class: parse_args
+Description: Method 'parse_args' makes 20 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/train.py
+
+Code smell 13
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/train.py
+Module/class: main
+Description: Method 'main' makes 30 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/train.py
+
+Code smell 14
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/tdsuite/inference.py
+Module/class: main
+Description: 'main' has 127 lines in ../projects/text_classification/tdsuite/inference.py at line 53
+
+Code smell 15
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/inference.py
+Module/class: parse_args
+Description: Method 'parse_args' makes 12 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/inference.py
+
+Code smell 16
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/inference.py
+Module/class: main
+Description: Method 'main' makes 43 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/inference.py
+
+Code smell 17
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/split_data.py
+Module/class: main
+Description: Method 'main' makes 8 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/split_data.py
+
+Code smell 18
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/tdsuite/upload_to_hf.py
+Module/class: generate_model_card
+Description: 'generate_model_card' has 67 lines in ../projects/text_classification/tdsuite/upload_to_hf.py at line 54
+
+Code smell 19
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/upload_to_hf.py
+Module/class: parse_args
+Description: Method 'parse_args' makes 9 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
+
+Code smell 20
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/upload_to_hf.py
+Module/class: generate_model_card
+Description: Method 'generate_model_card' makes 8 calls to 'training_config' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
+
+Code smell 21
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/upload_to_hf.py
+Module/class: main
+Description: Method 'main' makes 27 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
+
+Code smell 22
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/utils/logging.py
+Module/class: setup_logging
+Description: Method 'setup_logging' makes 5 calls to 'logging' but only 0 local calls in ../projects/text_classification/tdsuite/utils/logging.py
+
+Code smell 23
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/tdsuite/utils/metrics.py
+Module/class: compute_metrics
+Description: 'compute_metrics' has 118 lines in ../projects/text_classification/tdsuite/utils/metrics.py at line 15
+
+Code smell 24
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/utils/metrics.py
+Module/class: compute_metrics
+Description: Method 'compute_metrics' makes 23 calls to 'plt' but only 0 local calls in ../projects/text_classification/tdsuite/utils/metrics.py
+
+Code smell 25
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/utils/data_utils.py
+Module/class: load_dataset_from_file
+Description: Method 'load_dataset_from_file' makes 4 calls to 'pd' but only 0 local calls in ../projects/text_classification/tdsuite/utils/data_utils.py
+
+Code smell 26
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/utils/inference.py
+Module/class: main
+Description: Method 'main' makes 17 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/utils/inference.py
+
+Code smell 27
+Type of smell: Code
+Name: Long Method
+File: ../projects/text_classification/tdsuite/data/data_splitter.py
+Module/class: split_data
+Description: 'split_data' has 73 lines in ../projects/text_classification/tdsuite/data/data_splitter.py at line 249
+
+Code smell 28
+Type of smell: Code
+Name: Feature Envy
+File: ../projects/text_classification/tdsuite/data/data_splitter.py
+Module/class: split_data
+Description: Method 'split_data' makes 5 calls to 'pd' but only 0 local calls in ../projects/text_classification/tdsuite/data/data_splitter.py
 

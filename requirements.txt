@@ -43,3 +43,6 @@ setuptools>=68.0.0
 
 # --- Compatibility Fixes ---
 importlib-metadata>=7.0.0,<9.0
+
+# --- Lang chain ---
+langchain-text-splitters==1.0.0

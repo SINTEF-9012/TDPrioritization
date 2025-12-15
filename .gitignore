@@ -14,3 +14,6 @@ projects/
 python_smells_detector/
 
 .last_project
+
+# Environmental variables to be ignored by Git.
+.env

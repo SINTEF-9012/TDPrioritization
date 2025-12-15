@@ -1,7 +1,4 @@
-from haystack import Pipeline, Document, component
-from haystack.utils import Secret
-from haystack.document_stores.in_memory import InMemoryDocumentStore
-from haystack.components.retrievers.in_memory import InMemoryBM25Retriever
+from haystack import Pipeline, Document
 from haystack.components.builders.prompt_builder import PromptBuilder
 
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
@@ -9,113 +6,123 @@ from haystack_integrations.components.retrievers.chroma import ChromaQueryTextRe
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder
 from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 
-import argparse
-import requests
 import csv
 import pandas as pd
 import os
-from utils import get_entity_snippet_from_line, build_llm_analysis_report, create_pylinter_and_jsonReporter_object, build_project_structure
+from git import Repo
+import random
+
+from utils import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
 from git_history import build_report
 from chunking import convert_chunked_text_to_haystack_documents
+from analyze_code_segment import analyze_code_segments_via_ai
+from cli import parse_args
 from prompt_template import PROMPT_TEMPLATE
-from git import Repo
+from ollama_client import OllamaGenerator
+from typing import List, Optional, Any
 
-@component
-class OllamaGenerator:
-    def __init__(self, model="qwen3:4b", url="http://localhost:11434/api/generate", save_to_file: bool = False, save_file: str = None, full_prompt_file: str = None):
-        self.model = model
-        self.url = url
-        self.save_to_file = save_to_file
-        self.save_file = save_file
-        self.full_prompt_file = full_prompt_file
+from langchain_ollama import ChatOllama
 
-    def run(self, prompt: str):
-        response = requests.post(self.url, json={
-            "model": self.model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.0, # TODO Do I need these parameters when the output is not always reproduced.
-                "seed": 42,
-                "top_p": 0,
-            }
-        })
+def read_relevant_code_smells_and_write_to_documents(smell_filter: List[str]) ->  List[dict[str, Any]]:
+    df = pd.read_csv("python_smells_detector/code_quality_report.csv")
+    docs: List[dict[str, Any]] = []
 
-        result = response.json()
-
-        if self.save_to_file:
-            with open(self.save_file+".txt", "w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow([result["response"]])
-
-            with open(self.save_file+".csv", "w", newline="", encoding="utf-8") as f:
-                writer = csv.writer(f)
-                writer.writerow([result["response"]])
-        
-        with open(self.full_prompt_file, "w", newline="", encoding="utf-8") as f: 
-            writer = csv.writer(f)
-            writer.writerow([prompt])
-
-        return {"replies": [result["response"]]}
-    
-
-def read_code_smells_and_write_to_documents(csv_path, smell_filter, repo_path, git_stats, pylint_astroid):
-    df = pd.read_csv(csv_path)
-    report_dir = os.path.dirname(csv_path)
-    docs = []
-    if pylint_astroid: linter, reporter = create_pylinter_and_jsonReporter_object()
+    i = 1
 
     for _, row in df.iterrows():
         if row["Name"] not in smell_filter:
             continue
+        
+        code_smell = {
+            "index": i,
+            "type_of_smell": row["Type"],
+            "name": row["Name"],
+            "file_path": row["File"],
+            "module_or_class": row["Module/Class"],
+            "line_number": row["Line Number"],
+            "description": row["Description"],
+        }
+            
+        docs.append(code_smell)
 
-        file_path = os.path.normpath(os.path.join(report_dir, row["File"]))
-        code_segment = ""
-        if os.path.isfile(file_path):
-            code_segment = get_entity_snippet_from_line(row["Line Number"], file_path)
-            if pylint_astroid: code_metadata_report = build_llm_analysis_report(file_path, reporter, linter)["text"]
-            if git_stats: git_analysis_report = build_report(repo_path, file_path.split("/")[-1])
+        i += 1
 
-
-        content = (
-            f"""
-### CODE SMELL REPORT
-
-**Type of smell:** {row['Type']}
-**Name of smell:** {row['Name']}
-**File:** {row['File']}
-**Name:** {row['Module/Class']}
-
----
-### DESCRIPTION
-{row['Description'].strip()}
-
----
-
-### STATIC ANALYSIS SUMMARY
-{code_metadata_report if pylint_astroid else "No static analysis report available."}
-
----
-
-### GIT-BASED EVOLUTION SUMMARY
-{git_analysis_report if git_stats else "No git statistics have been calculated."}
-
----
-
-### CODE SEGMENT (context only)
-```python
-{code_segment.strip()}  # truncate long code
-```
-
---- END OF REPORT
-"""
-        )
-
-        docs.append(Document(content=content, meta={"type": "smell"}))
+    # Randomize the list
+    random.seed(42)
+    random.shuffle(docs)
 
     return docs
 
-def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2"):
+def add_further_context(project_name: Repo, code_smells: List[dict], git_stats: bool = True, pylint: bool = True, code_segment: bool = True) -> List[dict]:
+    git_cache: dict[str, str] = {}
+    pylint_cache: dict[str, str] = {}
+    code_cache: dict[tuple[str, int], str] = {}
+
+    for smell in code_smells:
+        file_path = smell["file_path"]
+        line_number = smell["line_number"]
+
+        if file_path.startswith("../"):
+            normalized_path = file_path[3:]
+        else:
+            normalized_path = file_path
+
+        if git_stats:
+            if normalized_path not in git_cache:
+                git_cache[normalized_path] = build_report(
+                    project_name, 
+                    normalized_path,
+                )
+            smell["git_analysis"] = git_cache[normalized_path]
+
+        if pylint:
+            if normalized_path not in pylint_cache:
+                pylint_cache[normalized_path] = build_llm_analysis_report(
+                    normalized_path
+                )["text"]
+            smell["pylint_report"] = pylint_cache[normalized_path]
+
+        if code_segment:
+            key = (normalized_path, str(line_number))
+            if key not in code_cache:
+                code_cache[key] = get_code_segment_from_file_based_on_line_number(
+                    start_line=line_number,
+                    file_path=normalized_path,
+                ) or ""
+            smell["code_segment"] = code_cache[key]
+
+    return code_smells
+
+def build_haystack_documents(smells: dict[str, Any]) -> List[Document]:
+    docs: List[Document] = []
+    for s in smells:
+        content = (
+            f"SMELL\n"
+            f"- id: {s.get('index')}\n"
+            f"- type_of_smell: {s.get('type_of_smell')}\n"
+            f"- name: {s.get('name')}\n"
+            f"- file_path: {s.get('file_path')}\n"
+            f"- module_or_class: {s.get('module_or_class')}\n"
+            f"- line_number: {s.get('line_number')}\n\n"
+            f"DESCRIPTION\n{s.get('description')}\n\n"
+            f"GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
+            f"PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
+            f"AI SUMMARIZATION OF THE CODE\n{s.get('ai_code_segment_summary', 'N/A')}\n"
+        )
+
+        docs.append(Document(
+            content=content,
+            meta={
+                "type": "smell",
+                "index": s.get("index"),
+                "smell_name": s.get("name"),
+                "file_path": s.get("file_path"),
+                "description": s.get("description"),
+            }
+        ))
+    return docs
+
+def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2") -> tuple[SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder]:
     doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
     query_embedder = SentenceTransformersTextEmbedder(model=model_name)
     doc_embedder.warm_up()
@@ -123,10 +130,10 @@ def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2"):
     return doc_embedder, query_embedder
 
 
-def build_rag_pipeline(document_store, prompt_template, model_name, prompt_file, llm_output_file):
+def build_rag_pipeline(document_store, prompt_template, model_name, prompt_file) -> Pipeline:
     retriever = ChromaEmbeddingRetriever(document_store=document_store)
-    prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents", "smells"})
-    llm = OllamaGenerator(model=model_name, save_to_file=True, save_file=llm_output_file, full_prompt_file=prompt_file)
+    prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents", "smells", "project_structure"})
+    llm = OllamaGenerator(model=model_name, full_prompt_file=prompt_file)
 
     pipeline = Pipeline()
     pipeline.add_component("retriever", retriever)
@@ -140,115 +147,99 @@ def build_rag_pipeline(document_store, prompt_template, model_name, prompt_file,
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze and prioritize code smells for a project.")
-    parser.add_argument("project", help="Name of the project directory (e.g., cerberus)")
-    parser.add_argument("--model", default="qwen3:4b", help="Which Ollama LLM model to use")
-    parser.add_argument("--output", default="llm_output.txt", help="File to save results from the LLM")
-    parser.add_argument("--base_line", default="base_line", help="directory where the different files should be stored")
-    parser.add_argument("--outdir", default="baseline", help="Directory where the output files should be stored")
-    
-    parser.add_argument(
-        "--git_stats",
-        action="store_true",
-        help="Include Git statistics in the context."
-    )
-    parser.add_argument(
-        "--no_git_stats",
-        dest="git_stats",
-        action="store_false",
-        help="Disable Git statistics."
-    )
+    args = parse_args()
 
-    parser.add_argument(
-        "--pylint_astroid",
-        action="store_true",
-        help="Perform static analysis using pylint and astroid."
-    )
-    parser.add_argument(
-        "--no_pylint_astroid",
-        dest="pylint_astroid",
-        action="store_false",
-        help="Disable static analysis."
-    )
+    smells = ['Long Method', 'Large Class', 'Long File', 'High Cyclomatic Complexity', 'Feature Envy'] 
+    project_to_be_analyzed = Repo(f"projects/{args.project_name}")
 
-    args = parser.parse_args()
-
-    code_smell_documents = []
-    smells = ['Long Method', 'Large Class', 'Long File'] 
-    repo = Repo(f"projects/{args.project}")
-
-    dir_name = args.outdir+"_"+args.model
+    dir_name = args.output_dir + "_" + args.model_name
     os.makedirs(dir_name, exist_ok=True)
-    documents_file = os.path.join(dir_name, "full_prompt.txt")
-    llm_output_file = os.path.join(dir_name, "llm_output") # TODO fix?
+    full_prompt_file = os.path.join(dir_name, "full_prompt.txt")
 
+    code_smells_dic = read_relevant_code_smells_and_write_to_documents(smells) 
+    code_smells_dic = add_further_context(project_to_be_analyzed, code_smells_dic, True, True, True)
 
-    code_smell_documents = read_code_smells_and_write_to_documents("python_smells_detector/code_quality_report.csv", smells, repo, args.git_stats, args.pylint_astroid)
+    llm = ChatOllama(
+        model="gpt-oss:20b-cloud",
+        temperature=0,
+        seed=42,
+    )
 
-    # There are no documents.
-    if len(code_smell_documents) == 0:
+    code_smells_dic = analyze_code_segments_via_ai(code_smells_dic, llm, True)
+    documents = build_haystack_documents(code_smells_dic)
+
+    if len(documents) == 0:
         print("The project does not contain any of the code smells you inquired about")
         return 0
     
     document_store = ChromaDocumentStore()
-
-    #print(document_store.count_documents())
-
-    chunked_docs_of_articles = convert_chunked_text_to_haystack_documents()
-
-    question = (
-        "Considering both the cost of refactoring and the potential benefits to software quality, "
-        "rank the provided code smells by the order in which they should be addressed. "
-        "Explain briefly for each smell how its severity, propagation risk, and long-term impact justify its position."
-    )
-            
+   
     doc_embedder, query_embedder = load_embedder_pair()
 
-    embedded_articles = doc_embedder.run(documents=chunked_docs_of_articles)["documents"]
-    print(f"Embedded {len(embedded_articles)} article chunks.")
+    if args.include_articles:
+        chunked_docs_of_articles = convert_chunked_text_to_haystack_documents()
+        embedded_articles = doc_embedder.run(documents=chunked_docs_of_articles)["documents"]
+        document_store.write_documents(embedded_articles)
+        print(f"Embedded {len(embedded_articles[0].embedding)} article chunks and wrote them to Chroma.")
+    else:
+        print("Articles disabled; proceeding without embedded literature.")
 
-    # Quick check of embedding dimensions
-    if len(embedded_articles) > 0:
-        print("Sample article embedding length:", len(embedded_articles[0].embedding))
+    rag_pipeline = build_rag_pipeline(document_store, PROMPT_TEMPLATE, args.model_name, full_prompt_file)
 
-    embedded_smells_doc = doc_embedder.run(documents=code_smell_documents)["documents"]
+    question = (
+        "Using evidence from the provided embedded research (INFO ON CODE SMELLS AND TECHNICAL DEBT),\
+        rank ALL code smells by refactoring priority. For each smell, justify the rank using research-backed\
+        signals such as change-proneness, fault/defect-proneness (bug association), smell severity/metrics\
+        (e.g., size, complexity), and expected refactoring ROI (cost vs benefit).\
+        If the research suggests a relevant principle (e.g., smells correlate with higher change-proneness),\
+        apply it explicitly to the smell's available metrics (git stats, churn, recency, complexity, lint)."
+    )
 
-    document_store.write_documents(embedded_articles)
-    print("Wrote article chunks to Chroma.")
+    query_embedding = query_embedder.run(question)["embedding"]
 
-    smells_text = "\n".join([doc.content for doc in code_smell_documents])
-    query_embedding = query_embedder.run(smells_text)["embedding"]
-
-    rag_pipeline = build_rag_pipeline(document_store, PROMPT_TEMPLATE, args.model, documents_file, llm_output_file)
-
-    print("Running model: " + args.model)
+    print("Running model: " + args.model_name)
     results = rag_pipeline.run(
         {
             "retriever": {"query_embedding": query_embedding},
             "prompt_builder": {
                 "question": question,
-                "smells": embedded_smells_doc,
-                "PROJECT_STRUCTURE": build_project_structure(f"projects/{args.project}")
+                "smells": documents,
+                "project_structure": build_project_structure(f"projects/{args.project_name}") if args.include_project_structure else "Not included."
                 },
         }
-    )
+    )["llm"]
 
-main()
+    llm_output_file = os.path.join(dir_name, "llm_output")
+
+    with open(llm_output_file+".txt", "w", newline="", encoding="utf-8") as f1, open(llm_output_file+".csv", "w", newline="", encoding="utf-8") as f2:
+        writer = csv.writer(f1)
+        writer.writerow([results["response"]])
+
+        writer = csv.writer(f2)
+        writer.writerow([results["response"]])
+    
+
+if __name__ == "__main__":
+    main()
 
 
 """
 What is left of the basline:
-- Refactor pylint and astroid funtions to decrease the runtime. 
 - Add more articles about TD and code smells.
-- Create a script/function that calculates similarity to ground truth.
 
-Send the code segment alone to the llm for it to analyze, store the text from it and use text as metadata to the relevant document?
+Plasubility score - defined by myself - should be justified. 
+
+Ranking - function (is it correct)
+Embedding - (any other alternatigves to huging face)
+
+Run 10 times (minimum).
 
 personification - Assign the role (minimal responsibility) - work as a prioritizing agent. 
 
-Lang chain
-
 google cli - coding agents - gemini CLI and claude CLI to evaluate againt my prototype. 
 
-Provide metadata rather than hard text and code
+Cumulative lift chart
+
+bash run_analyzer.sh gitmetrics --model gpt-oss:20b-cloud --no_pylint_astroid --git_stats --articles --add_source_code_folder_structure
+
 """

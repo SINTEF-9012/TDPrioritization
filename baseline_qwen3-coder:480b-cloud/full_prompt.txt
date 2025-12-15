@@ -35,6 +35,95 @@ Rank|Name of Smell|Name|File|Reason for Prioritization
 
 ------ INFO ON CODE SMELLS AND TECHNICAL DEBT ------
 
+Table 9 reports the ORs achieved from such an analysis. Statisti-
+cally significant values, i.e., those for which the p-value is lower than 0.05, are reported
+in bold face. From this analysis, we can notice that the presence of code smells is sig-
+nificantly related to the increase of change-proneness. The size of code components also
+6https://issues.apache.org/jira/browse/HBASE-514.
+Empir Software Eng (2018) 23:1
+– 1
+1
+1
+88
+22
+1210
+Fig. 10 SZZ Analysis: Fault-proneness of classes affected by a code smell compared to the fault-proneness
+of the same classes during the time period in which they were not affected by a code smell
+affects change-proneness, although at a lower extent, while the interaction of smell pres-
+ence and size has a strong impact on the change-proneness. In terms of fault-proneness,
+only the interaction between the independent variables is statistically significant. This con-
+firms what we observed in RQ3: code smells are not necessarily the direct cause of the class
+fault-proneness.
+Empir Software Eng (2018) 23:1
+– 1
+1
+1
+88
+22
+1211
+Table 9 ORs of independent factors when building logistic model
+Dependent Variable
+Smell Presence
+Size
+Their Interaction
+Change-proneness
+4.46
+1.7
+8.41
+Defect-proneness
+1.74
+0.93
+2.11
+Statistically significant ORs are reported in bold face
+Moreover, to be sure that the results achieved in the context of RQ2 and RQ3 were not
+simply due to a reflection of code size, we re-ran our analysis by considering the change-
+and the fault-proneness of smelly and non-smelly classes having different size. In particular:
+1.
+we grouped together smelly classes with similar size by considering their distribution
+in terms of size. 
+
+–
+RQ3: To what extent do change- and fault-proneness of classes vary as a consequence
+of code smell introduction and removal? This research question investigates whether
+the change- and fault-proneness of a class increases when a smell is introduced, and
+whether it decreases when the smell is removed. Such an analysis is of paramount
+importance because a class may be intrinsically change-prone (and also fault-prone)
+regardless of whether it is affected by code smells.
+To answer our research questions we mined 395 releases of 30 open source systems
+searching for instances of the 13 code smells object of our study. Table 2 reports the ana-
+lyzed systems, the number of releases considered for each of them, and their size ranges
+in terms of number of classes, number of methods, and KLOCs. The choice of the subject
+systems was driven by the will to consider systems having different size (ranging from 0.4
+to 868 KLOCs), belonging to different application domains (modeling tools, parsers, IDEs,
+IR-engines, etc.), developed by different open source communities (Apache, Eclipse, etc.),
+and having different lifetime (from 1 to 19 years).
+The need for analyzing smells in 395 project releases makes the manual detection of the
+code smells prohibitively expensive. For this reason, we developed a simple tool to perform
+smell detection. The tool outputs a list of candidate code components (i.e., classes or meth-
+ods) potentially exhibiting a smell. 
+
+TABLE 6. Code smell Severity index over the modification period.
+The highest rise was computed for Collapsible ‘IF’ code
+smell, accounting for 2.8%. In contrast, many Parameters
+code smell indicates a drop of 8.5%. The smells Collapsible
+‘‘IF’’ and Naming Convention show an incremental severity
+over the modification period w.r.t severity of Phase 1. The
+other smells, Many Parameters List and Cognitive Complex-
+ity, show a decremental severity. However, the Unused Vari-
+ables code smell, with a percentage change of 4.19%, is not
+considered due to its consistent severity behavior observed
+over the modification period, Phase 1– Phase 2.
+Consequently, this analysis promotes an ideology among
+the developers to reduce the severity of the Python code
+in the later versions of the software exhibiting code smells.
+Likewise, it would benefit the developers laying a foundation
+in Python development.
+The RQ2 analyses the behavior of Python code smells
+concerning the severity of the code smells by estimating the
+class change proneness across the versions analyzed over the
+modification period.
+
+
 This
 study aims to evaluate the severity of Python code smells so
 they can be promptly fixed or removed.
@@ -65,117 +154,6 @@ over the phases (Phase 1, Phase 2, Phase 3).
 Formally, 20 Python software with 10,550 classes were
 analyzed for detecting Python code smell according to their
 occurrences at the class level. 
-
-With this research question, an attempt has been made to
-examine the severity of code smells over the modification
-period by estimating the class change proneness over the met-
-ric distribution of the relevant code smell [14], [31]. Further,
-it will help to determine the percentage change of the severity
-with respect to the initial software development, considered
-the first version of the modification period in this study [22].
-RQ3: Can the smells be prioritized based on the diffu-
-sion of their severity in software code metrics?
-This research question explores the mean rankings of the
-severity of the code smell estimated in the above approach
-[19], [20]. Subsequently, the versions are monitored to ascer-
-tain the class-by-class behaviour of the severity of different
-smells [14].
-A. DATASET AND SMELL SELECTION AND COLLECTION
-This research has been carried out using open-source Python
-software. Among the substantial Python software available,
-20 codes were evaluated, with approximately 6,817 Python
-files and 10,550 Python classes.
-The source codes implemented by these systems are freely
-accessible and can be downloaded and copied from the
-GitHub worldwide repository of open-source software. The
-primary criterion for the selection of the systems is their rep-
-utation & acceptance on the GitHub platform, which can be
-demonstrated by MOST STARS or as STARGAZERS (The
-Stargazers software are the software that is highly popular
-among the users, widely used, and is most reliable, making
-them a suitable choice for the research study). The relevant
-material related to this research is uploaded on Github1.
-
-
-Hence, this dataset of 899 classes was then analyzed for
-predicting the class change proneness based on the severity of
-considered code smell over the modification period.
-Figure 3 discusses the distribution of considered code
-smells among the considered versions over the common
-classes. From the observations, the evolution of Python soft-
-ware considered across the common classes observed over
-the modification period approximates a 62.7% change from
-Phase 1 to Phase 2 and a 69.3% change from Phase 1 to
-Phase 3.
-Before estimating the class change proneness based on
-the severity of code smells, it was required to identify the
-classes affected by the considered smells. The detection of
-code smells has been implemented using the SonarQube
-platform, based on a static code metric analyzer (Understand
-Tool), likewise, RQ1, but this time, the detection was laid
-for all three phases independently. The detection of code
-smells inferred that around 8-9% of classes were diffused
-by ‘‘Cognitive Complexity’’ smell, 2-4% by ‘‘Collapsible
-IF’’ smell, 3-5% by ‘‘Long Parameter List’’ smell, 4-9% by
-‘‘Naming Convention’’ smell and 2-3% by ‘‘Unused Vari-
-able’’ smell when observed over the modification period
-(Phase 1, Phase 2, Phase 3). After detection, it was necessary
-to extract the vital software metrics and then labelling was
-done for the presence and absence of respective code smells.
-VOLUME 11, 2023
-119155
-A. Gupta et al.: Severity Assessment of Python Code Smells
-Additionally, a feature selection approach was applied in this
-investigation, like that in RQ1.
-Feature Selector: Information Gain, Gain Ratio, CFS
-Subset Evaluator;
-Searching Approach: Ranker, Best First Greedy.
-The rule-based classification technique was applied to the
-acquired dataset of Version 1 to obtain the vital software
-metrics along with their Absolute Comparator.
-
-
-TABLE 6. Code smell Severity index over the modification period.
-The highest rise was computed for Collapsible ‘IF’ code
-smell, accounting for 2.8%. In contrast, many Parameters
-code smell indicates a drop of 8.5%. The smells Collapsible
-‘‘IF’’ and Naming Convention show an incremental severity
-over the modification period w.r.t severity of Phase 1. The
-other smells, Many Parameters List and Cognitive Complex-
-ity, show a decremental severity. However, the Unused Vari-
-ables code smell, with a percentage change of 4.19%, is not
-considered due to its consistent severity behavior observed
-over the modification period, Phase 1– Phase 2.
-Consequently, this analysis promotes an ideology among
-the developers to reduce the severity of the Python code
-in the later versions of the software exhibiting code smells.
-Likewise, it would benefit the developers laying a foundation
-in Python development.
-The RQ2 analyses the behavior of Python code smells
-concerning the severity of the code smells by estimating the
-class change proneness across the versions analyzed over the
-modification period.
-
-
-–
-RQ3: To what extent do change- and fault-proneness of classes vary as a consequence
-of code smell introduction and removal? This research question investigates whether
-the change- and fault-proneness of a class increases when a smell is introduced, and
-whether it decreases when the smell is removed. Such an analysis is of paramount
-importance because a class may be intrinsically change-prone (and also fault-prone)
-regardless of whether it is affected by code smells.
-To answer our research questions we mined 395 releases of 30 open source systems
-searching for instances of the 13 code smells object of our study. Table 2 reports the ana-
-lyzed systems, the number of releases considered for each of them, and their size ranges
-in terms of number of classes, number of methods, and KLOCs. The choice of the subject
-systems was driven by the will to consider systems having different size (ranging from 0.4
-to 868 KLOCs), belonging to different application domains (modeling tools, parsers, IDEs,
-IR-engines, etc.), developed by different open source communities (Apache, Eclipse, etc.),
-and having different lifetime (from 1 to 19 years).
-The need for analyzing smells in 395 project releases makes the manual detection of the
-code smells prohibitively expensive. For this reason, we developed a simple tool to perform
-smell detection. The tool outputs a list of candidate code components (i.e., classes or meth-
-ods) potentially exhibiting a smell. 
 
 Likewise, it would benefit the developers laying a foundation
 in Python development.
@@ -211,139 +189,112 @@ intensity discussed above, and each code smell was labelled
 using a numeric value (0-4) corresponding to the intensity
 ranges. 
 
-The difference is statistically significant (p-value<0.001) with
-a large effect size (d = 0.82).
-This result can be explained by the findings reported in the work by Tufano et al. (2017),
-where the authors showed that most of the smells are introduced during the very first commit
-involving the affected class (i.e., when the class is added for the first time to the repository).
-As a consequence, most of the bugs are introduced after the code smell appearance. This
-conclusion is also supported by the fact that in our dataset only 21% of the bugs related to
-smelly classes are introduced before the smell introduction.
-While the analysis carried out until now clearly highlighted a trend in terms of change-
-and fault- proneness of smelly and non-smelly classes, it is important to note that a smelly
-class could be affected by one or more smells. For this reason, we performed an additional
-analysis to verify how change- and fault-proneness of classes very when considering classes
-affected by zero, one, two, and three code smells. In our dataset there are no classes affected
-by more than three smells in the same system release. Moreover, if a class was affected by
-two code smells in release rj−1 and by three code smells in release rj, its change- (fault-)
-proneness between releases rj−1 and rj contributed to the distribution representing the
-smelly
-classes
-non−smelly
-classes
-0
-5
-10
-15
-20
-25
-30
-35
-# defects
-Fig. 4 Fault-proneness of classes affected and not affected by code smells when considering the bugs
-introduced after the smell introduction only
-Empir Software Eng (2018) 23:1
-– 1
-1
-1
-88
-22
-1204
-Fig. 5 Change-proneness of classes affected by different number of code smells
-change- (fault-) proneness of classes affected by two smells while its change- (fault-) prone-
-ness between releases rj and rj+1 contributed to the distribution representing the change-
-(fault-) proneness of classes affected by three smells. Figure 5 reports the change-proneness
-of the four considered sets of classes, while Figs. 
+ni,k. Thus, more than one
+commit can be indicated by the SZZ algorithm as responsible for inducing a bug.
+By adopting the process described above we were able to approximate the time periods
+in which each class was affected by one or more bugs. We excluded from our analysis all
+the bugs occurring in a class Ci before it became smelly. Note that we also excluded bug-
+introducing changes that were recorded after the bug was reported, since they represent false
+positives.
+It is worth noting that in the context of RQ2 we considered all the classes of the analyzed
+systems: if a class was smelly in some releases and non-smelly in other releases, it con-
+tributes to both sets of smelly and non-smelly classes. Also, in this research question we did
+not discriminate the specific kind of smell affecting a class (i.e., a class is considered smelly
+if it contains any kind of code smell). A fine-grained analysis of the impact of the different
+smell types on class change- and fault-proneness is presented in the next research question.
+In RQ3 we exploited the code smells’ oracle we built (i.e.
 
+Then, the smell was not detected between releases ri+1
+and ri+2. Finally, the smell re-appeared between releases ri+2 and ri+3. We compute the
+change-proneness of C when it was smelly by summing up the change-proneness of C
+in the periods between ri and ri+1 and between ri+2 and ri+3. Similarly, we computed
+the change-proneness of C when it was non-smelly by computing the change-proneness
+of C in the period between ri+1 and ri+2. Following the same procedure, we compare the
+fault-proneness of classes when they were affected and not by a code smell. As done for
+RQ2, the comparison is performed by using boxplots and statistical tests for significance
+(Mann-Whitney test) and effect size (Cliff’s Delta).
+4 Analysis of the results
+In this section we answer our three research questions.
+4.1 Diffuseness of code smells (RQ1)
+Figure 1 shows the boxplot reporting (i) the absolute number of code smell instances, (ii) the
+percentage of affected code components (i.e., percentage of affected classes/methods5), and
+(iii) the code smell density (i.e., number of code smells per KLOC) affecting the software
+5Depending on the code smell granularity, we report the percentage of affected classes or methods.
+
+
+The prioritization of code smell
+can also be represented as a severity index, as proposed by
+Fontana et al. [6].
+Apart from the severity of code smells, during the software
+releases, the changes in the software modules or classes
+also need to be dealt with. Experts frequently look at mul-
+tiple updates to get historical information regarding soft-
+ware project development. Early recognition of modules that
+inculcate smells can be valuable for the team handling soft-
+ware maintenance and assigning substantial testing resources
+with a higher probability of alteration in software mod-
+ules. Software-changing impact analysis has been previously
+119146
+ 2023 The Authors. This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License.
+For more information, see https://creativecommons.org/licenses/by-nc-nd/4.0/
+VOLUME 11, 2023
+A. Gupta et al.: Severity Assessment of Python Code Smells
+performed by some researchers by association rule min-
+ing [7]. Change-prone module prediction is an active research
+area attracting many researchers and is a crucial software
+maintenance activity helping to prioritize code smells for
+refactoring [8].
 Hence, the motivation of this study drills deep into the
 design issues of the Python software, particularly the code
 smells, for better maintainability and reusability of the code.
 This research has been studied to investigate the severity of
-the code smells diffused in the Python language. Alongside
-this, a behavioral analysis has been performed by evaluating
-the class change proneness over the severity of the smells esti-
-mated. This behavior analysis is evaluated over three phases
-collectively considered in this study under the term modi-
-fication period: Phase 1: initial development version, Phase
-2: mid-modification version, and Phase 3: latest released
-version.
-Moreover, statistical analysis has also been performed for
-the above-analyzed behavior of the code smells over the con-
-sidered phases to obtain better insights into the Python code
-at the class level. Consequently, this research work benefits
-in evaluating the diffusion of code smell over the modifi-
-cation period and evaluating it statically, which a developer
-can exercise for an efficient development environment and
-progressive maintenance life cycle.
-Research Contributions of this work are as follows:
-• Assessing the diffusion of Python code smells.
-• Behavioral study of Python code smell severity based on
-the class change proneness over the metric distribution
-of the relevant code smell.
-• Performance comparison of various multinomial clas-
-sifiers on the estimated code smells of the severity of
-the latest released Python software using the AdaBoost
-(Adaptive Boost) Boosting method.
-• Investigating the class change proneness for code smell
-severity in different phases of modification period using
-statistical analysis -Kruskal Wallis Hypothesis Test and
-Wilcoxon Signed Rank Test.
+the code smells diffused in the Python language. 
 
+Confessions
+of GitHub contributors,’’ in Proc. 24th ACM SIGSOFT Int. Symp. Found.
+Softw. Eng., Nov. 2016, pp. 858–870.
+[29] Z. Li, T.-H. Chen, J. Yang, and W. Shang, ‘‘DLFinder: Characterizing and
+detecting duplicate logging code smells,’’ in Proc. IEEE/ACM 41st Int.
+Conf. Softw. Eng. (ICSE), May 2019, pp. 152–163.
+[30] Understand by SciTools. [Online]. Available: https://documentation.
+scitools.com/pdf/metricsdoc.pdf
+[31] A. Martins, C. Melo, J. Monteiro, and J. Machado, ‘‘Empirical study
+about class change proneness prediction using software metrics and code
+smells,’’ in Proc. 22nd Int. Conf. Enterprise Inf. Syst., 2020, pp. 140–147,
+doi: 10.5220/0009410601400147.
+[32] A. Gupta and N. K. Chauhan, ‘‘A severity-based classification assessment
+of code smells in Kotlin and Java application,’’ Arabian J. Sci. Eng., vol. 47,
+no. 2, pp. 
 
-Unused Variable: Unused variables are a common code
-smell programming, indicating that variables have been
-declared; it is not being used or referenced anywhere
-else in the code. This can lead to confusion, misun-
-derstanding, and inability to maintain code. Common
-sources of unused variables are incomplete [1].
-The Python classes for each software that are diffused with
-code smells indicate the presence of respective smells and
-are termed TRUE, whereas the rest of the classes (absence
-of smell) are marked as FALSE. SonarQube tool is one of
-the most popular industrial tools for source code technical
-debt measurement and is preferred by various studies for code
-quality inspection purposes. Figure 2 represents the diffusion
-of code smells at the class level for the 10,550 Python classes
-considered in this work.
-B. CODE SMELL SEVERITY ANALYSIS
-The process of analyzing the severity of code smells has
-been carried out by evaluating a numeric severity value
-using the metric distribution obtained from analyzing the
-software through a static code analyzer, Understand tool.
-The Python software was quantitatively analyzed to obtain
-software metrics using UNDERSTAND software versioned
-BUILD-978 (https://scitools.com/). While inspecting the
-code, 37 attributes were obtained. 
-
-• Performance comparison of various multinomial clas-
-sifiers on the estimated code smells of the severity of
-the latest released Python software using the AdaBoost
-(Adaptive Boost) Boosting method.
-• Investigating the class change proneness for code smell
-severity in different phases of modification period using
-statistical analysis -Kruskal Wallis Hypothesis Test and
-Wilcoxon Signed Rank Test.
-The rest of the paper is organized as follows:
-Section II presents a detailed background study and moti-
-vation of the work; Section III presents the Experimental
-Setup with code smell severity analysis and research ques-
-tions discussion, and Section IV briefs about the threats to
-validity. Finally, Section V reviews the conclusions of the
-work and presents the prospects of working in the area.
-II. BACKGROUND
-This section provides detailed background and related work.
-The existence of code smells is associated with code quality
-issues such as code modifiability & understandability, which
-can further lead to maintenance issues in the software. Code
-smells are signs of poor code design choices or the use of
-shortcuts while coding, which can lead to a higher defect
-rate and lower software quality [4], [6]. Accurately evaluating
-maintainability based on code smells requires understand-
-ing their criticality and ability to reflect software aspects
-important for maintainability and their limitations. While
-detection & removal of smells have been extensively
-researched in the past decade, the impact on software perfor-
-mance and maintainability still needs to be fully understood.
+With this research question, an attempt has been made to
+examine the severity of code smells over the modification
+period by estimating the class change proneness over the met-
+ric distribution of the relevant code smell [14], [31]. Further,
+it will help to determine the percentage change of the severity
+with respect to the initial software development, considered
+the first version of the modification period in this study [22].
+RQ3: Can the smells be prioritized based on the diffu-
+sion of their severity in software code metrics?
+This research question explores the mean rankings of the
+severity of the code smell estimated in the above approach
+[19], [20]. Subsequently, the versions are monitored to ascer-
+tain the class-by-class behaviour of the severity of different
+smells [14].
+A. DATASET AND SMELL SELECTION AND COLLECTION
+This research has been carried out using open-source Python
+software. Among the substantial Python software available,
+20 codes were evaluated, with approximately 6,817 Python
+files and 10,550 Python classes.
+The source codes implemented by these systems are freely
+accessible and can be downloaded and copied from the
+GitHub worldwide repository of open-source software. The
+primary criterion for the selection of the systems is their rep-
+utation & acceptance on the GitHub platform, which can be
+demonstrated by MOST STARS or as STARGAZERS (The
+Stargazers software are the software that is highly popular
+among the users, widely used, and is most reliable, making
+them a suitable choice for the research study). The relevant
+material related to this research is uploaded on Github1.
 
 
 
@@ -391,41 +342,752 @@ mance and maintainability still needs to be fully understood.
 ------ CODE SMELLS FOUND IN A PYTHON PROJECT ------
 
 
-### CODE SMELL REPORT
+    ### CODE SMELL REPORT
 
-**Type of smell:** Structural
-**Name of smell:** Long File
-**File:** ../projects/text_classification/tdsuite/trainers/td_trainer.py
-**Name:** tdsuite.trainers.td_trainer
+    **Type of smell:** Structural
+    **Name of smell:** High Cyclomatic Complexity
+    **File:** ../projects/text_classification/tdsuite/utils/inference.py
+    **Name:** tdsuite.utils.inference.InferenceEngine
 
----
-### DESCRIPTION
-File 'tdsuite.trainers.td_trainer' has 294 meaningful lines of code
+    ---
+    ### DESCRIPTION
+    Method 'predict_from_file' has cyclomatic complexity of 11
 
----
+    ---
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
----
+    ---
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def predict_from_file(
+        self,
+        input_file: str,
+        output_file: Optional[str] = None,
+        text_column: str = ""text"",
+        batch_size: int = 32,
+    ) -> pd.DataFrame:
+        """"""
+        Read texts from a file, perform inference, and optionally save predictions.
+
+        Args:
+            input_file: Path to input file (CSV or JSON)
+            output_file: Optional path to save predictions
+            text_column: Name of the column containing texts
+            batch_size: Batch size for inference
+
+        Returns:
+            DataFrame containing the predictions
+        """"""
+        # Read input file
+        if input_file.endswith("".csv""):
+            df = pd.read_csv(input_file)
+        elif input_file.endswith("".json""):
+            df = pd.read_json(input_file)
+        else:
+            raise ValueError(""Input file must be CSV or JSON"")
+
+        # Get texts
+        texts = df[text_column].tolist()
+
+        # Get predictions
+        predictions = self.predict_batch(texts, batch_size)
+
+        # Convert to DataFrame
+        results_df = pd.DataFrame(predictions)
+
+        # Merge with original DataFrame to preserve labels if they exist
+        if ""label"" in df.columns:
+            results_df[""label""] = df[""label""]
+            
+            # Map 0 to ""non_"" and 1 to the positive category
+            unique_labels = df[""label""].unique()
+            if len(unique_labels) != 2:
+                raise ValueError(""Binary classification requires exactly 2 unique labels"")
+            
+            # Find the positive category (the one that doesn't start with ""non_"")
+            positive_label = None
+            non_label = None
+            for label in unique_labels:
+                if str(label).startswith(""non_""):
+                    non_label = label
+                else:
+                    positive_label = label
+            
+            # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+            if non_label is None or positive_label is None:
+                sorted_labels = sorted(unique_labels)
+                non_label = sorted_labels[0]
+                positive_label = sorted_labels[1]
+            
+            # Create mapping: 0 -> non_, 1 -> positive
+            label_map = {0: non_label, 1: positive_label}
+            results_df[""predicted_class""] = results_df[""predicted_class""].map(label_map)
+
+        # Save predictions if output file is specified
+        if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            results_df.to_csv(output_file, index=False)
+
+        return results_df  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Structural
+    **Name of smell:** High Cyclomatic Complexity
+    **File:** ../projects/text_classification/tdsuite/utils/inference.py
+    **Name:** tdsuite.utils.inference.EnsembleInferenceEngine
+
+    ---
+    ### DESCRIPTION
+    Method 'predict_from_file' has cyclomatic complexity of 11
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def predict_from_file(
+        self,
+        input_file: str,
+        output_file: Optional[str] = None,
+        text_column: str = ""text"",
+        batch_size: int = 32,
+    ) -> pd.DataFrame:
+        """"""
+        Read texts from a file, perform ensemble inference, and optionally save predictions.
+
+        Args:
+            input_file: Path to input file (CSV or JSON)
+            output_file: Optional path to save predictions
+            text_column: Name of the column containing texts
+            batch_size: Batch size for inference
+
+        Returns:
+            DataFrame containing the predictions
+        """"""
+        # Read input file
+        if input_file.endswith("".csv""):
+            df = pd.read_csv(input_file)
+        elif input_file.endswith("".json""):
+            df = pd.read_json(input_file)
+        else:
+            raise ValueError(""Input file must be CSV or JSON"")
+
+        # Get texts
+        texts = df[text_column].tolist()
+
+        # Get predictions
+        predictions = self.predict_batch(texts, batch_size)
+
+        # Convert to DataFrame
+        results_df = pd.DataFrame(predictions)
+
+        # Merge with original DataFrame to preserve labels if they exist
+        if ""label"" in df.columns:
+            results_df[""label""] = df[""label""]
+            
+            # Map 0 to ""non_"" and 1 to the positive category
+            unique_labels = df[""label""].unique()
+            if len(unique_labels) != 2:
+                raise ValueError(""Binary classification requires exactly 2 unique labels"")
+            
+            # Find the positive category (the one that doesn't start with ""non_"")
+            positive_label = None
+            non_label = None
+            for label in unique_labels:
+                if str(label).startswith(""non_""):
+                    non_label = label
+                else:
+                    positive_label = label
+            
+            # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+            if non_label is None or positive_label is None:
+                sorted_labels = sorted(unique_labels)
+                non_label = sorted_labels[0]
+                positive_label = sorted_labels[1]
+            
+            # Create mapping: 0 -> non_, 1 -> positive
+            label_map = {0: non_label, 1: positive_label}
+            results_df[""predicted_class""] = results_df[""predicted_class""].map(label_map)
+
+        # Save predictions if output file is specified
+        if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            results_df.to_csv(output_file, index=False)
+
+        return results_df  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Structural
+    **Name of smell:** High Cyclomatic Complexity
+    **File:** ../projects/text_classification/tdsuite/trainers/td_trainer.py
+    **Name:** tdsuite.trainers.td_trainer.TDTrainer
+
+    ---
+    ### DESCRIPTION
+    Method 'train_with_cross_validation' has cyclomatic complexity of 19
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/trainers/td_trainer.py
 - Commit frequency: 3 (rarely changed)
 - Total churn (lines changed): 576
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-""""""Specialized trainer for technical debt classification.""""""
+    ### CODE SEGMENT (context only)
+    ```python
+    def train_with_cross_validation(
+        self,
+        train_dataset,
+        eval_dataset=None,
+        cat2idx=None,
+        idx2cat=None,
+        is_binary=False,
+    ):
+        """"""
+        Train the model with k-fold cross-validation.
+
+        Args:
+            train_dataset: Training dataset
+            eval_dataset: Evaluation dataset
+            cat2idx: Mapping from categories to indices
+            idx2cat: Mapping from indices to categories
+            is_binary: Whether this is a binary classification task
+
+        Returns:
+            List of evaluation results for each fold
+        """"""
+        import datetime
+        from sklearn.model_selection import KFold
+        
+        # Create compute metrics function if not provided
+        if self.compute_metrics is None and cat2idx is not None and idx2cat is not None:
+            self.compute_metrics = self.create_compute_metrics(
+                self.output_dir, cat2idx, idx2cat, is_binary
+            )
+
+        # Initialize emissions tracker for the entire cross-validation process
+        emissions_tracker = None
+        if self.track_emissions:
+            try:
+                # Create emissions directory
+                emissions_dir = os.path.join(self.output_dir, ""emissions"")
+                os.makedirs(emissions_dir, exist_ok=True)
+                
+                # Configure tracker
+                from codecarbon import EmissionsTracker
+                emissions_tracker = EmissionsTracker(
+                    output_dir=emissions_dir,
+                    project_name=""cross_validation"",
+                    output_file=""cross_validation_emissions.csv"",
+                    allow_multiple_runs=True
+                )
+                emissions_tracker.start()
+                print(""🌱 Carbon emissions tracking started for cross-validation"")
+            except Exception as e:
+                print(f""\n⚠️ Warning: Failed to initialize emissions tracking: {str(e)}"")
+                emissions_tracker = None
+
+        # Initialize k-fold cross-validation
+        kf = KFold(n_splits=self.n_splits, shuffle=True, random_state=self.random_state)
+
+        # Initialize list to store metrics for each fold
+        fold_results = []
+
+        # Loop over folds
+        for fold_idx, (train_idx, val_idx) in enumerate(kf.split(train_dataset.labels)):
+            print(f""\n🔄 Training fold {fold_idx + 1}/{self.n_splits}"")
+            
+            # Create output directory for this fold
+            fold_output_dir = os.path.join(self.output_dir, f""fold_{fold_idx + 1}"")
+            os.makedirs(fold_output_dir, exist_ok=True)
+
+            # Create fold training arguments
+            fold_training_args = TrainingArguments(
+                output_dir=fold_output_dir,
+                num_train_epochs=self.training_args.num_train_epochs,
+                per_device_train_batch_size=self.training_args.per_device_train_batch_size,
+                per_device_eval_batch_size=self.training_args.per_device_eval_batch_size,
+                learning_rate=self.training_args.learning_rate,
+                weight_decay=self.training_args.weight_decay,
+                warmup_steps=self.training_args.warmup_steps,
+                gradient_accumulation_steps=self.training_args.gradient_accumulation_steps,
+                evaluation_strategy=""no"" if eval_dataset is None else self.training_args.evaluation_strategy,
+                save_strategy=self.training_args.save_strategy,
+                load_best_model_at_end=self.training_args.load_best_model_at_end,
+                metric_for_best_model=self.training_args.metric_for_best_model,
+                greater_is_better=self.training_args.greater_is_better,
+                logging_steps=self.training_args.logging_steps,
+                save_total_limit=self.training_args.save_total_limit,
+                remove_unused_columns=self.training_args.remove_unused_columns,
+                report_to=self.training_args.report_to,
+                disable_tqdm=self.training_args.disable_tqdm,
+                no_cuda=self.training_args.no_cuda,
+            )
+
+            # Create fold trainer
+            fold_trainer = TDTrainer(
+                model=self.model,
+                tokenizer=self.tokenizer,
+                training_args=fold_training_args,
+                compute_metrics=self.compute_metrics,
+                class_weights=self.class_weights,
+                output_dir=fold_output_dir,
+                track_emissions=False,  # Disable emissions tracking for individual folds
+                n_splits=self.n_splits,
+                random_state=self.random_state,
+                data_config=self.data_config,
+            )
+
+            # Create train and validation datasets for this fold
+            train_encodings = {}
+            for key, val in train_dataset.encodings.items():
+                if isinstance(val, torch.Tensor):
+                    train_encodings[key] = val[train_idx]
+                else:
+                    train_encodings[key] = torch.tensor([val[i] for i in train_idx])
+            train_labels = torch.tensor([train_dataset.labels[i] for i in train_idx])
+            train_fold_dataset = TDDataset(train_encodings, train_labels)
+
+            val_encodings = {}
+            for key, val in train_dataset.encodings.items():
+                if isinstance(val, torch.Tensor):
+                    val_encodings[key] = val[val_idx]
+                else:
+                    val_encodings[key] = torch.tensor([val[i] for i in val_idx])
+            val_labels = torch.tensor([train_dataset.labels[i] for i in val_idx])
+            val_fold_dataset = TDDataset(val_encodings, val_labels)
+
+            # Train the model
+            train_result = fold_trainer.train(
+                train_fold_dataset,
+                eval_dataset=val_fold_dataset,
+            )
+
+            # Save training metrics for this fold
+            train_metrics = {
+                ""train_loss"": train_result.training_loss,
+                ""train_runtime"": train_result.metrics.get(""train_runtime"", 0),
+                ""train_samples_per_second"": train_result.metrics.get(""train_samples_per_second"", 0),
+                ""train_steps_per_second"": train_result.metrics.get(""train_steps_per_second"", 0),
+                ""epoch"": train_result.metrics.get(""epoch"", 0),
+            }
+
+            # Evaluate the model
+            eval_result = fold_trainer.evaluate(val_fold_dataset)
+
+            # Save fold results
+            fold_metrics = {
+                ""training"": train_metrics,
+                ""evaluation"": eval_result.metrics
+            }
+            
+            # Save metrics for this fold
+            with open(os.path.join(fold_output_dir, ""metrics.json""), ""w"") as f:
+                json.dump(fold_metrics, f, indent=4)
+
+            # Add evaluation metrics to fold results
+            fold_results.append(eval_result.metrics)
+
+            # Plot metrics
+            if cat2idx is not None and idx2cat is not None:
+                if is_binary:
+                    self.plot_metrics(
+                        eval_result.label_ids,
+                        eval_result.predictions,
+                        fold_output_dir,
+                    )
+
+        # Visualize and save k-fold results
+        self.visualize_and_save_metrics_and_results(fold_results, self.output_dir)
+
+        # Stop emissions tracking
+        if emissions_tracker is not None:
+            try:
+                emissions = emissions_tracker.stop()
+                
+                # Save emissions data
+                emissions_dir = os.path.join(self.output_dir, ""emissions"")
+                tracker_path = os.path.join(emissions_dir, ""cross_validation_emissions.json"")
+                
+                if emissions is None:
+                    # Handle case where emissions data is None
+                    emissions_json = {
+                        ""emissions"": 0.0,
+                        ""unit"": ""kgCO2e"",
+                        ""timestamp"": datetime.datetime.now().isoformat(),
+                        ""error"": ""No emissions data was recorded""
+                    }
+                    print(""\n⚠️ Warning: No emissions data was recorded"")
+                else:
+                    try:
+                        emissions_value = float(emissions)
+                        emissions_json = {
+                            ""emissions"": emissions_value,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat()
+                        }
+                    except (TypeError, ValueError):
+                        # Handle case where emissions_data can't be converted to float
+                        emissions_json = {
+                            ""emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat(),
+                            ""error"": ""Emissions data couldn't be converted to float""
+                        }
+                        print(""\n⚠️ Warning: Emissions data couldn't be converted to float"")
+                
+                # Save the JSON file
+                with open(tracker_path, ""w"") as f:
+                    json.dump(emissions_json, f, indent=4)
+                
+                # Safely extract emissions value for display
+                emissions_value = emissions_json.get(""emissions"", 0.0)
+                if not isinstance(emissions_value, (int, float)):
+                    emissions_value = 0.0
+                
+                print(f""\n🌱 Total carbon emissions for cross-validation: {emissions_value:.6f} kgCO2e"")
+                print(f""🌱 Emissions data saved to {tracker_path}"")
+            
+            except Exception as e:
+                # Catch any unexpected errors during emissions tracking
+                print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")
+        
+        return fold_results  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Structural
+    **Name of smell:** High Cyclomatic Complexity
+    **File:** ../projects/text_classification/tdsuite/trainers/base.py
+    **Name:** tdsuite.trainers.base.BaseTrainer
+
+    ---
+    ### DESCRIPTION
+    Method 'train' has cyclomatic complexity of 13
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/trainers/base.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 843
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/models/base.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 111
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def train(self, train_dataset, eval_dataset=None):
+        """"""
+        Train the model.
+
+        Args:
+            train_dataset: Training dataset
+            eval_dataset: Evaluation dataset
+
+        Returns:
+            Training results
+        """"""
+        # Get the list of valid arguments for TrainingArguments
+        valid_args = TrainingArguments.__init__.__code__.co_varnames
+        
+        # Filter out any unexpected arguments
+        training_args_dict = self.training_args.to_dict()
+        
+        # Handle wandb_project and related parameters
+        wandb_project = training_args_dict.pop(""wandb_project"", None)
+        wandb_run_name = training_args_dict.pop(""wandb_run_name"", None)
+        
+        # Filter out any other unexpected arguments
+        filtered_args = {k: v for k, v in training_args_dict.items() if k in valid_args}
+        
+        # Add batch_eval_metrics attribute
+        filtered_args[""batch_eval_metrics""] = False
+        
+        # Set evaluation_strategy to ""no"" if no eval_dataset is provided
+        if eval_dataset is None and filtered_args.get(""evaluation_strategy"") != ""no"":
+            filtered_args[""evaluation_strategy""] = ""no""
+        
+        # Create TrainingArguments object with only valid arguments
+        training_args = TrainingArguments(**filtered_args)
+        
+        # Initialize trainer
+        trainer = WeightedLossTrainer(
+            model=self.model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            compute_metrics=self.compute_metrics,
+            class_weights=self.class_weights,
+        )
+
+        # Start emissions tracking
+        if self.track_emissions:
+            # Make sure output directory exists
+            emissions_dir = os.path.join(self.output_dir, ""emissions"")
+            os.makedirs(emissions_dir, exist_ok=True)
+            
+            # Configure tracker
+            self.tracker = EmissionsTracker(
+                output_dir=emissions_dir,
+                project_name=""training"",
+                output_file=""training_emissions.csv"",
+                allow_multiple_runs=True
+            )
+            
+            # Start tracking
+            self.tracker.start()
+            print(""🌱 Carbon emissions tracking started for training"")
+
+        # Train the model
+        print(f""🚀 Starting training for {training_args.num_train_epochs} epochs"")
+        train_result = trainer.train()
+        print(""✅ Training completed!"")
+
+        # Save training metrics
+        train_metrics = {
+            ""train_loss"": train_result.training_loss,
+            ""train_runtime"": train_result.metrics.get(""train_runtime"", 0),
+            ""train_samples_per_second"": train_result.metrics.get(""train_samples_per_second"", 0),
+            ""train_steps_per_second"": train_result.metrics.get(""train_steps_per_second"", 0),
+            ""epoch"": train_result.metrics.get(""epoch"", 0),
+        }
+        
+        # Save the model
+        print(f""💾 Saving model to {self.output_dir}"")
+        trainer.save_model(self.output_dir)
+
+        # Evaluate the model
+        if eval_dataset is not None:
+            print(""📊 Evaluating model on validation set"")
+            eval_metrics = trainer.evaluate()
+            
+            # Combine training and evaluation metrics
+            all_metrics = {
+                ""training"": train_metrics,
+                ""evaluation"": eval_metrics
+            }
+
+            # Save all metrics
+            metrics_file = os.path.join(self.output_dir, ""metrics.json"")
+            with open(metrics_file, ""w"") as f:
+                json.dump(all_metrics, f, indent=4)
+            print(f""📊 Metrics saved to {metrics_file}"")
+
+        # Stop emissions tracking
+        if self.track_emissions:
+            try:
+                emissions_data = self.tracker.stop()
+                
+                # Save emissions data
+                emissions_dir = os.path.join(self.output_dir, ""emissions"")
+                os.makedirs(emissions_dir, exist_ok=True)
+                tracker_path = os.path.join(emissions_dir, ""training_emissions.json"")
+                
+                if emissions_data is None:
+                    # Handle case where emissions data is None
+                    emissions_json = {
+                        ""emissions"": 0.0,
+                        ""unit"": ""kgCO2e"",
+                        ""timestamp"": datetime.datetime.now().isoformat(),
+                        ""error"": ""No emissions data was recorded""
+                    }
+                    print(""\n⚠️ Warning: No emissions data was recorded"")
+                elif hasattr(emissions_data, 'toJSON'):
+                    try:
+                        emissions_json = json.loads(emissions_data.toJSON())
+                    except (TypeError, json.JSONDecodeError):
+                        # Handle invalid JSON
+                        emissions_json = {
+                            ""emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat(),
+                            ""error"": ""Invalid emissions data format""
+                        }
+                        print(""\n⚠️ Warning: Invalid emissions data format"")
+                else:
+                    # If emissions_data is a float or other type, create a simple JSON object
+                    try:
+                        emissions_value = float(emissions_data)
+                        emissions_json = {
+                            ""emissions"": emissions_value,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat()
+                        }
+                    except (TypeError, ValueError):
+                        # Handle case where emissions_data can't be converted to float
+                        emissions_json = {
+                            ""emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.datetime.now().isoformat(),
+                            ""error"": ""Emissions data couldn't be converted to float""
+                        }
+                        print(""\n⚠️ Warning: Emissions data couldn't be converted to float"")
+                
+                # Save the JSON file
+                with open(tracker_path, ""w"") as f:
+                    json.dump(emissions_json, f, indent=4)
+                
+                # Safely extract emissions value for display
+                emissions_value = emissions_json.get(""emissions"", 0.0)
+                if not isinstance(emissions_value, (int, float)):
+                    emissions_value = 0.0
+                
+                print(f""\n🌱 Carbon emissions: {emissions_value:.6f} kgCO2e"")
+                print(f""🌱 Emissions data saved to {tracker_path}"")
+            
+            except Exception as e:
+                # Catch any unexpected errors during emissions tracking
+                print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")
+                # Ensure this doesn't break the training process
+
+        # Clean up
+        torch.cuda.empty_cache()
+        gc.collect()
+
+        return train_result  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Structural
+    **Name of smell:** Long File
+    **File:** ../projects/text_classification/tdsuite/trainers/td_trainer.py
+    **Name:** tdsuite.trainers.td_trainer
+
+    ---
+    ### DESCRIPTION
+    File 'tdsuite.trainers.td_trainer' has 294 meaningful lines of code
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/trainers/td_trainer.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 576
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    """"""Specialized trainer for technical debt classification.""""""
 
 import os
 import json
@@ -919,47 +1581,47 @@ class TDTrainer(BaseTrainer):
         
         with open(os.path.join(output_dir, ""metrics.json""), ""w"") as f:
             json.dump(metrics, f, indent=2)  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/hf_upload_example.py
+    **Name:** main
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/hf_upload_example.py
-**Name:** main
+    ---
+    ### DESCRIPTION
+    'main' has 50 lines in ../projects/text_classification/hf_upload_example.py at line 11
 
----
-### DESCRIPTION
-'main' has 50 lines in ../projects/text_classification/hf_upload_example.py at line 11
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
-
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: hf_upload_example.py
 - Commit frequency: 1 (rarely changed)
 - Total churn (lines changed): 84
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def main():
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
     """"""Run an example of uploading a model to Hugging Face Hub.""""""
     # Get user input for token
     print(""="" * 80)
@@ -1029,47 +1691,47 @@ def main():
     except subprocess.CalledProcessError as e:
         print(f""\n❌ Error during upload: {e}"")
         return  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/app.py
+    **Name:** fine_tune_model
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/app.py
-**Name:** fine_tune_model
+    ---
+    ### DESCRIPTION
+    'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
 
----
-### DESCRIPTION
-'fine_tune_model' has 77 lines in ../projects/text_classification/app.py at line 90
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
-
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: app.py
 - Commit frequency: 1 (rarely changed)
 - Total churn (lines changed): 380
 - Developers involved: 1
-- Last modified: 212 days ago (inactive for a while)
+- Last modified: 218 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def fine_tune_model(model_name):
+    ### CODE SEGMENT (context only)
+    ```python
+    def fine_tune_model(model_name):
     """"""
  it uses the selected dataset.
     """"""
@@ -1186,47 +1848,377 @@ def fine_tune_model(model_name):
     plt.close(fig)  # Prevent the figure from displaying immediately
 
     return ""Model fine-tuned."" , accuracy, df_classification_report , gr.Plot(fig), dataset_head, csv_path  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/app.py
+    **Name:** process_and_save_csv
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/tdsuite/train.py
-**Name:** main
+    ---
+    ### DESCRIPTION
+    Method 'process_and_save_csv' makes 8 calls to 'df' but only 0 local calls in ../projects/text_classification/app.py
 
----
-### DESCRIPTION
-'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+File: app.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 380
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def process_and_save_csv(file_path, train_percent, min_word_length):
+    """"""This function saves a processed CSV file for fine-tuning, removes NaN values, resets the index,
+       filters text by minimum word length, and splits the dataset into training and test sets based on the specified training percentage.""""""
+    try:
+        df = pd.read_csv(file_path)
+        
+        if 'text' not in df.columns or 'label' not in df.columns:
+            return ""Error: CSV must contain 'text' and 'label' columns."", pd.DataFrame(), pd.DataFrame()
+        
+        df.dropna(inplace=True)
+        df.reset_index(inplace=True)
+
+        # Filter texts shorter than the specified minimum word length
+        df['word_count'] = df['text'].apply(lambda x: len(x.split()))
+        df = df[df['word_count'] >= min_word_length]
+        df.drop(columns=['word_count'], inplace=True)
+
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop('Unnamed: 0', axis=1)
+
+        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+        if train_percent < 100:
+            train_size = int(len(df) * (train_percent / 100))
+            train_df = df[:train_size]
+            test_df = df[train_size:]
+
+            # Define the dataset path
+            dataset_name = ""Finetune_Dataset""
+            dataset_path = os.path.join(dataset_dir, dataset_name)
+            os.makedirs(dataset_path, exist_ok=True)
+
+            # Saving datasets to disk
+            Dataset.from_pandas(train_df).save_to_disk(os.path.join(dataset_path, ""train""))
+            Dataset.from_pandas(test_df).save_to_disk(os.path.join(dataset_path, ""test""))
+        else:
+            train_df = df  # Use the entire dataset as the training set
+
+            # Define the dataset path
+            dataset_name = ""Evaluate_Dataset""
+            dataset_path = os.path.join(dataset_dir, dataset_name)
+            os.makedirs(dataset_path, exist_ok=True)
+
+            # Saving the training dataset to disk only
+            Dataset.from_pandas(train_df).save_to_disk(os.path.join(dataset_path, ""train""))
+
+        
+        return ""CSV Processed"" , train_df.head()
+    except Exception as e:
+        return f""Failed to process the file: {str(e)}"", pd.DataFrame(), pd.DataFrame()  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/app.py
+    **Name:** fine_tune_model
+
+    ---
+    ### DESCRIPTION
+    Method 'fine_tune_model' makes 6 calls to 'os' but only 0 local calls in ../projects/text_classification/app.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: app.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 380
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def fine_tune_model(model_name):
+    """"""
+ it uses the selected dataset.
+    """"""
+ 
+    
+    dataset_train_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'train')
+
+          # Load only the train split of the dataset
+    if os.path.exists(dataset_train_path):
+        dataset = Dataset.load_from_disk(dataset_train_path)
+    
+    # Load model and tokenizer
+    model_path = f""./saved_models/{model_name}""
+
+    if os.path.exists(model_path) and model_name == ""binary_classification_train_TD"":
+
+        output_dir = ""./saved_models/finetuned_TD""
+        class_names = ['non_TD', 'TD']
+
+    
+    elif os.path.exists(model_path) and model_name == ""High_priority_roberta"":
+
+        output_dir = ""./saved_models/finetuned_Priority""
+        class_names = ['not_High_priority', 'High_priority']
+
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)  
+
+    tokenized_datasets = dataset.map(tokenize_function, batched=True)
+
+    tokenized_datasets = tokenized_datasets.train_test_split(test_size=0.020)  # Adjust the split ratio as needed
+    tokenized_datasets = DatasetDict({
+        'train': tokenized_datasets['train'],
+        'test': tokenized_datasets['test']
+    })
+
+    
+    # Fine-tuning
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        evaluation_strategy=""epoch"",  # or use ""steps"" to evaluate more frequently
+        learning_rate=2e-5,
+        per_device_train_batch_size=4,
+        num_train_epochs=2,
+        save_strategy=""no"",
+         # Load the best model at the end of training
+    )
+    
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_datasets[""train""],
+        eval_dataset=tokenized_datasets[""test""],  # Specify the evaluation dataset here
+    )
+    
+    trainer.train()
+    trainer.save_model() 
+    tokenizer.save_pretrained(training_args.output_dir)
+
+    dataset_test_path = os.path.join(dataset_dir, ""Finetune_Dataset"", 'test')
+
+    if os.path.exists(dataset_test_path):
+        test_dataset = Dataset.load_from_disk(dataset_test_path)
+        print(""Test dataset loaded successfully."")
+    def tokenize_function(examples):
+        return tokenizer(examples[""text""], padding=""max_length"", truncation=True, max_length=512)
+
+    test_dataset = test_dataset.map(tokenize_function, batched=True)
+    test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    
+
+    output = trainer.predict(test_dataset)
+    logits = output.predictions
+    probs = softmax(logits, axis=1)
+    predictions = np.argmax(logits, axis=1)
+    positive_class_probs = probs[:, 1]
+    # Metrics and Confusion Matrix
+    labels = test_dataset['label']
+    accuracy = accuracy_score(labels, predictions)
+    conf_matrix = confusion_matrix(labels, predictions)
+    class_names = class_names 
+    report = classification_report(labels, predictions, target_names=class_names, output_dict=True)
+
+    # Convert the report dictionary to a DataFrame
+    df_classification_report = pd.DataFrame(report).transpose()
+
+    # Optionally, you can reset the index to have the class labels as a column
+    df_classification_report.reset_index(inplace=True)
+    df_classification_report.rename(columns={'index': 'class'}, inplace=True)
+    
+# Format the floating point columns to three decimal places directly
+    float_columns = ['precision', 'recall', 'f1-score', 'support']
+    df_classification_report[float_columns] = df_classification_report[float_columns].applymap(lambda x: f""{x:.3f}"")
+
+
+    # Update dataset with predictions
+    dataset_df = pd.DataFrame(test_dataset.remove_columns(['input_ids', 'attention_mask']).to_pandas())
+    dataset_df['predicted'] = predictions
+    dataset_df['probability'] = positive_class_probs
+    dataset_head = dataset_df.head()
+
+    # Save updated dataframe to CSV for download
+    csv_path = ""updated_dataset.xlsx""
+    dataset_df.to_excel(csv_path, index=True)
+    
+    # Plot confusion matrix
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', ax=ax, cmap=""Blues"", xticklabels=class_names, yticklabels=class_names)
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.title('Confusion Matrix')
+    plt.close(fig)  # Prevent the figure from displaying immediately
+
+    return ""Model fine-tuned."" , accuracy, df_classification_report , gr.Plot(fig), dataset_head, csv_path  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/app.py
+    **Name:** evaluate_model
+
+    ---
+    ### DESCRIPTION
+    Method 'evaluate_model' makes 4 calls to 'torch' but only 0 local calls in ../projects/text_classification/app.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: app.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 380
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def evaluate_model(model_types, test_dataset):
+
+    print(model_types)
+    if test_dataset is None:
+        print(""No dataset available for evaluation."")
+        return pd.DataFrame(), ""No dataset loaded""
+    
+    print(test_dataset)
+
+
+    results_df = pd.DataFrame(test_dataset.remove_columns(['input_ids', 'attention_mask']).to_pandas())
+    print(len(results_df))
+    for model_type in model_types:
+        model_directories = model_mapping.get(model_type, [])
+        if not isinstance(model_directories, list):
+            model_directories = [model_directories]
+            print(model_directories)
+
+        for model_dir in model_directories:
+            print(model_dir)
+            model = load_model_and_tokenizer(model_dir)
+            if model is None:
+                continue
+
+            inputs = tokenizer(test_dataset['text'], return_tensors=""pt"", padding=True, truncation=True, max_length=512)
+            inputs = inputs.to('cuda')  # Move inputs to GPU
+            with torch.no_grad():
+                outputs = model(**inputs)
+                predictions = torch.argmax(outputs.logits, dim=1)
+                probabilities = torch.nn.functional.softmax(outputs.logits, dim=1)
+
+            results_df[f'Prediction_{model_dir}'] = predictions.cpu().numpy()  # Move predictions back to CPU
+            results_df[f'Probability_{model_dir}'] = probabilities.max(dim=1).values.cpu().numpy()
+
+            del model
+            del inputs
+            torch.cuda.empty_cache()  # Explicitly clears up unused memory
+            gc.collect()  # Collects garbage
+
+    excel_path = ""evaluation_results.xlsx""
+    results_df.to_excel(excel_path, index=True)
+
+    return results_df.head(), excel_path  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/tdsuite/train.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    'main' has 86 lines in ../projects/text_classification/tdsuite/train.py at line 88
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/train.py
 - Commit frequency: 2 (rarely changed)
 - Total churn (lines changed): 387
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def main():
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
     """"""Main function.""""""
     args = parse_args()
     
@@ -1342,38 +2334,287 @@ def main():
     # Save training configuration
     with open(os.path.join(args.output_dir, ""training_config.json""), ""w"") as f:
         json.dump(vars(args), f, indent=2)  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/train.py
+    **Name:** parse_args
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/tdsuite/inference.py
-**Name:** main
+    ---
+    ### DESCRIPTION
+    Method 'parse_args' makes 20 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/train.py
 
----
-### DESCRIPTION
-'main' has 127 lines in ../projects/text_classification/tdsuite/inference.py at line 53
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+File: tdsuite/train.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 387
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def parse_args():
+    """"""Parse command line arguments.""""""
+    parser = argparse.ArgumentParser(description=""Train a technical debt classification model"")
+    
+    # Data arguments
+    parser.add_argument(""--data_file"", type=str, required=True,
+                      help=""Path to data file or Hugging Face dataset name"")
+    parser.add_argument(""--text_column"", type=str, default=""text"",
+                      help=""Name of the text column"")
+    parser.add_argument(""--label_column"", type=str, default=""label"",
+                      help=""Name of the label column"")
+    parser.add_argument(""--is_huggingface_dataset"", action=""store_true"",
+                      help=""Whether the data is a Hugging Face dataset"")
+    parser.add_argument(""--numeric_labels"", action=""store_true"",
+                      help=""Whether the labels are already numeric (0 or 1)"")
+    parser.add_argument(""--positive_category"", type=str,
+                      help=""Positive category for binary classification"")
+    
+    # Model arguments
+    parser.add_argument(""--model_name"", type=str, required=True,
+                      help=""Name of the model to use"")
+    parser.add_argument(""--max_length"", type=int, default=512,
+                      help=""Maximum sequence length"")
+    
+    # Training arguments
+    parser.add_argument(""--output_dir"", type=str, required=True,
+                      help=""Directory to save the model and outputs"")
+    parser.add_argument(""--num_epochs"", type=int, default=3,
+                      help=""Number of training epochs"")
+    parser.add_argument(""--batch_size"", type=int, default=16,
+                      help=""Batch size"")
+    parser.add_argument(""--learning_rate"", type=float, default=2e-5,
+                      help=""Learning rate"")
+    parser.add_argument(""--weight_decay"", type=float, default=0.01,
+                      help=""Weight decay"")
+    parser.add_argument(""--warmup_steps"", type=int, default=500,
+                      help=""Number of warmup steps"")
+    parser.add_argument(""--gradient_accumulation_steps"", type=int, default=1,
+                      help=""Number of gradient accumulation steps"")
+    
+    # Cross-validation arguments
+    parser.add_argument(""--cross_validation"", action=""store_true"",
+                      help=""Whether to use cross-validation"")
+    parser.add_argument(""--n_splits"", type=int, default=5,
+                      help=""Number of splits for cross-validation"")
+    
+    # Additional arguments
+    parser.add_argument(""--seed"", type=int, default=42,
+                      help=""Random seed"")
+    parser.add_argument(""--device"", type=str, default=None,
+                      help=""Device to use (cuda, cpu, or None for auto-detection)"")
+    
+    return parser.parse_args()  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/train.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    Method 'main' makes 30 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/train.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/train.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 387
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
+    """"""Main function.""""""
+    args = parse_args()
+    
+    # Check for GPU availability
+    if not torch.cuda.is_available():
+        raise RuntimeError(""No GPU available. This model requires a GPU to run."")
+    device = torch.device(""cuda"")
+    print(f""Using GPU: {torch.cuda.get_device_name(0)}"")
+    
+    # Set random seed
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
+    
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    
+    # Create processor
+    processor = BinaryTDProcessor(tokenizer, max_length=args.max_length)
+    
+    # Load and prepare data
+    data = processor.load_data(
+        args.data_file,
+        text_column=args.text_column,
+        label_column=args.label_column
+    )
+    
+    data = processor.prepare_binary_data(
+        data,
+        positive_category=args.positive_category,
+        text_column=args.text_column,
+        label_column=args.label_column,
+        numeric_labels=args.numeric_labels
+    )
+    
+    # Split data into train and eval sets
+    train_data, eval_data = train_test_split(
+        data,
+        test_size=0.1,  # Use 10% for evaluation
+        random_state=args.seed,
+        stratify=data[""label_idx""]
+    )
+    
+    # Create datasets
+    train_dataset = processor.create_dataset(
+        train_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    eval_dataset = processor.create_dataset(
+        eval_data,
+        text_column=args.text_column,
+        label_column=""label_idx""
+    )
+    
+    # Create model
+    model = AutoModelForSequenceClassification.from_pretrained(
+        args.model_name,
+        num_labels=2
+    )
+    model.to(device)
+    
+    # Create training arguments
+    training_args = TrainingArguments(
+        output_dir=args.output_dir,
+        num_train_epochs=args.num_epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        warmup_steps=args.warmup_steps,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        evaluation_strategy=""epoch"",  # Always use epoch-based evaluation
+        save_strategy=""epoch"",
+        load_best_model_at_end=not args.cross_validation,  # Only load best model when not using cross-validation
+        metric_for_best_model=""eval_loss"",
+        greater_is_better=False,
+        logging_steps=10,
+        save_total_limit=2,
+        remove_unused_columns=False,
+        # Disable wandb and codecarbon by default
+        report_to=""none"",  # Disable wandb
+        disable_tqdm=False,  # Keep progress bars
+        no_cuda=False,  # Use CUDA if available
+    )
+    
+    # Create trainer
+    trainer = TDTrainer(
+        model=model,
+        tokenizer=tokenizer,
+        training_args=training_args,
+        output_dir=args.output_dir,
+        track_emissions=True,  # Enable emissions tracking by default
+        n_splits=args.n_splits,
+    )
+    
+    if args.cross_validation:
+        # Train with cross-validation
+        trainer.train_with_cross_validation(
+            train_dataset,
+            eval_dataset=eval_dataset,
+            is_binary=True
+        )
+    else:
+        # Train without cross-validation
+        trainer.train(train_dataset, eval_dataset=eval_dataset)
+    
+    # Save model and tokenizer
+    model.save_pretrained(args.output_dir)
+    tokenizer.save_pretrained(args.output_dir)
+    
+    # Save training configuration
+    with open(os.path.join(args.output_dir, ""training_config.json""), ""w"") as f:
+        json.dump(vars(args), f, indent=2)  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/tdsuite/inference.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    'main' has 127 lines in ../projects/text_classification/tdsuite/inference.py at line 53
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/inference.py
 - Commit frequency: 3 (rarely changed)
 - Total churn (lines changed): 474
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
@@ -1381,16 +2622,16 @@ File: tdsuite/utils/inference.py
 - Commit frequency: 3 (rarely changed)
 - Total churn (lines changed): 916
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def main():
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
     """"""Main function for inference.""""""
     # Parse arguments
     args = parse_args()
@@ -1564,47 +2805,430 @@ def main():
             except Exception as e:
                 # Catch any unexpected errors during emissions tracking
                 print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/inference.py
+    **Name:** parse_args
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/tdsuite/upload_to_hf.py
-**Name:** generate_model_card
+    ---
+    ### DESCRIPTION
+    Method 'parse_args' makes 12 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/inference.py
 
----
-### DESCRIPTION
-'generate_model_card' has 67 lines in ../projects/text_classification/tdsuite/upload_to_hf.py at line 54
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def parse_args():
+    """"""Parse command line arguments.""""""
+    parser = argparse.ArgumentParser(description=""Inference for technical debt classification"")
+    
+    # Model arguments
+    model_group = parser.add_mutually_exclusive_group(required=True)
+    model_group.add_argument(""--model_path"", type=str, help=""Path to a local model"")
+    model_group.add_argument(""--model_name"", type=str, help=""Name of a model on Hugging Face"")
+    model_group.add_argument(""--model_paths"", type=str, nargs=""+"", help=""Paths to multiple local models"")
+    model_group.add_argument(""--model_names"", type=str, nargs=""+"", help=""Names of multiple models on Hugging Face"")
+    
+    # Input arguments
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument(""--text"", type=str, help=""Text to classify"")
+    input_group.add_argument(""--input_file"", type=str, help=""Path to a file with texts (CSV or JSON)"")
+    
+    # Output arguments
+    parser.add_argument(""--output_file"", type=str, help=""Path to save predictions"")
+    parser.add_argument(""--results_dir"", type=str, help=""Directory to store inference results and metrics"")
+    parser.add_argument(""--text_column"", type=str, default=""text"", help=""Name of the text column in the input file"")
+    parser.add_argument(""--max_length"", type=int, default=512, help=""Maximum sequence length"")
+    parser.add_argument(""--batch_size"", type=int, default=32, help=""Batch size for inference"")
+    parser.add_argument(""--device"", type=str, default=""cuda"", help=""Device to use for inference (cuda, cpu)"")
+    parser.add_argument(""--weights"", type=float, nargs=""+"", help=""Weights for ensemble models"")
+    parser.add_argument(""--track_emissions"", type=bool, default=True, help=""Whether to track carbon emissions"")
+    parser.add_argument(""--disable_progress_bar"", action=""store_true"", help=""Disable progress bar during inference"")
+    
+    return parser.parse_args()  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/inference.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    Method 'main' makes 43 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/inference.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
+    """"""Main function for inference.""""""
+    # Parse arguments
+    args = parse_args()
+    
+    print(""Starting inference with arguments:"")
+    print(f""  model_path: {args.model_path}"")
+    print(f""  model_name: {args.model_name}"")
+    print(f""  model_paths: {args.model_paths}"")
+    print(f""  model_names: {args.model_names}"")
+    print(f""  input_file: {args.input_file}"")
+    print(f""  device: {args.device}"")
+    print(f""  weights: {args.weights}"")
+    
+    # Set device
+    device = args.device if args.device else (""cuda"" if torch.cuda.is_available() else ""cpu"")
+    print(f""Using device: {device}"")
+    
+    # Create timestamped results directory
+    timestamp = datetime.now().strftime(""%Y%m%d_%H%M%S"")
+    
+    # Determine the base directory for results
+    if args.model_path:
+        base_dir = os.path.dirname(args.model_path)
+    elif args.model_paths:
+        base_dir = os.path.dirname(args.model_paths[0])
+    else:
+        base_dir = ""outputs""
+    
+    # Create results directory
+    if args.results_dir:
+        results_dir = args.results_dir
+    else:
+        results_dir = os.path.join(base_dir, f""inference_{timestamp}"")
+    
+    print(f""Results will be saved to: {results_dir}"")
+    
+    # Create results directory if it doesn't exist
+    os.makedirs(results_dir, exist_ok=True)
+    
+    # Create emissions directory
+    emissions_dir = os.path.join(results_dir, ""emissions"")
+    os.makedirs(emissions_dir, exist_ok=True)
+    
+    # Initialize emissions tracker
+    emissions_tracker = EmissionsTracker(
+        output_dir=emissions_dir,
+        project_name=""inference"",
+        output_file=""inference_emissions.csv"",
+        allow_multiple_runs=True
+    )
+    emissions_tracker.start()
+    print(""📊 Emissions tracking started for inference"")
+    
+    try:
+        # Check if using ensemble
+        if args.model_paths or args.model_names:
+            print(""Creating ensemble inference engine"")
+            # Validate weights if provided
+            if args.weights:
+                num_models = max(len(args.model_paths or []), len(args.model_names or []))
+                if len(args.weights) != num_models:
+                    raise ValueError(f""Number of weights ({len(args.weights)}) must match number of models ({num_models})"")
+            
+            # Create ensemble inference engine
+            engine = EnsembleInferenceEngine(
+                model_paths=args.model_paths,
+                model_names=args.model_names,
+                max_length=args.max_length,
+                device=device,
+                weights=args.weights,
+            )
+        else:
+            print(""Creating single model inference engine"")
+            # Create single model inference engine
+            engine = InferenceEngine(
+                model_path=args.model_path,
+                model_name=args.model_name,
+                max_length=args.max_length,
+                device=device,
+            )
+        
+        # Set progress bar display
+        if 'predict_batch' in dir(engine):
+            engine.show_progress = not args.disable_progress_bar
+        
+        # Perform inference
+        if args.text is not None:
+            print(""Performing single text inference"")
+            result = engine.predict_single(args.text)
+            print(json.dumps(result, indent=2))
+        else:
+            print(f""Starting batch inference on {args.input_file}"")
+            # If output_file is not specified, use a default name in the results directory
+            if args.output_file is None:
+                input_filename = os.path.basename(args.input_file)
+                output_filename = f""predictions_{input_filename}""
+                args.output_file = os.path.join(results_dir, output_filename)
+            
+            print(f""Output will be saved to: {args.output_file}"")
+            df = engine.predict_from_file(
+                args.input_file,
+                output_file=args.output_file,
+                text_column=args.text_column,
+                batch_size=args.batch_size,
+            )
+            print(f""✅ Inference completed! Results saved to {args.output_file}"")
+            
+            # Compute and save metrics if ground truth labels are available
+            if ""label"" in df.columns:
+                from tdsuite.utils.metrics import compute_metrics
+                print(""📊 Computing metrics..."")
+                metrics_dir = os.path.join(results_dir, ""metrics"")
+                os.makedirs(metrics_dir, exist_ok=True)
+                metrics = compute_metrics(df, output_dir=metrics_dir, save_plots=True)
+                
+                # Save metrics to JSON file
+                metrics_file = os.path.join(metrics_dir, ""metrics.json"")
+                with open(metrics_file, ""w"") as f:
+                    json.dump(metrics, f, indent=2)
+                
+                print(""\n📊 Metrics:"")
+                print(json.dumps(metrics, indent=2))
+            
+            # Print results if no output file was specified
+            if args.output_file is None:
+                print(df.to_string())
+    
+    except Exception as e:
+        print(f""Error during inference: {str(e)}"")
+        raise
+    
+    finally:
+        # Stop emissions tracking
+        if args.track_emissions and emissions_tracker:
+            try:
+                emissions = emissions_tracker.stop()
+                
+                if emissions is None:
+                    # Handle case where emissions data is None
+                    emissions_json = {
+                        ""total_emissions"": 0.0,
+                        ""unit"": ""kgCO2e"",
+                        ""timestamp"": datetime.now().isoformat(),
+                        ""error"": ""No emissions data was recorded""
+                    }
+                    print(""\n⚠️ Warning: No emissions data was recorded"")
+                else:
+                    try:
+                        # Try to convert emissions to float
+                        emissions_value = float(emissions)
+                        emissions_json = {
+                            ""total_emissions"": emissions_value,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.now().isoformat()
+                        }
+                    except (TypeError, ValueError):
+                        # Handle case where emissions can't be converted to float
+                        emissions_json = {
+                            ""total_emissions"": 0.0,
+                            ""unit"": ""kgCO2e"",
+                            ""timestamp"": datetime.now().isoformat(),
+                            ""error"": ""Emissions data couldn't be converted to float""
+                        }
+                        print(""\n⚠️ Warning: Emissions data couldn't be converted to float"")
+                
+                # Save emissions as JSON for easier access
+                emissions_json_path = os.path.join(emissions_dir, ""inference_emissions.json"")
+                with open(emissions_json_path, ""w"") as f:
+                    json.dump(emissions_json, f, indent=2)
+            
+            except Exception as e:
+                # Catch any unexpected errors during emissions tracking
+                print(f""\n⚠️ Warning: Error in emissions tracking: {str(e)}"")  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/split_data.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    Method 'main' makes 8 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/split_data.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/split_data.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 81
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
+    """"""Main function.""""""
+    parser = argparse.ArgumentParser(description=""Split and save data for technical debt classification."")
+    
+    # Required arguments
+    parser.add_argument(""--data_file"", type=str, required=True, help=""Path to the data file or Hugging Face dataset name"")
+    parser.add_argument(""--output_dir"", type=str, required=True, help=""Directory to save the split data"")
+    
+    # Optional arguments
+    parser.add_argument(""--test_size"", type=float, default=0.2, help=""Proportion of the dataset to include in the test split"")
+    parser.add_argument(""--random_state"", type=int, default=42, help=""Random state for reproducibility"")
+    parser.add_argument(""--repo_column"", type=str, default=None, help=""Name of the column containing the repository information"")
+    parser.add_argument(""--is_huggingface_dataset"", action=""store_true"", help=""Whether the data file is a Hugging Face dataset"")
+    parser.add_argument(""--is_numeric_labels"", action=""store_true"", help=""Whether the labels are numeric (0/1) or categorical"")
+    
+    args = parser.parse_args()
+    
+    # Split and save the data
+    train_df, test_df, top_repo_df = split_data(
+        data_file=args.data_file,
+        output_dir=args.output_dir,
+        test_size=args.test_size,
+        random_state=args.random_state,
+        repo_column=args.repo_column,
+        is_huggingface_dataset=args.is_huggingface_dataset,
+        is_numeric_labels=args.is_numeric_labels
+    )
+    
+    # Print summary
+    print(f""Data split and saved to {args.output_dir}"")
+    print(f""Training set: {len(train_df)} samples"")
+    print(f""Test set: {len(test_df)} samples"")
+    if top_repo_df is not None:
+        print(f""Top repositories: {len(top_repo_df)} samples"")
+    
+    # Print class distribution
+    print(""\nClass distribution in training set:"")
+    print(train_df[""label""].value_counts(normalize=True))
+    
+    print(""\nClass distribution in test set:"")
+    print(test_df[""label""].value_counts(normalize=True))
+    
+    if top_repo_df is not None:
+        print(""\nClass distribution in top repositories:"")
+        print(top_repo_df[""label""].value_counts(normalize=True))  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/tdsuite/upload_to_hf.py
+    **Name:** generate_model_card
+
+    ---
+    ### DESCRIPTION
+    'generate_model_card' has 67 lines in ../projects/text_classification/tdsuite/upload_to_hf.py at line 54
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/upload_to_hf.py
 - Commit frequency: 1 (rarely changed)
 - Total churn (lines changed): 201
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def generate_model_card(model_path: str) -> str:
+    ### CODE SEGMENT (context only)
+    ```python
+    def generate_model_card(model_path: str) -> str:
     """"""Generate a model card based on the training configuration.""""""
     # Try to read configuration files
     training_config = read_config_file(model_path, ""training_config.json"")
@@ -1685,38 +3309,406 @@ def generate_model_card(model_path: str) -> str:
     card_content += ""```\n""
     
     return card_content  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/upload_to_hf.py
+    **Name:** parse_args
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/tdsuite/utils/metrics.py
-**Name:** compute_metrics
+    ---
+    ### DESCRIPTION
+    Method 'parse_args' makes 9 calls to 'parser' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
 
----
-### DESCRIPTION
-'compute_metrics' has 118 lines in ../projects/text_classification/tdsuite/utils/metrics.py at line 15
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+File: tdsuite/upload_to_hf.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 201
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def parse_args():
+    """"""Parse command line arguments.""""""
+    parser = argparse.ArgumentParser(description=""Upload a technical debt classification model to Hugging Face Hub"")
+    
+    # Authentication arguments
+    parser.add_argument(""--token"", type=str, required=True,
+                      help=""Hugging Face API token"")
+    
+    # Repository arguments
+    parser.add_argument(""--repo_name"", type=str, required=True,
+                      help=""Name of the repository to create or update (format: username/repo)"")
+    parser.add_argument(""--repo_type"", type=str, default=""model"", choices=[""model"", ""dataset"", ""space""],
+                      help=""Type of repository to create"")
+    parser.add_argument(""--repo_visibility"", type=str, default=""public"", choices=[""public"", ""private""],
+                      help=""Visibility of the repository"")
+    
+    # Model arguments
+    parser.add_argument(""--model_path"", type=str, required=True,
+                      help=""Path to the trained model directory"")
+    parser.add_argument(""--commit_message"", type=str, default=""Upload TD-Classifier model"",
+                      help=""Commit message for the upload"")
+    
+    # Additional arguments
+    parser.add_argument(""--create_if_not_exists"", action=""store_true"",
+                      help=""Create the repository if it doesn't exist"")
+    parser.add_argument(""--generate_card"", action=""store_true"", 
+                      help=""Generate and upload a model card based on training config"")
+    
+    return parser.parse_args()  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/upload_to_hf.py
+    **Name:** generate_model_card
+
+    ---
+    ### DESCRIPTION
+    Method 'generate_model_card' makes 8 calls to 'training_config' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/upload_to_hf.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 201
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def generate_model_card(model_path: str) -> str:
+    """"""Generate a model card based on the training configuration.""""""
+    # Try to read configuration files
+    training_config = read_config_file(model_path, ""training_config.json"")
+    metrics = read_config_file(model_path, ""metrics.json"")
+    
+    # Default model card content
+    card_content = ""---\n""
+    card_content += ""language: en\n""
+    card_content += ""tags:\n""
+    card_content += ""- technical-debt\n""
+    card_content += ""- text-classification\n""
+    card_content += ""- transformers\n""
+    card_content += ""license: mit\n""
+    card_content += ""---\n\n""
+    card_content += ""# TD-Classifier Model\n\n""
+    card_content += ""This model was trained using the TD-Classifier Suite for technical debt classification.\n\n""
+    
+    # Add model information if available
+    if training_config:
+        card_content += ""## Model Information\n\n""
+        card_content += f""- Base Model: {training_config.get('model_name', 'Unknown')}\n""
+        card_content += f""- Training Dataset: {training_config.get('data_file', 'Unknown')}\n""
+        card_content += f""- Epochs: {training_config.get('num_epochs', 'Unknown')}\n""
+        card_content += f""- Batch Size: {training_config.get('batch_size', 'Unknown')}\n""
+        card_content += f""- Learning Rate: {training_config.get('learning_rate', 'Unknown')}\n""
+        card_content += f""- Max Sequence Length: {training_config.get('max_length', 'Unknown')}\n""
+        
+        if training_config.get('cross_validation'):
+            card_content += f""- Cross-Validation: Yes ({training_config.get('n_splits', 5)} folds)\n""
+        else:
+            card_content += ""- Cross-Validation: No\n""
+        
+        card_content += ""\n""
+    
+    # Add performance metrics if available
+    if metrics:
+        card_content += ""## Performance Metrics\n\n""
+        card_content += f""- Accuracy: {metrics.get('accuracy', 'Unknown'):.4f}\n""
+        card_content += f""- F1 Score: {metrics.get('f1', 'Unknown'):.4f}\n""
+        card_content += f""- Precision: {metrics.get('precision', 'Unknown'):.4f}\n""
+        card_content += f""- Recall: {metrics.get('recall', 'Unknown'):.4f}\n""
+        card_content += f""- ROC AUC: {metrics.get('roc_auc', 'Unknown'):.4f}\n""
+        card_content += ""\n""
+    
+    # Add usage information
+    card_content += ""## Usage\n\n""
+    card_content += ""```python\n""
+    card_content += ""from transformers import AutoTokenizer, AutoModelForSequenceClassification\n""
+    card_content += ""import torch\n\n""
+    card_content += ""# Load model and tokenizer\n""
+    card_content += ""tokenizer = AutoTokenizer.from_pretrained(\""REPO_NAME\"")\n""
+    card_content += ""model = AutoModelForSequenceClassification.from_pretrained(\""REPO_NAME\"")\n\n""
+    card_content += ""# Prepare text\n""
+    card_content += ""text = \""This code is a mess and needs refactoring.\""\n""
+    card_content += ""inputs = tokenizer(text, return_tensors=\""pt\"", padding=True, truncation=True, max_length=512)\n\n""
+    card_content += ""# Make prediction\n""
+    card_content += ""with torch.no_grad():\n""
+    card_content += ""    outputs = model(**inputs)\n""
+    card_content += ""    logits = outputs.logits\n""
+    card_content += ""    probabilities = torch.softmax(logits, dim=1)\n""
+    card_content += ""    prediction = torch.argmax(probabilities, dim=1).item()\n""
+    card_content += ""    confidence = probabilities[0][prediction].item()\n\n""
+    card_content += ""print(f\""Prediction: {'Technical Debt' if prediction == 1 else 'Not Technical Debt'}\"")\n""
+    card_content += ""print(f\""Confidence: {confidence:.4f}\"")\n""
+    card_content += ""```\n\n""
+    
+    # Add citation information
+    card_content += ""## Citation\n\n""
+    card_content += ""If you use this model in your research, please cite:\n\n""
+    card_content += ""```\n""
+    card_content += ""@misc{TD-Classifier,\n""
+    card_content += ""  author = {TD-Classifier Suite},\n""
+    card_content += ""  title = {Technical Debt Classification Model},\n""
+    card_content += ""  year = {2024},\n""
+    card_content += ""  publisher = {Hugging Face},\n""
+    card_content += ""  howpublished = {\\url{https://huggingface.co/REPO_NAME}},\n""
+    card_content += ""}\n""
+    card_content += ""```\n""
+    
+    return card_content  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/upload_to_hf.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    Method 'main' makes 27 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/upload_to_hf.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/upload_to_hf.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 201
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
+    """"""Main function for uploading models to Hugging Face Hub.""""""
+    args = parse_args()
+    
+    # Check if model path exists
+    if not os.path.exists(args.model_path):
+        raise ValueError(f""Model path '{args.model_path}' does not exist"")
+    
+    # Initialize Hugging Face API
+    api = HfApi(token=args.token)
+    
+    print(f""🔐 Authenticating with Hugging Face using the provided token..."")
+    
+    # Create repository if needed
+    if args.create_if_not_exists:
+        try:
+            print(f""🔍 Checking if repository '{args.repo_name}' exists..."")
+            api.repo_info(repo_id=args.repo_name, repo_type=args.repo_type)
+            print(f""✅ Repository '{args.repo_name}' already exists"")
+        except Exception:
+            print(f""🛠️ Creating new {args.repo_visibility} repository: '{args.repo_name}'..."")
+            create_repo(
+                repo_id=args.repo_name,
+                token=args.token,
+                private=args.repo_visibility == ""private"",
+                repo_type=args.repo_type
+            )
+            print(f""✅ Repository created successfully"")
+    
+    # Load model and tokenizer from local path to verify they can be loaded
+    print(f""🔍 Verifying model can be loaded from '{args.model_path}'..."")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_path)
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_path)
+        print(f""✅ Model and tokenizer loaded successfully"")
+    except Exception as e:
+        raise ValueError(f""Failed to load model: {str(e)}"")
+    
+    # Generate model card if requested
+    if args.generate_card:
+        print(f""📝 Generating model card..."")
+        card_content = generate_model_card(args.model_path)
+        card_content = card_content.replace(""REPO_NAME"", args.repo_name)
+        
+        # Write model card to temporary file
+        card_path = os.path.join(args.model_path, ""README.md"")
+        with open(card_path, ""w"") as f:
+            f.write(card_content)
+        print(f""✅ Model card saved to {card_path}"")
+    
+    # Upload model to Hugging Face Hub
+    print(f""🚀 Uploading model to Hugging Face Hub..."")
+    api.upload_folder(
+        folder_path=args.model_path,
+        repo_id=args.repo_name,
+        repo_type=args.repo_type,
+        commit_message=args.commit_message
+    )
+    
+    print(f""✅ Model successfully uploaded to https://huggingface.co/{args.repo_name}"")
+    print(f""🎉 You can now use it with: AutoModelForSequenceClassification.from_pretrained('{args.repo_name}')"")  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/utils/logging.py
+    **Name:** setup_logging
+
+    ---
+    ### DESCRIPTION
+    Method 'setup_logging' makes 5 calls to 'logging' but only 0 local calls in ../projects/text_classification/tdsuite/utils/logging.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/utils/logging.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 45
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def setup_logging(output_dir=None, level=logging.INFO):
+    """"""
+    Set up logging configuration.
+    
+    Args:
+        output_dir: Directory to save log files (optional)
+        level: Logging level (default: INFO)
+        
+    Returns:
+        Logger instance
+    """"""
+    # Create logger
+    logger = logging.getLogger(""tdsuite"")
+    logger.setLevel(level)
+    
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    
+    # Add console handler to logger
+    logger.addHandler(console_handler)
+    
+    # Create file handler if output directory is provided
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = datetime.now().strftime(""%Y%m%d_%H%M%S"")
+        log_file = os.path.join(output_dir, f""tdsuite_{timestamp}.log"")
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    
+    return logger  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/tdsuite/utils/metrics.py
+    **Name:** compute_metrics
+
+    ---
+    ### DESCRIPTION
+    'compute_metrics' has 118 lines in ../projects/text_classification/tdsuite/utils/metrics.py at line 15
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/utils/metrics.py
 - Commit frequency: 2 (rarely changed)
 - Total churn (lines changed): 412
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
@@ -1724,16 +3716,16 @@ File: text_classifier/utils/metrics.py
 - Commit frequency: 2 (rarely changed)
 - Total churn (lines changed): 400
 - Developers involved: 1
-- Last modified: 212 days ago (inactive for a while)
+- Last modified: 218 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def compute_metrics(df, output_dir=None, save_plots=True):
+    ### CODE SEGMENT (context only)
+    ```python
+    def compute_metrics(df, output_dir=None, save_plots=True):
     """"""
     Compute and save classification metrics.
     
@@ -1893,47 +3885,419 @@ def compute_metrics(df, output_dir=None, save_plots=True):
                     plt.close()
     
     return metrics  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
 
+    ### CODE SMELL REPORT
 
-### CODE SMELL REPORT
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/utils/metrics.py
+    **Name:** compute_metrics
 
-**Type of smell:** Code
-**Name of smell:** Long Method
-**File:** ../projects/text_classification/tdsuite/data/data_splitter.py
-**Name:** split_data
+    ---
+    ### DESCRIPTION
+    Method 'compute_metrics' makes 23 calls to 'plt' but only 0 local calls in ../projects/text_classification/tdsuite/utils/metrics.py
 
----
-### DESCRIPTION
-'split_data' has 73 lines in ../projects/text_classification/tdsuite/data/data_splitter.py at line 249
+    ---
 
----
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
 
-### STATIC ANALYSIS SUMMARY
-No static analysis report available.
+    ---
 
----
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
-### GIT-BASED EVOLUTION SUMMARY
------- GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+File: tdsuite/utils/metrics.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 412
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: text_classifier/utils/metrics.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 400
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def compute_metrics(df, output_dir=None, save_plots=True):
+    """"""
+    Compute and save classification metrics.
+    
+    Args:
+        df: DataFrame containing predictions and ground truth
+        output_dir: Directory to save metrics and plots
+        save_plots: Whether to save plots
+    
+    Returns:
+        Dictionary of metrics
+    """"""
+    # Extract predictions and ground truth
+    y_true = df[""label""]
+    y_pred = df[""predicted_class""]
+    
+    # Ensure labels are numeric
+    if y_true.dtype == 'object' and y_pred.dtype == 'object':
+        # Convert string labels to numeric
+        unique_labels = sorted(y_true.unique())
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        # Find the positive category (the one that doesn't start with ""non_"")
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            non_label = unique_labels[0]
+            positive_label = unique_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        y_true = y_true.map(label_map)
+        y_pred = y_pred.map(label_map)
+    elif y_true.dtype != 'object' and y_pred.dtype == 'object':
+        # Convert string predictions to numeric
+        unique_labels = y_pred.unique()
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        # Find the positive category (the one that doesn't start with ""non_"")
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            sorted_labels = sorted(unique_labels)
+            non_label = sorted_labels[0]
+            positive_label = sorted_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        y_pred = y_pred.map(label_map)
+    
+    # Compute metrics
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    mcc = matthews_corrcoef(y_true, y_pred)
+    conf_matrix = confusion_matrix(y_true, y_pred)
+    
+    # Try to compute ROC AUC if probabilities are available
+    roc_auc = None
+    if ""class_probabilities"" in df.columns:
+        # Extract positive class probability if it's a list
+        if isinstance(df[""class_probabilities""].iloc[0], list):
+            positive_probs = df[""class_probabilities""].apply(lambda x: x[1])
+            roc_auc = roc_auc_score(y_true, positive_probs)
+    elif ""predicted_probability"" in df.columns:
+        roc_auc = roc_auc_score(y_true, df[""predicted_probability""])
+    
+    # Create metrics dictionary
+    metrics = {
+        ""accuracy"": accuracy,
+        ""precision"": precision,
+        ""recall"": recall,
+        ""f1"": f1,
+        ""mcc"": mcc,
+        ""confusion_matrix"": conf_matrix.tolist()
+    }
+    if roc_auc is not None:
+        metrics[""roc_auc""] = roc_auc
+    
+    # Save metrics to file
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        with open(os.path.join(output_dir, ""metrics.json""), ""w"") as f:
+            json.dump(metrics, f, indent=2)
+        
+        # Save plots
+        if save_plots:
+            # Metrics summary bar chart
+            plt.figure(figsize=(10, 6))
+            metrics_names = [""Accuracy"", ""Precision"", ""Recall"", ""F1"", ""MCC""]
+            metrics_values = [accuracy, precision, recall, f1, mcc]
+            colors = [""blue"", ""green"", ""red"", ""purple"", ""orange""]
+            
+            if roc_auc is not None:
+                metrics_names.append(""ROC AUC"")
+                metrics_values.append(roc_auc)
+                colors.append(""brown"")
+            
+            bars = plt.bar(metrics_names, metrics_values, color=colors)
+            
+            # Add values on top of bars
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                        f'{height:.3f}', ha='center', va='bottom')
+            
+            plt.ylim(0, 1.1)
+            plt.ylabel(""Score"")
+            plt.title(""Binary Classification Metrics"")
+            plt.savefig(os.path.join(output_dir, ""metrics_summary.png""))
+            plt.close()
+            
+            # Confusion matrix
+            plt.figure(figsize=(8, 6))
+            sns.heatmap(conf_matrix, annot=True, fmt=""d"", cmap=""Blues"")
+            plt.xlabel(""Predicted"")
+            plt.ylabel(""True"")
+            plt.title(""Confusion Matrix"")
+            plt.savefig(os.path.join(output_dir, ""confusion_matrix.png""))
+            plt.close()
+            
+            # ROC curve
+            if roc_auc is not None:
+                probs_for_curve = None
+                if ""class_probabilities"" in df.columns:
+                    if isinstance(df[""class_probabilities""].iloc[0], list):
+                        probs_for_curve = df[""class_probabilities""].apply(lambda x: x[1])
+                elif ""predicted_probability"" in df.columns:
+                    probs_for_curve = df[""predicted_probability""]
+                
+                if probs_for_curve is not None:
+                    fpr, tpr, _ = roc_curve(y_true, probs_for_curve)
+                    plt.figure(figsize=(8, 6))
+                    plt.plot(fpr, tpr, label=f""ROC curve (AUC = {roc_auc:.3f})"")
+                    plt.plot([0, 1], [0, 1], ""k--"")
+                    plt.xlabel(""False Positive Rate"")
+                    plt.ylabel(""True Positive Rate"")
+                    plt.title(""ROC Curve"")
+                    plt.legend()
+                    plt.savefig(os.path.join(output_dir, ""roc_curve.png""))
+                    plt.close()
+    
+    return metrics  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/utils/data_utils.py
+    **Name:** load_dataset_from_file
+
+    ---
+    ### DESCRIPTION
+    Method 'load_dataset_from_file' makes 4 calls to 'pd' but only 0 local calls in ../projects/text_classification/tdsuite/utils/data_utils.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/utils/data_utils.py
+- Commit frequency: 1 (rarely changed)
+- Total churn (lines changed): 90
+- Developers involved: 1
+- Last modified: 218 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def load_dataset_from_file(file_path: str) -> pd.DataFrame:
+    """"""
+    Load a dataset from a file.
+    
+    Args:
+        file_path: Path to the dataset file
+        
+    Returns:
+        DataFrame containing the dataset
+    """"""
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f""File not found: {file_path}"")
+    
+    # Load the dataset based on the file extension
+    file_ext = os.path.splitext(file_path)[1].lower()
+    if file_ext == '.csv':
+        return pd.read_csv(file_path)
+    elif file_ext == '.json':
+        return pd.read_json(file_path)
+    elif file_ext == '.jsonl':
+        return pd.read_json(file_path, lines=True)
+    else:
+        raise ValueError(f""Unsupported file format: {file_path}"")  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/utils/inference.py
+    **Name:** main
+
+    ---
+    ### DESCRIPTION
+    Method 'main' makes 17 calls to 'args' but only 0 local calls in ../projects/text_classification/tdsuite/utils/inference.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 474
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+File: tdsuite/utils/inference.py
+- Commit frequency: 3 (rarely changed)
+- Total churn (lines changed): 916
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def main():
+    """"""Main function for inference.""""""
+    parser = argparse.ArgumentParser(description=""Inference for technical debt classification"")
+    
+    # Model arguments
+    model_group = parser.add_mutually_exclusive_group(required=True)
+    model_group.add_argument(""--model_path"", type=str, help=""Path to a local model"")
+    model_group.add_argument(""--model_name"", type=str, help=""Name of a model on Hugging Face"")
+    model_group.add_argument(""--model_paths"", type=str, nargs=""+"", help=""Paths to multiple local models"")
+    model_group.add_argument(""--model_names"", type=str, nargs=""+"", help=""Names of multiple models on Hugging Face"")
+    
+    # Input arguments
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument(""--text"", type=str, help=""Text to classify"")
+    input_group.add_argument(""--input_file"", type=str, help=""Path to a file with texts (one per line)"")
+    
+    # Output arguments
+    parser.add_argument(""--output_file"", type=str, help=""Path to save predictions"")
+    parser.add_argument(""--max_length"", type=int, default=512, help=""Maximum sequence length"")
+    parser.add_argument(""--device"", type=str, help=""Device to use for inference (cuda, cpu)"")
+    parser.add_argument(""--weights"", type=float, nargs=""+"", help=""Weights for ensemble models"")
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # Check if using ensemble
+    if args.model_paths or args.model_names:
+        # Create ensemble inference engine
+        engine = EnsembleInferenceEngine(
+            model_paths=args.model_paths or args.model_names,
+            model_names=args.model_names,
+            max_length=args.max_length,
+            device=args.device,
+            weights=args.weights,
+        )
+    else:
+        # Create single model inference engine
+        engine = InferenceEngine(
+            model_path=args.model_path,
+            model_name=args.model_name,
+            max_length=args.max_length,
+            device=args.device,
+        )
+    
+    # Perform inference
+    if args.text is not None:
+        result = engine.predict_single(args.text)
+        print(json.dumps(result, indent=2))
+    else:
+        df = engine.predict_from_file(args.input_file, args.output_file)
+        if args.output_file is None:
+            print(df.to_string())  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
+
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Long Method
+    **File:** ../projects/text_classification/tdsuite/data/data_splitter.py
+    **Name:** split_data
+
+    ---
+    ### DESCRIPTION
+    'split_data' has 73 lines in ../projects/text_classification/tdsuite/data/data_splitter.py at line 249
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
 
 File: tdsuite/data/data_splitter.py
 - Commit frequency: 2 (rarely changed)
 - Total churn (lines changed): 417
 - Developers involved: 1
-- Last modified: 211 days ago (inactive for a while)
+- Last modified: 217 days ago (inactive for a while)
 
 ------------------------------------------------------------
 
 
----
+    ---
 
-### CODE SEGMENT (context only)
-```python
-def split_data(
+    ### CODE SEGMENT (context only)
+    ```python
+    def split_data(
     data_file: str,
     output_dir: str,
     is_numeric_labels: bool = False,
@@ -2036,10 +4400,153 @@ def split_data(
         top_repos_df.to_csv(os.path.join(output_dir, ""top_repos.csv""), index=False)
     
     return train_df, test_df, top_repos_df  # truncate long code
-```
+    ```
 
---- END OF REPORT
+    --- END OF REPORT
+    
 
+
+    ### CODE SMELL REPORT
+
+    **Type of smell:** Code
+    **Name of smell:** Feature Envy
+    **File:** ../projects/text_classification/tdsuite/data/data_splitter.py
+    **Name:** split_data
+
+    ---
+    ### DESCRIPTION
+    Method 'split_data' makes 5 calls to 'pd' but only 0 local calls in ../projects/text_classification/tdsuite/data/data_splitter.py
+
+    ---
+
+    ### STATIC ANALYSIS SUMMARY
+    No static analysis report available.
+
+    ---
+
+    ### GIT-BASED EVOLUTION SUMMARY
+    ------ GIT-BASED CODE STABILITY AND EVOLUTION REPORT ------
+
+File: tdsuite/data/data_splitter.py
+- Commit frequency: 2 (rarely changed)
+- Total churn (lines changed): 417
+- Developers involved: 1
+- Last modified: 217 days ago (inactive for a while)
+
+------------------------------------------------------------
+
+
+    ---
+
+    ### CODE SEGMENT (context only)
+    ```python
+    def split_data(
+    data_file: str,
+    output_dir: str,
+    is_numeric_labels: bool = False,
+    repo_column: Optional[str] = None,
+    is_huggingface_dataset: bool = False,
+    test_size: float = 0.2,
+    random_state: int = 42,
+) -> None:
+    """"""
+    Split data into training and test sets with balanced classes.
+    
+    Args:
+        data_file: Path to data file or Hugging Face dataset name
+        output_dir: Directory to save split data
+        is_numeric_labels: Whether the labels are already numeric (0 or 1)
+        repo_column: Name of the repository column (optional)
+        is_huggingface_dataset: Whether the data is a Hugging Face dataset
+        test_size: Proportion of data to use for testing
+        random_state: Random seed for reproducibility
+    """"""
+    # Load data
+    if is_huggingface_dataset:
+        dataset = load_dataset(data_file)
+        df = pd.DataFrame(dataset[""train""])
+    else:
+        if data_file.endswith("".csv""):
+            df = pd.read_csv(data_file)
+        elif data_file.endswith("".json"") or data_file.endswith("".jsonl""):
+            df = pd.read_json(data_file, lines=data_file.endswith("".jsonl""))
+        else:
+            raise ValueError(f""Unsupported file format: {data_file}"")
+    
+    # Ensure labels are numeric
+    if not is_numeric_labels:
+        # Find the positive category (the one that doesn't start with ""non_"")
+        unique_labels = df[""label""].unique()
+        if len(unique_labels) != 2:
+            raise ValueError(""Binary classification requires exactly 2 unique labels"")
+        
+        positive_label = None
+        non_label = None
+        for label in unique_labels:
+            if str(label).startswith(""non_""):
+                non_label = label
+            else:
+                positive_label = label
+        
+        # If we couldn't identify the labels by prefix, use the first one as non_ and second as positive
+        if non_label is None or positive_label is None:
+            sorted_labels = sorted(unique_labels)
+            non_label = sorted_labels[0]
+            positive_label = sorted_labels[1]
+        
+        # Create mapping: non_ -> 0, positive -> 1
+        label_map = {non_label: 0, positive_label: 1}
+        df[""label""] = df[""label""].map(label_map)
+    
+    # Split data
+    train_df, test_df = train_test_split(
+        df,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=df[""label""]
+    )
+    
+    # Extract top repositories if repo_column is provided
+    top_repos_df = None
+    if repo_column:
+        # Count positive samples per repository
+        repo_counts = df[df[""label""] == 1].groupby(repo_column).size()
+        top_repos = repo_counts.nlargest(10).index.tolist()
+        
+        # Filter data to include only top repositories
+        top_repos_df = df[df[repo_column].isin(top_repos)]
+        
+        # Balance classes in top repositories data
+        pos_samples = top_repos_df[top_repos_df[""label""] == 1]
+        neg_samples = top_repos_df[top_repos_df[""label""] == 0]
+        
+        # Get the minimum number of samples between positive and negative
+        min_samples = min(len(pos_samples), len(neg_samples))
+        
+        if min_samples > 0:
+            # Sample equal number of positive and negative samples
+            pos_samples = pos_samples.sample(n=min_samples, random_state=random_state)
+            neg_samples = neg_samples.sample(n=min_samples, random_state=random_state)
+            top_repos_df = pd.concat([pos_samples, neg_samples])
+        else:
+            # If one class is empty, just use the available samples
+            top_repos_df = pd.concat([pos_samples, neg_samples])
+    
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save split data
+    train_df.to_csv(os.path.join(output_dir, ""train.csv""), index=False)
+    test_df.to_csv(os.path.join(output_dir, ""test.csv""), index=False)
+    
+    if top_repos_df is not None:
+        top_repos_df.to_csv(os.path.join(output_dir, ""top_repos.csv""), index=False)
+    
+    return train_df, test_df, top_repos_df  # truncate long code
+    ```
+
+    --- END OF REPORT
+    
 
 
 Question: Considering both the cost of refactoring and the potential benefits to software quality, rank the provided code smells by the order in which they should be addressed. Explain briefly for each smell how its severity, propagation risk, and long-term impact justify its position.
