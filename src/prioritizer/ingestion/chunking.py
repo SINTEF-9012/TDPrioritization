@@ -52,7 +52,7 @@ def convert_chunked_text_to_haystack_documents(chunk_size=1500, chunk_overlap=25
 
     return documents
 
-def convert_pdf_files_to_text_pages(pdf_dir="articles") -> dict[str, dict]:
+def convert_pdf_files_to_text_pages(pdf_dir="src/prioritizer/data/articles") -> dict[str, dict]:
     out = {}
     for filename in os.listdir(pdf_dir):
         if not filename.endswith(".pdf"):

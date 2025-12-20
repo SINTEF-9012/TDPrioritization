@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 
 # Ignore virtual environment
-virtual_env/
+vir_env/
 
 .DS_Store
+
+prioritizer.egg-info
 
 # Ignore the projects we use to test the prioritizer as they are cloned from other open-source repos. 
 projects/

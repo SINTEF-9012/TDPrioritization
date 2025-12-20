@@ -11,15 +11,18 @@ import pandas as pd
 import os
 from git import Repo
 import random
+from pathlib import Path
 
-from utils import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
-from git_history import build_report
-from chunking import convert_chunked_text_to_haystack_documents
-from analyze_code_segment import analyze_code_segments_via_ai
-from cli import parse_args
-from prompt_template import PROMPT_TEMPLATE
-from ollama_client import OllamaGenerator
-from typing import List, Optional, Any
+
+from prioritizer.analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
+from prioritizer.history.git_history import build_report
+from prioritizer.ingestion.chunking import convert_chunked_text_to_haystack_documents
+from prioritizer.llm.analyze_code_segment import analyze_code_segments_via_ai
+from prioritizer.cli.cli import parse_args
+from prioritizer.llm.prompt_template import PROMPT_TEMPLATE
+from prioritizer.llm.ollama_client import OllamaGenerator
+from typing import List, Any
+
 
 from langchain_ollama import ChatOllama
 
@@ -150,11 +153,12 @@ def main():
     args = parse_args()
 
     smells = ['Long Method', 'Large Class', 'Long File', 'High Cyclomatic Complexity', 'Feature Envy'] 
-    project_to_be_analyzed = Repo(f"projects/{args.project_name}")
+    project_to_be_analyzed = Repo(f"src/prioritizer/data/projects/{args.project_name}")
 
-    dir_name = args.output_dir + "_" + args.model_name
-    os.makedirs(dir_name, exist_ok=True)
-    full_prompt_file = os.path.join(dir_name, "full_prompt.txt")
+    experiments_dir = Path("experiments") / "baseline_run_001"
+    experiments_dir.mkdir(parents=True, exist_ok=True)
+
+    full_prompt_file = experiments_dir / "full_prompt.txt"
 
     code_smells_dic = read_relevant_code_smells_and_write_to_documents(smells) 
     code_smells_dic = add_further_context(project_to_be_analyzed, code_smells_dic, True, True, True)
@@ -187,12 +191,16 @@ def main():
     rag_pipeline = build_rag_pipeline(document_store, PROMPT_TEMPLATE, args.model_name, full_prompt_file)
 
     question = (
-        "Using evidence from the provided embedded research (INFO ON CODE SMELLS AND TECHNICAL DEBT),\
-        rank ALL code smells by refactoring priority. For each smell, justify the rank using research-backed\
-        signals such as change-proneness, fault/defect-proneness (bug association), smell severity/metrics\
-        (e.g., size, complexity), and expected refactoring ROI (cost vs benefit).\
-        If the research suggests a relevant principle (e.g., smells correlate with higher change-proneness),\
-        apply it explicitly to the smell's available metrics (git stats, churn, recency, complexity, lint)."
+        "Use evidence from the embedded research (INFO ON CODE SMELLS AND TECHNICAL DEBT) to rank ALL code smells \
+        by refactoring priority in this project. The smells to consider are: Long Method, Large Class, Long File, \
+        High Cyclomatic Complexity, and Feature Envy.\
+        For each smell instance, justify its rank using research-backed signals such as change-proneness \
+        (e.g., churn and recency), fault/defect-proneness (bug association), severity metrics \
+        (e.g., size, cyclomatic or cognitive complexity), propagation risk, and expected refactoring ROI \
+        (cost versus long-term maintainability benefit). \
+        When the research discusses any of these smells—or closely related concepts such as God Class, \
+        Large/God Method, complexity, coupling, or cohesion—explicitly apply those principles to the \
+        available project-specific evidence (git statistics, churn, recency, static analysis, and lint results)."
     )
 
     query_embedding = query_embedder.run(question)["embedding"]
@@ -204,19 +212,21 @@ def main():
             "prompt_builder": {
                 "question": question,
                 "smells": documents,
-                "project_structure": build_project_structure(f"projects/{args.project_name}") if args.include_project_structure else "Not included."
+                "project_structure": build_project_structure(f"data/projects/{args.project_name}") if args.include_project_structure else "Not included."
                 },
         }
     )["llm"]
 
-    llm_output_file = os.path.join(dir_name, "llm_output")
+    llm_output_file = experiments_dir / "llm_output"
 
-    with open(llm_output_file+".txt", "w", newline="", encoding="utf-8") as f1, open(llm_output_file+".csv", "w", newline="", encoding="utf-8") as f2:
-        writer = csv.writer(f1)
-        writer.writerow([results["response"]])
+    with open(llm_output_file.with_suffix(".txt"), "w", encoding="utf-8") as f1, \
+        open(llm_output_file.with_suffix(".csv"), "w", encoding="utf-8") as f2:
 
-        writer = csv.writer(f2)
-        writer.writerow([results["response"]])
+        writer1 = csv.writer(f1)
+        writer1.writerow([results["response"]])
+
+        writer2 = csv.writer(f2)
+        writer2.writerow([results["response"]])
     
 
 if __name__ == "__main__":
@@ -240,6 +250,7 @@ google cli - coding agents - gemini CLI and claude CLI to evaluate againt my pro
 
 Cumulative lift chart
 
-bash run_analyzer.sh gitmetrics --model gpt-oss:20b-cloud --no_pylint_astroid --git_stats --articles --add_source_code_folder_structure
+bash run_analyzer.sh gitmetrics --model gpt-oss:20b-cloud --add-project-structure
 
+Sekvens diagram for agentene
 """
