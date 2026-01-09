@@ -28,5 +28,5 @@ __all__ = [
     "llm",
     "pipelines",
     "evaluation",
-    "cli",
+    "cli"
 ]

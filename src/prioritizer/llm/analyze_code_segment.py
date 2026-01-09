@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional, Tuple
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.language_models.chat_models import BaseChatModel
+
 
 _SUMMARY_CACHE: dict[Tuple[str, str, str, str], str] = {}
 
@@ -25,7 +27,7 @@ def _cache_key(smell: Dict[str, Any]) -> Tuple[str, str, str, str]:
         str(hash(snippet)),
     )
 
-def analyze_code_segments_via_ai(smells: List[Dict[str, Any]], llm: ChatOllama, enabled: bool = True) -> List[Dict[str, Any]]:
+def analyze_code_segments_via_ai(smells: List[Dict[str, Any]], llm: BaseChatModel, enabled: bool = True) -> List[Dict[str, Any]]:
     if not enabled:
         for s in smells:
             s["ai_code_segment_summary"] = None
@@ -45,8 +47,6 @@ def analyze_code_segments_via_ai(smells: List[Dict[str, Any]], llm: ChatOllama, 
         user_prompt = f"""\
 Smell type: {smell.get("name")}
 Smell category: {smell.get("type_of_smell")}
-File: {smell.get("file_path")}
-Line: {smell.get("line_number")}
 
 Analyzer description:
 {smell.get("description")}

@@ -10,7 +10,10 @@ vir_env/
 prioritizer.egg-info
 
 # Ignore the projects we use to test the prioritizer as they are cloned from other open-source repos. 
-projects/
+test_projects/
+
+# Ignore chroma db if user is using persistent storage of embeddings
+embeddings_db
 
 # Ignore python_smells_detector codebase since it is cloned from another repo.
 python_smells_detector/

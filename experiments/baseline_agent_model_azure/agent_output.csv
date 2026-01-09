@@ -1,0 +1,23 @@
+"1|None|Long File|gitmetrics.metrics.change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|Broad file size (357 LOC) with low maintainability index, affecting three complex metric functions, high propagation risk
+2|None|Long Method|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:163|144-line method, high cyclomatic complexity (34), monolithic logic hinders comprehension and tests
+3|None|Feature Envy|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:163|10 diff calls, low cohesion and heavy external API dependency
+4|None|Long Method|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:359|134-line method with nested logic and error handling, high defect risk, difficult to test
+5|None|Feature Envy|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:359|9 file_bugs calls, mixed responsibilities, complicates isolation and testing
+6|None|Long Method|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:23|98-line method, nested diff parsing and DataFrame logic, low readability
+7|None|Feature Envy|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py:23|7 commit API calls, poor cohesion, hard to mock and maintain
+8|None|Long File|gitmetrics.metrics.coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|333 LOC in one module, multiple large metric functions, low maintainability
+9|None|Long Method|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:240|151-line method, heavy os.walk and path logic, high complexity and coupling
+10|None|Feature Envy|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:240|8 os module calls, low cohesion, brittle filesystem dependency
+11|None|Long Method|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:58|122-line method, deep commit traversal, high cyclomatic complexity, difficult to maintain
+12|None|Feature Envy|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:58|7 commit API calls, violates encapsulation, hard to test in isolation
+13|None|Long Method|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:466|64-line method with file-system traversal, nested loops, low testability
+14|None|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py:466|4 os calls, mixing I/O and metric logic, high coupling
+15|None|Long Method|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py:148|69-line method with nested loops and sorting logic, high defect risk
+16|None|Long Method|calculate_co_change_matrix|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py:50|60-line method with branch logic and matrix assembly, moderate complexity and cohesion issues
+17|None|Feature Envy|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py:148|15 matrix API calls, low cohesion, hard to isolate computations
+18|None|Feature Envy|get_changed_files|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py:21|6 diff calls, tight coupling to Git API, complicates testing
+19|None|High Cyclomatic Complexity|get_lines_of_code|../test_projects/gitmetrics/gitmetrics/core/repository.py:283|Cyclomatic complexity 15 in critical repository module, low maintainability index
+20|None|Feature Envy|main|../test_projects/gitmetrics/gitmetrics/cli.py:62|15 args attribute calls, bloated entry point, tightly coupled to CLI object
+21|None|Feature Envy|parse_args|../test_projects/gitmetrics/gitmetrics/cli.py:21|5 parser calls, low cohesion, risk of breakage on argument changes
+22|None|Feature Envy|setup_logging|../test_projects/gitmetrics/gitmetrics/utils/logger.py:13|5 root_logger manipulations, brittle logging setup, hard to test
+23|None|Feature Envy|get_logger|../test_projects/gitmetrics/gitmetrics/utils/logger.py:59|5 logging module calls, low cohesion, global state side-effects"

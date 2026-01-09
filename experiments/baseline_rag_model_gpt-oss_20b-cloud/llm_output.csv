@@ -1,0 +1,23 @@
+"1|3|Long File|gitmetrics.metrics.change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|Low maintainability index (39) and very high complexity (avg CC26.7, max CC34) in a 357-LOC file bundling three monolithic methods.
+2|2|Long File|gitmetrics.metrics.coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Large file (333 LOC) with low MI (40.9) and high complexity (max CC42) handling multiple coupling metrics in one module.
+3|17|Long Method|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|144-line monolith with dense branching and low MI (39), reducing testability and increasing fault risk.
+4|11|Long Method|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|151-line routine with extensive external dependencies and low MI (40.9), hindering maintainability.
+5|18|Long Method|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|134-line function with complex logic (avg CC26.7) and low MI (39), mixing data gathering and reporting.
+6|10|Long Method|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|122-line method with high cyclomatic complexity in a low-MI (40.9) file, tightly coupled to commit objects.
+7|16|Long Method|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|98-line function with high complexity (avg CC26.7) and low MI (39), combining multiple concerns in one block.
+8|12|Long Method|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|64-line method in a low-MI (40.9) file with dense OS calls and cohesion issues, hindering isolation.
+9|7|Long Method|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|69-line routine with nested loops and moderate complexity in a MI (62) file, raising cognitive load.
+10|1|High Cyclomatic Complexity|get_lines_of_code|../test_projects/gitmetrics/gitmetrics/core/repository.py|CC=15 with nested exception handling in MI (46) file, increasing defect-proneness and testing burden.
+11|6|Long Method|calculate_co_change_matrix|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|60-line method with branching (max CC15) in MI (62) file, tightly coupling metadata parsing and DataFrame construction.
+12|9|Feature Envy|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|15 calls to ‘matrix’ API and zero local logic in an already complex method, reducing cohesion.
+13|5|Feature Envy|main|../test_projects/gitmetrics/gitmetrics/cli.py|15 calls to ‘args’ object and no local operations in MI (71) file, brittle and hard to unit-test.
+14|20|Feature Envy|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|10 calls to diff API with zero local logic in low-MI (39) file, tightly coupling to Git internals.
+15|21|Feature Envy|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|9 calls to file_bugs API and no local logic in a complex, low-MI (39) method, raising fault risk.
+16|14|Feature Envy|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|8 OS calls and zero local logic in low-MI (40.9) file, decreasing cohesion and testability.
+17|19|Feature Envy|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|7 calls to commit API and no local logic in low-MI (39) file, fragile to Git API changes.
+18|13|Feature Envy|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|7 calls to commit objects and zero local operations in low-MI (40.9) file, tightly coupling to external interface.
+19|8|Feature Envy|get_changed_files|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|6 diff calls and zero local logic in MI (62) file, reducing test isolation and propagation risk.
+20|4|Feature Envy|parse_args|../test_projects/gitmetrics/gitmetrics/cli.py|5 parser calls and no local logic in MI (71) file, fragile to argparse changes and lowering cohesion.
+21|23|Feature Envy|get_logger|../test_projects/gitmetrics/gitmetrics/utils/logger.py|5 calls to logging API and zero local logic in MI (84) file, minor cohesion issue.
+22|22|Feature Envy|setup_logging|../test_projects/gitmetrics/gitmetrics/utils/logger.py|5 root_logger calls and no local logic in MI (84) file, low-severity but reduces isolation.
+23|15|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|4 OS calls and zero local logic in low-severity segment, minimal propagation risk."

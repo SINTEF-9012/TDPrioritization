@@ -1,0 +1,1055 @@
+[1] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=163.0
+
+analyzer_description:
+'calculate_change_proneness' has 144 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 163
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The 144-line calculate_change_proneness function exemplifies a Long Method smell by cramming repository access, diff parsing, multiple metric calculations, error handling, and summary statistics into one monolithic block. Such sprawling logic reduces readability and makes it difficult for developers to understand or isolate individual behaviors. This complexity also hinders targeted testing of specific calculations and increases the risk of introducing defects when modifying any part of the function.
+
+---
+
+[2] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=23.0
+
+analyzer_description:
+'calculate_change_frequency' has 98 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 23
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_change_frequency function stretches across nearly 100 lines and blends branch resolution, commit iteration, diff parsing, statistical aggregation, and DataFrame construction into one monolithic block. Its length and nested logic hinder readability and make it difficult to isolate and test individual behaviors, increasing the risk of defects and slowing down maintenance. Continuous modifications to this sprawling method are likely to introduce subtle bugs and hamper reliable testing efforts.
+
+---
+
+[3] id=None smell=Long File category=Structural
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=nan
+
+analyzer_description:
+File 'gitmetrics.metrics.change_proneness' has 357 meaningful lines of code
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+This module spans over 350 lines and bundles three complex metric calculators into a single file, making it difficult to navigate and understand at a glance. Its sheer size increases cognitive load, obscures the individual responsibilities of each function, and complicates writing focused tests. As a result, maintainability suffers and the risk of defects and regressions rises when modifying or extending any part of its logic.
+
+---
+
+[4] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=466.0
+
+analyzer_description:
+Method 'calculate_cohesion' makes 4 calls to 'os' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_cohesion function exhibits feature envy by performing extensive file‐system traversal and path manipulation through repeated calls to the os module rather than encapsulating those concerns elsewhere. Its heavy reliance on os.walk, os.path utilities, and raw file I/O makes it difficult to write isolated tests and increases coupling to the underlying file system. As a result, maintainability suffers and the risk of subtle defects grows whenever the repository structure or file‐access behavior changes.
+
+---
+
+[5] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/co_change.py line=50.0
+
+analyzer_description:
+'calculate_co_change_matrix' has 60 lines in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py at line 50
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_co_change_matrix function stretches over 60 lines and intertwines branch fallback logic, commit traversal, file and co-change counting, matrix construction, and metadata aggregation all in one place. This long method increases cognitive load, makes isolating and testing individual steps difficult, and raises the chance of bugs slipping through due to its nested loops and exception handling. As a result, maintainers face greater effort in understanding and safely modifying the code, heightening defect risk and impairing overall maintainability.
+
+---
+
+[6] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=240.0
+
+analyzer_description:
+Method 'calculate_semantic_coupling' makes 8 calls to 'os' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_semantic_coupling function exhibits feature envy by performing extensive file‐system operations through the os module rather than leveraging its own repository abstraction, making eight direct calls to os.walk and os.path utilities. This heavy dependence on external file‐system APIs clutters the method with unrelated responsibilities, reducing its cohesion and making it harder to isolate and test. As a result, maintainability suffers because changes in file retrieval or path handling may force edits in this metric calculation logic, and defect risk increases due to complex side effects and difficulty in mocking filesystem interactions.
+
+---
+
+[7] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=359.0
+
+analyzer_description:
+'calculate_error_proneness' has 134 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 359
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_error_proneness function’s 134 lines pack in commit retrieval, regex compilation, diff processing, file content extraction, metric calculations, and summary aggregation into a single block, making it hard to follow and reason about. Its length and mixed responsibilities increase the risk of undetected bugs, complicate writing focused unit tests, and slow down maintenance or updates. As a result, teams are likely to face higher cognitive load when diagnosing issues or extending functionality, raising the defect and technical debt burden.
+
+---
+
+[8] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=58.0
+
+analyzer_description:
+Method 'calculate_structural_coupling' makes 7 calls to 'commit' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_structural_coupling function repeatedly reaches into commit objects to inspect parents, traverse trees, compute diffs, and extract hexshas, showing feature envy of the Git commit API rather than keeping responsibility localized. This tight coupling to commit internals makes the method brittle and difficult to test in isolation, raising the risk that any change in the commit interface or Git library will break its logic. Maintenance becomes more cumbersome as developers must understand the commit structure deeply to modify or extend this function, increasing defect likelihood and slowing down future enhancements.
+
+---
+
+[9] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/utils/logger.py line=59.0
+
+analyzer_description:
+Method 'get_logger' makes 5 calls to 'logging' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 85
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 4
+- Average Cyclomatic Complexity: 4.00
+- Maximum Cyclomatic Complexity: 5
+- Maintainability Index: 84.69
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+No major maintainability risks detected.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The get_logger function exhibits Feature Envy by making multiple calls into the external logging API rather than operating on its own data, indicating it is overly concerned with the internals of the logging subsystem. This heavy reliance on logging’s implementation details increases coupling, making the function harder to maintain and adapt if the logging behavior or API changes. It also complicates testing because the method manipulates global logger state and handlers, raising the risk of hidden side effects and defects.
+
+---
+
+[10] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/co_change.py line=148.0
+
+analyzer_description:
+'calculate_co_change_metrics' has 69 lines in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py at line 148
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_co_change_metrics function spans nearly 70 lines, combining data loading, multiple nested loops for coupling calculations, sorting logic, and result assembly in one block. Its length and mixed responsibilities increase cognitive load and make unit testing individual parts difficult, raising the risk of undetected defects. Maintenance becomes harder as future developers struggle to navigate and extend the sprawling logic, and any change in one section could inadvertently break calculations elsewhere.
+
+---
+
+[11] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=58.0
+
+analyzer_description:
+'calculate_structural_coupling' has 122 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 58
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_structural_coupling function repeatedly reaches into commit objects to inspect parents, traverse trees, compute diffs, and extract hexshas, showing feature envy of the Git commit API rather than keeping responsibility localized. This tight coupling to commit internals makes the method brittle and difficult to test in isolation, raising the risk that any change in the commit interface or Git library will break its logic. Maintenance becomes more cumbersome as developers must understand the commit structure deeply to modify or extend this function, increasing defect likelihood and slowing down future enhancements.
+
+---
+
+[12] id=None smell=Long File category=Structural
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=nan
+
+analyzer_description:
+File 'gitmetrics.metrics.coupling' has 333 meaningful lines of code
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+This 333-line file consolidates several large metric‐calculation routines and shared utilities into a single sprawling module with varied responsibilities, making it difficult to locate and isolate specific logic. Its length and complexity inflate cognitive load and complicate writing focused tests, increasing the chance of unintended side effects when modifying the code. As a result, maintainability is reduced and defect risk rises due to the tightly intertwined structure.
+
+---
+
+[13] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=163.0
+
+analyzer_description:
+Method 'calculate_change_proneness' makes 10 calls to 'diff' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The 144-line calculate_change_proneness function exemplifies a Long Method smell by cramming repository access, diff parsing, multiple metric calculations, error handling, and summary statistics into one monolithic block. Such sprawling logic reduces readability and makes it difficult for developers to understand or isolate individual behaviors. This complexity also hinders targeted testing of specific calculations and increases the risk of introducing defects when modifying any part of the function.
+
+---
+
+[14] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=466.0
+
+analyzer_description:
+'calculate_cohesion' has 64 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 466
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_cohesion function exhibits feature envy by performing extensive file‐system traversal and path manipulation through repeated calls to the os module rather than encapsulating those concerns elsewhere. Its heavy reliance on os.walk, os.path utilities, and raw file I/O makes it difficult to write isolated tests and increases coupling to the underlying file system. As a result, maintainability suffers and the risk of subtle defects grows whenever the repository structure or file‐access behavior changes.
+
+---
+
+[15] id=None smell=Long Method category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/coupling.py line=240.0
+
+analyzer_description:
+'calculate_semantic_coupling' has 151 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 240
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_semantic_coupling function exhibits feature envy by performing extensive file‐system operations through the os module rather than leveraging its own repository abstraction, making eight direct calls to os.walk and os.path utilities. This heavy dependence on external file‐system APIs clutters the method with unrelated responsibilities, reducing its cohesion and making it harder to isolate and test. As a result, maintainability suffers because changes in file retrieval or path handling may force edits in this metric calculation logic, and defect risk increases due to complex side effects and difficulty in mocking filesystem interactions.
+
+---
+
+[16] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/utils/logger.py line=13.0
+
+analyzer_description:
+Method 'setup_logging' makes 5 calls to 'root_logger' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 85
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 4
+- Average Cyclomatic Complexity: 4.00
+- Maximum Cyclomatic Complexity: 5
+- Maintainability Index: 84.69
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+No major maintainability risks detected.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The setup_logging function exhibits Feature Envy by repeatedly manipulating the external root_logger object instead of encapsulating or invoking higher-level logging abstractions, indicating that most of its behavior really belongs to the logging subsystem rather than this utility. This heavy coupling to the root logger’s internals makes the code brittle to changes in the logging API and creates complex setup logic that is hard to isolate in tests. As a result, maintainability suffers, unit testing requires extensive mocking of logging handlers, and there’s an elevated risk of defects such as orphaned handlers or misconfigured log levels.
+
+---
+
+[17] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/cli.py line=62.0
+
+analyzer_description:
+Method 'main' makes 15 calls to 'args' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/cli.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/cli.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 116
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 8
+- Average Cyclomatic Complexity: 6.50
+- Maximum Cyclomatic Complexity: 12
+- Maintainability Index: 71.77
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The main function heavily depends on the parsed arguments object, calling its attributes repeatedly rather than encapsulating related behavior elsewhere, which illustrates the Feature Envy smell by showing that most of its logic is tied to the structure of `args`. This concentration of argument handling in one place makes the entry point bloated and tightly coupled to the CLI interface. As a result, maintainability suffers because any change to the arguments or their use requires modifying this sprawling method, testability is hampered by the lack of smaller, isolated units, and the risk of defects rises as error paths and argument-dependent logic accumulate in a single block.
+
+---
+
+[18] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=23.0
+
+analyzer_description:
+Method 'calculate_change_frequency' makes 7 calls to 'commit' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_change_frequency function stretches across nearly 100 lines and blends branch resolution, commit iteration, diff parsing, statistical aggregation, and DataFrame construction into one monolithic block. Its length and nested logic hinder readability and make it difficult to isolate and test individual behaviors, increasing the risk of defects and slowing down maintenance. Continuous modifications to this sprawling method are likely to introduce subtle bugs and hamper reliable testing efforts.
+
+---
+
+[19] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/co_change.py line=21.0
+
+analyzer_description:
+Method 'get_changed_files' makes 6 calls to 'diff' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The get_changed_files function lives in a module focused on co-change metrics but spends nearly all of its logic calling into the Commit and diff API rather than operating on its own data, which is a classic case of feature envy. By coupling so heavily to the gitpython implementation details, the method becomes harder to understand and maintain, and writing isolated unit tests against it is cumbersome. This tight coupling also raises the risk of defects whenever the external API evolves or edge cases in diff handling emerge.
+
+---
+
+[20] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/co_change.py line=148.0
+
+analyzer_description:
+Method 'calculate_co_change_metrics' makes 15 calls to 'matrix' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_co_change_metrics function spans nearly 70 lines, combining data loading, multiple nested loops for coupling calculations, sorting logic, and result assembly in one block. Its length and mixed responsibilities increase cognitive load and make unit testing individual parts difficult, raising the risk of undetected defects. Maintenance becomes harder as future developers struggle to navigate and extend the sprawling logic, and any change in one section could inadvertently break calculations elsewhere.
+
+---
+
+[21] id=None smell=High Cyclomatic Complexity category=Structural
+file=../test_projects/gitmetrics/gitmetrics/core/repository.py line=283.0
+
+analyzer_description:
+Method 'get_lines_of_code' has cyclomatic complexity of 15
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/core/repository.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 520
+- Number of Classes: 1
+- Number of Functions: 13
+- Imports: 14
+- Average Cyclomatic Complexity: 5.46
+- Maximum Cyclomatic Complexity: 14
+- Maintainability Index: 46.23
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The get_lines_of_code method contains an excessive number of conditional branches, nested try/except blocks, and loops to handle error recovery, file traversal, extension checks, and comment detection, driving its cyclomatic complexity up to 15. This level of complexity makes the method hard to read and understand, increases the effort required to write thorough unit tests for all execution paths, and raises the likelihood of defects slipping through when evolving or debugging the code.
+
+---
+
+[22] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/cli.py line=21.0
+
+analyzer_description:
+Method 'parse_args' makes 5 calls to 'parser' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/cli.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/cli.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 116
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 8
+- Average Cyclomatic Complexity: 6.50
+- Maximum Cyclomatic Complexity: 12
+- Maintainability Index: 71.77
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The parse_args function spends all its logic invoking methods on the argparse.Parser object instead of encapsulating any behavior of its own, which is a classic case of feature envy. This heavy reliance on the parser’s API makes the code more tightly coupled to argparse details, reducing readability and making future changes riskier. It also complicates unit testing because nearly every behavior depends on the external parser interface rather than on simpler, testable logic.
+
+---
+
+[23] id=None smell=Feature Envy category=Code
+file=../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py line=359.0
+
+analyzer_description:
+Method 'calculate_error_proneness' makes 9 calls to 'file_bugs' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+git_analysis:
+No Git history found for the analyzed files.
+
+pylint_report:
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+
+
+ai_code_segment_summary:
+The calculate_error_proneness function’s 134 lines pack in commit retrieval, regex compilation, diff processing, file content extraction, metric calculations, and summary aggregation into a single block, making it hard to follow and reason about. Its length and mixed responsibilities increase the risk of undetected bugs, complicate writing focused unit tests, and slow down maintenance or updates. As a result, teams are likely to face higher cognitive load when diagnosing issues or extending functionality, raising the defect and technical debt burden.

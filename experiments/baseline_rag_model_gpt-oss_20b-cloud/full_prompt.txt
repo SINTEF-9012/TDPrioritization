@@ -1,0 +1,1407 @@
+"You are a prioritization agent specialized in software quality and technical debt management.
+
+Your task is to prioritize ALL given code smells found in a software project.
+Each smell represents a concrete instance of technical debt and must be evaluated independently.
+
+IMPORTANT CONSTRAINTS (READ CAREFULLY):
+- The order in which smells are presented is ARBITRARY and MUST NOT influence prioritization.
+- You must evaluate each smell independently BEFORE producing a global ranking.
+- You must include ALL smells exactly once in the final ranking.
+- Do NOT merge, drop, or group smells, even if they are similar.
+- Use ONLY the provided information. Do not invent missing data.
+
+---
+
+## PHASE 1 — INDEPENDENT EVALUATION (INTERNAL)
+
+For each smell (identified by its unique Id), internally assess its priority using the following dimensions:
+
+- **Severity**: How harmful is the smell to maintainability, correctness, or evolution?
+- **Change & Fault Risk**: Evidence of change-proneness, churn, or defect association.
+- **Propagation Risk**: Likelihood that the smell affects other components.
+- **Criticality**: Importance of the affected file/module in the system.
+- **Refactoring Cost vs Benefit**: Expected payoff relative to effort.
+
+Each smell MUST be assessed in isolation.
+Do NOT compare smells during this phase.
+Do NOT assume relative importance based on presentation order.
+
+(Do not output this phase.)
+
+---
+
+## PHASE 2 — GLOBAL PRIORITIZATION
+
+After evaluating all smells independently, produce a single global ranking.
+
+Ranking rules:
+- Higher severity and higher propagation risk rank first.
+- Break ties using: criticality → change/fault risk → refactoring benefit.
+- If still tied, rank the smell with broader architectural impact higher.
+
+---
+
+## OUTPUT FORMAT (STRICT)
+
+Output ONLY the ranked list using the following pipe-separated format:
+
+Rank|Id|Name of Smell|Name|File|Reason for Prioritization
+
+Rules:
+- Rank must start at 1 and be sequential.
+- Id must match the smell Id exactly.
+- The Reason must be concise, technical, and grounded in the provided evidence.
+- Do NOT include any text outside the table.
+
+---
+
+## CODE SMELLS (OBJECTS TO BE RANKED)
+
+SMELL
+- id: 17
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_change_proneness
+- line_number: 163.0
+
+DESCRIPTION
+'calculate_change_proneness' has 144 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 163
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_change_proneness` function spans 144 lines, performing commit retrieval, change counting, frequency and density calculations, author ownership analysis, and summary statistics all in one block. This concentration of diverse logic makes the method difficult to understand, modify, or extend, increasing the likelihood of bugs when changes are made. The long, monolithic structure also hampers unit testing, as many internal steps must be mocked or exercised together, reducing test coverage and confidence.
+
+
+SMELL
+- id: 16
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_change_frequency
+- line_number: 23.0
+
+DESCRIPTION
+'calculate_change_frequency' has 98 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 23
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_change_frequency` function spans almost a hundred lines and bundles several distinct concerns—branch resolution, commit iteration, diff parsing, statistics aggregation, and DataFrame construction—into a single block. This concentration of responsibilities makes the code hard to read, difficult to unit‑test in isolation, and increases the likelihood of subtle bugs when changes are made. As a result, maintainability suffers because future developers must navigate a large, intertwined routine, and defect risk rises due to the many moving parts that can be inadvertently affected by modifications.
+
+
+SMELL
+- id: 3
+- type_of_smell: Structural
+- name: Long File
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: gitmetrics.metrics.change_proneness
+- line_number: nan
+
+DESCRIPTION
+File 'gitmetrics.metrics.change_proneness' has 357 meaningful lines of code
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The change_proneness module spans 357 meaningful lines, with several large functions that perform complex Git diff processing, nested loops, and repeated error handling. This size makes the file hard to navigate, increases cognitive load for developers, and makes unit testing difficult because many responsibilities are bundled together. The long file also raises defect risk, as subtle bugs in one part can be overlooked when the file is edited or extended. Overall, the file’s length hampers maintainability and testability.
+
+
+SMELL
+- id: 15
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_cohesion
+- line_number: 466.0
+
+DESCRIPTION
+Method 'calculate_cohesion' makes 4 calls to 'os' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_cohesion` function demonstrates feature envy by making extensive use of the `os` module for file traversal and path handling, while performing almost no operations on its own data structures. This heavy reliance on external utilities makes the method tightly coupled to the file system, reducing its cohesion and making it harder to unit‑test in isolation. As a result, the code becomes more fragile to changes in the repository layout or environment, increasing the risk of defects and complicating future maintenance.
+
+
+SMELL
+- id: 6
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+- module_or_class: calculate_co_change_matrix
+- line_number: 50.0
+
+DESCRIPTION
+'calculate_co_change_matrix' has 60 lines in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py at line 50
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_co_change_matrix` method spans 60 lines and bundles several distinct concerns—branch resolution, commit iteration, file and pair counting, filtering, DataFrame construction, and metadata aggregation—into a single routine. This length and breadth make the code difficult to read, understand, and modify, increasing the likelihood of subtle bugs when changes are made. The method’s complexity also hampers unit testing, as many internal steps must be mocked or exercised together, raising defect risk and reducing maintainability.
+
+
+SMELL
+- id: 14
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_semantic_coupling
+- line_number: 240.0
+
+DESCRIPTION
+Method 'calculate_semantic_coupling' makes 8 calls to 'os' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_semantic_coupling` function is heavily dependent on external modules such as `os`, `re`, `networkx`, and the `Repo` object, with almost no logic that is self‑contained. This excessive reliance on external APIs and data structures makes the method a classic example of Feature Envy, as it performs most of its work by delegating to other components rather than encapsulating its own behavior. The result is a code path that is difficult to unit‑test in isolation, increases the risk of defects when any of the external libraries change, and hampers maintainability because modifications to the function often require changes in multiple external modules.
+
+
+SMELL
+- id: 18
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_error_proneness
+- line_number: 359.0
+
+DESCRIPTION
+'calculate_error_proneness' has 134 lines in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py at line 359
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_error_proneness` function spans 134 lines, performing commit retrieval, regex compilation, bug counting, file content extraction, density and frequency calculations, and summary statistics all in one block. This concentration of responsibilities makes the method difficult to understand, modify, or extend, increasing the likelihood of hidden bugs and making unit testing cumbersome. The tight coupling of data gathering, processing, and reporting also hampers reuse and can lead to performance regressions if any part changes.
+
+
+SMELL
+- id: 13
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_structural_coupling
+- line_number: 58.0
+
+DESCRIPTION
+Method 'calculate_structural_coupling' makes 7 calls to 'commit' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The function `calculate_structural_coupling` is heavily dependent on the `commit` objects it receives from the repository, calling many of their attributes and methods while performing almost all of its logic. This overreliance on the external `commit` feature indicates a classic Feature Envy smell, where the method would be more cohesive if it operated on its own data or a dedicated helper. As a result, the code becomes harder to maintain because changes to the commit interface or repository structure can ripple through this method, and it is more difficult to unit‑test in isolation, increasing the risk of defects when the underlying Git library evolves.
+
+
+SMELL
+- id: 23
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+- module_or_class: get_logger
+- line_number: 59.0
+
+DESCRIPTION
+Method 'get_logger' makes 5 calls to 'logging' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 85
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 4
+- Average Cyclomatic Complexity: 4.00
+- Maximum Cyclomatic Complexity: 5
+- Maintainability Index: 84.69
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+No major maintainability risks detected.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `get_logger` function exhibits Feature Envy by making several calls to the external `logging` module while performing almost no work with its own local data. This tight coupling to the logging API makes the method fragile to changes in the logging library and hard to test in isolation. As a result, maintainability suffers because updates to logging behavior require touching this helper, and defect risk increases if the logging configuration changes unexpectedly.
+
+
+SMELL
+- id: 7
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+- module_or_class: calculate_co_change_metrics
+- line_number: 148.0
+
+DESCRIPTION
+'calculate_co_change_metrics' has 69 lines in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py at line 148
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_co_change_metrics` function spans 69 lines and bundles several distinct responsibilities—matrix calculation, coupling strength computation, top pair extraction, average coupling calculation, sorting, and result assembly—into a single routine. This concentration of logic makes the code harder to read and reason about, increasing cognitive load for developers and complicating unit testing because many internal states must be set up or inspected. The nested loops and repeated index lookups also raise the risk of subtle bugs and performance regressions as repository size grows. Overall, the method’s length and complexity degrade maintainability and elevate defect risk.
+
+
+SMELL
+- id: 10
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_structural_coupling
+- line_number: 58.0
+
+DESCRIPTION
+'calculate_structural_coupling' has 122 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 58
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The function `calculate_structural_coupling` is heavily dependent on the `commit` objects it receives from the repository, calling many of their attributes and methods while performing almost all of its logic. This overreliance on the external `commit` feature indicates a classic Feature Envy smell, where the method would be more cohesive if it operated on its own data or a dedicated helper. As a result, the code becomes harder to maintain because changes to the commit interface or repository structure can ripple through this method, and it is more difficult to unit‑test in isolation, increasing the risk of defects when the underlying Git library evolves.
+
+
+SMELL
+- id: 2
+- type_of_smell: Structural
+- name: Long File
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: gitmetrics.metrics.coupling
+- line_number: nan
+
+DESCRIPTION
+File 'gitmetrics.metrics.coupling' has 333 meaningful lines of code
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The coupling.py file contains 333 meaningful lines, far exceeding typical thresholds for a single module. It implements structural, semantic, and cohesion calculations, each with extensive logic, nested loops, and graph operations, leading to a single file that handles multiple concerns. This size and complexity make the code harder to understand, harder to test in isolation, and increase the risk of subtle bugs when changes are made. The long file also hampers quick navigation and slows down development cycles.
+
+
+SMELL
+- id: 20
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_change_proneness
+- line_number: 163.0
+
+DESCRIPTION
+Method 'calculate_change_proneness' makes 10 calls to 'diff' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_change_proneness` function spans 144 lines, performing commit retrieval, change counting, frequency and density calculations, author ownership analysis, and summary statistics all in one block. This concentration of diverse logic makes the method difficult to understand, modify, or extend, increasing the likelihood of bugs when changes are made. The long, monolithic structure also hampers unit testing, as many internal steps must be mocked or exercised together, reducing test coverage and confidence.
+
+
+SMELL
+- id: 12
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_cohesion
+- line_number: 466.0
+
+DESCRIPTION
+'calculate_cohesion' has 64 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 466
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_cohesion` function demonstrates feature envy by making extensive use of the `os` module for file traversal and path handling, while performing almost no operations on its own data structures. This heavy reliance on external utilities makes the method tightly coupled to the file system, reducing its cohesion and making it harder to unit‑test in isolation. As a result, the code becomes more fragile to changes in the repository layout or environment, increasing the risk of defects and complicating future maintenance.
+
+
+SMELL
+- id: 11
+- type_of_smell: Code
+- name: Long Method
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+- module_or_class: calculate_semantic_coupling
+- line_number: 240.0
+
+DESCRIPTION
+'calculate_semantic_coupling' has 151 lines in ../test_projects/gitmetrics/gitmetrics/metrics/coupling.py at line 240
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/coupling.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 574
+- Number of Classes: 0
+- Number of Functions: 4
+- Imports: 9
+- Average Cyclomatic Complexity: 24.00
+- Maximum Cyclomatic Complexity: 42
+- Maintainability Index: 40.87
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_semantic_coupling` function is heavily dependent on external modules such as `os`, `re`, `networkx`, and the `Repo` object, with almost no logic that is self‑contained. This excessive reliance on external APIs and data structures makes the method a classic example of Feature Envy, as it performs most of its work by delegating to other components rather than encapsulating its own behavior. The result is a code path that is difficult to unit‑test in isolation, increases the risk of defects when any of the external libraries change, and hampers maintainability because modifications to the function often require changes in multiple external modules.
+
+
+SMELL
+- id: 22
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+- module_or_class: setup_logging
+- line_number: 13.0
+
+DESCRIPTION
+Method 'setup_logging' makes 5 calls to 'root_logger' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/utils/logger.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 85
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 4
+- Average Cyclomatic Complexity: 4.00
+- Maximum Cyclomatic Complexity: 5
+- Maintainability Index: 84.69
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+No major maintainability risks detected.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `setup_logging` function demonstrates feature envy by making extensive use of the `root_logger` object—five distinct calls to configure and manipulate it—while never interacting with any local state or methods of its own class. This heavy reliance on an external logger makes the function tightly coupled to the logging subsystem, reducing its reusability and making it harder to unit‑test in isolation. Consequently, any changes to the logging configuration or the logger’s API could ripple through this method, increasing defect risk and complicating future maintenance.
+
+
+SMELL
+- id: 5
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/cli.py
+- module_or_class: main
+- line_number: 62.0
+
+DESCRIPTION
+Method 'main' makes 15 calls to 'args' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/cli.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/cli.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 116
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 8
+- Average Cyclomatic Complexity: 6.50
+- Maximum Cyclomatic Complexity: 12
+- Maintainability Index: 71.77
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The main function is heavily feature‑envied, making 15 calls to the args object while performing no local logic. This tight coupling to the command‑line arguments makes the function brittle and difficult to unit‑test, as any change to the argument parsing API forces changes in main. The high dependency also increases defect risk, because errors in argument handling can propagate silently into the metric collection logic.
+
+
+SMELL
+- id: 19
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_change_frequency
+- line_number: 23.0
+
+DESCRIPTION
+Method 'calculate_change_frequency' makes 7 calls to 'commit' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_change_frequency` function spans almost a hundred lines and bundles several distinct concerns—branch resolution, commit iteration, diff parsing, statistics aggregation, and DataFrame construction—into a single block. This concentration of responsibilities makes the code hard to read, difficult to unit‑test in isolation, and increases the likelihood of subtle bugs when changes are made. As a result, maintainability suffers because future developers must navigate a large, intertwined routine, and defect risk rises due to the many moving parts that can be inadvertently affected by modifications.
+
+
+SMELL
+- id: 8
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+- module_or_class: get_changed_files
+- line_number: 21.0
+
+DESCRIPTION
+Method 'get_changed_files' makes 6 calls to 'diff' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `get_changed_files` function is heavily dependent on the external `diff` operation, performing most of its work by delegating to the repository’s diff logic rather than manipulating data locally. This reliance on another class’s behavior exemplifies Feature Envy, as the method’s purpose is to extract information from the diff rather than to process it internally. Consequently, the function’s maintainability is reduced because any change to the diff API or its semantics can break this method, and its testability suffers because it requires a realistic Git repository state to exercise. The tight coupling also raises defect risk, as bugs in the diff implementation can propagate silently into the metrics calculation.
+
+
+SMELL
+- id: 9
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+- module_or_class: calculate_co_change_metrics
+- line_number: 148.0
+
+DESCRIPTION
+Method 'calculate_co_change_metrics' makes 15 calls to 'matrix' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/co_change.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 244
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 7
+- Average Cyclomatic Complexity: 12.00
+- Maximum Cyclomatic Complexity: 15
+- Maintainability Index: 62.33
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_co_change_metrics` function spans 69 lines and bundles several distinct responsibilities—matrix calculation, coupling strength computation, top pair extraction, average coupling calculation, sorting, and result assembly—into a single routine. This concentration of logic makes the code harder to read and reason about, increasing cognitive load for developers and complicating unit testing because many internal states must be set up or inspected. The nested loops and repeated index lookups also raise the risk of subtle bugs and performance regressions as repository size grows. Overall, the method’s length and complexity degrade maintainability and elevate defect risk.
+
+
+SMELL
+- id: 1
+- type_of_smell: Structural
+- name: High Cyclomatic Complexity
+- file_path: ../test_projects/gitmetrics/gitmetrics/core/repository.py
+- module_or_class: gitmetrics.core.repository.GitRepository
+- line_number: 283.0
+
+DESCRIPTION
+Method 'get_lines_of_code' has cyclomatic complexity of 15
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/core/repository.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 520
+- Number of Classes: 1
+- Number of Functions: 13
+- Imports: 14
+- Average Cyclomatic Complexity: 5.46
+- Maximum Cyclomatic Complexity: 14
+- Maintainability Index: 46.23
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `get_lines_of_code` method contains numerous conditional branches, nested exception handling, and a large dictionary of comment patterns, leading to a cyclomatic complexity of 15. This high complexity makes the code difficult to understand, increases the chance of bugs slipping through, and hampers unit testing because many execution paths must be covered. The method’s maintainability suffers as future changes to comment handling or branch logic risk breaking unrelated functionality. Overall, the complexity elevates defect risk and slows down debugging and refactoring efforts.
+
+
+SMELL
+- id: 4
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/cli.py
+- module_or_class: parse_args
+- line_number: 21.0
+
+DESCRIPTION
+Method 'parse_args' makes 5 calls to 'parser' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/cli.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/cli.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 116
+- Number of Classes: 0
+- Number of Functions: 2
+- Imports: 8
+- Average Cyclomatic Complexity: 6.50
+- Maximum Cyclomatic Complexity: 12
+- Maintainability Index: 71.77
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+Slightly reduced maintainability; monitor this file over time.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `parse_args` function exhibits Feature Envy by delegating almost all of its work to the `argparse.ArgumentParser` instance, calling its methods five times while never using any of its own logic. This tight coupling to the parser makes the function fragile to changes in the argument‑parsing API and hard to test in isolation, as any modification to the parser’s behavior or signature can ripple into this method. Consequently, maintainability suffers because future changes to argument handling require touching this function, and defect risk increases when the parser’s interface evolves.
+
+
+SMELL
+- id: 21
+- type_of_smell: Code
+- name: Feature Envy
+- file_path: ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+- module_or_class: calculate_error_proneness
+- line_number: 359.0
+
+DESCRIPTION
+Method 'calculate_error_proneness' makes 9 calls to 'file_bugs' but only 0 local calls in ../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+GIT_ANALYSIS
+No Git history found for the analyzed files.
+
+PYLINT_REPORT
+### File Analysis Report: test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py
+
+--- Static Code Metrics ---
+- Lines of Code (LOC): 534
+- Number of Classes: 0
+- Number of Functions: 3
+- Imports: 9
+- Average Cyclomatic Complexity: 26.67
+- Maximum Cyclomatic Complexity: 34
+- Maintainability Index: 39.08
+
+--- Pylint Summary ---
+- Convention issues: 0
+- Refactor suggestions: 0
+- Warnings: 0
+- Errors: 0
+- Fatal errors: 0
+
+--- Example Lint Messages ---
+No specific linting issues found.
+
+--- Interpretation ---
+High cyclomatic complexity indicates dense logical branching. Low maintainability index suggests high technical debt risk. The file size is large, which may indicate a 'Large File' smell.
+
+--- Instruction for LLM ---
+Use this report to evaluate how maintainable, complex, or stylistically consistent the file is.
+When prioritizing technical debt, files with higher complexity, lower maintainability index,
+or multiple convention/refactor issues should be ranked higher.
+
+AI SUMMARIZATION OF THE CODE
+The `calculate_error_proneness` function spans 134 lines, performing commit retrieval, regex compilation, bug counting, file content extraction, density and frequency calculations, and summary statistics all in one block. This concentration of responsibilities makes the method difficult to understand, modify, or extend, increasing the likelihood of hidden bugs and making unit testing cumbersome. The tight coupling of data gathering, processing, and reporting also hampers reuse and can lead to performance regressions if any part changes.
+
+
+
+---
+
+## BACKGROUND KNOWLEDGE (GENERAL GUIDANCE ONLY)
+The following documents provide general insights about technical debt and code smells.
+They must NOT be treated as smell-specific evidence.
+
+
+pre-refactoring phase and can help manage the code smells in forthcoming releases, subsequently saving
+ample time and resources spent in the development and maintenance of software projects.
+INDEX TERMS Software maintenance, code smell severity, cognitive complexity code smell, class change
+proneness, open-source software, Python, sustainable software.
+I. INTRODUCTION
+The code quality of the software is a significant factor that
+majorly contributes to software maintenance. Beck et al. [1],
+[2] introduced the concept of code smells, which are blips
+in software code due to its improper software design and
+development by the application programmer. These mainly
+emerge from developer actions taken at times of emergencies,
+careless implementation or by using subpar coding solutions.
+It is believed that code smells, being design flaws, harm
+the quality of the code [1], [2]. Conceptually, they classify
+the violations in software that follow object-oriented design
+approaches such as data abstraction, encapsulation, mod-
+ularity, and hierarchy [3]. Moreover, code smells are also
+The associate editor coordinating the review of this manuscript and
+approving it for publication was Porfirio Tramontana
+.
+considered Technical Debt (TD). The refactoring process
+boosts the performance of the software code [4]. Since refac-
+toring some smells can be an expensive and time-consuming
+affair [5], therefore, the priority of smells needs to be realized
+
+.
+considered Technical Debt (TD). The refactoring process
+boosts the performance of the software code [4]. Since refac-
+toring some smells can be an expensive and time-consuming
+affair [5], therefore, the priority of smells needs to be realized
+in the early stages only. The prioritization of code smell
+can also be represented as a severity index, as proposed by
+Fontana et al. [6].
+Apart from the severity of code smells, during the software
+releases, the changes in the software modules or classes
+also need to be dealt with. Experts frequently look at mul-
+tiple updates to get historical information regarding soft-
+ware project development. Early recognition of modules that
+inculcate smells can be valuable for the team handling soft-
+ware maintenance and assigning substantial testing resources
+with a higher probability of alteration in software mod-
+ules. Software-changing impact analysis has been previously
+
+code can impact software maintainability is pensive. Uncov-
+ering many code quality issues due to smells in the code,
+parallelly influences the criticality of smells in the software
+world from the refactoring phase. Realizing the severity of
+smell, among others, gives the developer community an edge
+for optimization at the earliest.
+A tool designed for ranking code smells was suggested
+in 2015 by Vidal et al. [25]. The tool uses a blend of
+three factors: historical changes to components (for stability
+assessment), critical system modifiability scenarios, and the
+significance of the code smell. Its value is subjective as the
+developer can indicate how harmful the smell is. The thresh-
+old for identifying a code smell may differ across developers
+and systems. The researchers propose a tool called SPIRIT,
+that ranks the severity of code smells in a system, considering
+its criticality. They evaluated the approach in two case studies
+and found the results helpful to developers. Another method
+Fontana proposed involves applying strong and weak filters
+to reduce the number of code smell detection outcomes.
+However, this method is limited to code smells of only five
+types [26].
+Ratiu et al. used historical data of suspected flaw-related
+structures as a metric-based detection strategy to express
+code smells regarding thresholds [27]. Other studies have
+also explored the use of system history to predict classes that
+are likely to change in the future based on those that have
+
+et al. 2012). Our work confirms the results achieved by Khomh et al. (2012) on a larger
+set of code smells and software systems, an provides some complementary hints about
+the phenomenon. In particular, other than studying the change- and fault-proneness of
+smelly and non-smelly classes, we analyzed how such indicators vary when the smells
+identified are removed. Also, we use the SZZ algorithm (Sliwerski et al. 2005) to bet-
+ter investigate the temporal relationship between the presence of code smells and fault
+introduction.
+Gatrell and Counsell (2015) conducted an empirical study aimed at quantifying the effect
+of refactoring on class change- and fault-proneness. In particular, they monitored a com-
+mercial C# system for twelve months identifying the refactorings applied during the first
+four months. They examined the same classes for the second four months in order to deter-
+mine whether the refactoring results in a decrease of change- and fault-proneness. They also
+compared such classes with the classes of the system that were not refactored in the same
+period. Results revealed that classes subject to refactoring have a lower change- and fault-
+proneness. It is worth noting that Gatrell and Counsell did not focus their attention on well
+known design problems (i.e., code smells) but they analyzed if refactored classes regard-
+less of the presence of a design problem. Instead, our study investigates the actual impact
+Empir Software Eng (2018) 23:1
+– 1
+1
+1
+88
+22
+1192
+
+open source projects and considering 17,350 manually validated instances of 13 different
+code smell kinds. The results show that smells characterized by long and/or complex code
+(e.g., Complex Class) are highly diffused, and that smelly classes have a higher change- and
+fault-proneness than smell-free classes.
+Keywords Code smells · Empirical studies · Mining software repositories
+1 Introduction
+Bad code smells (also known as “code smells” or “smells”) were defined as symptoms of
+poor design and implementation choices applied by programmers during the development
+of a software project (Fowler 1999). As a form of technical debt (Cunningham 1993), they
+could hinder the comprehensibility and maintainability of software systems (Kruchten et al.
+2012). An example of code smell is the God Class, a large and complex class that centralizes
+the behavior of a portion of a system and only uses other classes as data holders. God Classes
+can rapidly grow out of control, making it harder and harder for developers to understand
+them, to fix bugs, and to add new features.
+The research community has been studying code smells from different perspectives. On
+the one side, researchers developed methods and tools to detect code smells. Such tools
+exploitdifferenttypesofapproaches, including metrics-based detection (Lanza and Marinescu
+2010; Moha et al. 2010; Marinescu 2004; Munro 2005), graph-based techniques (Tsantalis
+
+6 Discussion and conclusion
+This paper reported a large study conducted on 395 releases of 30 Java open source projects,
+aimed at understanding the diffuseness of code smells in Java open source projects and
+their relation with source code change- and fault-proneness. The study considered 17,350
+instances of 13 different code smell types, firstly detected using a metric-based approach
+and then manually validated.
+The results highlighted the following findings:
+–
+Diffuseness of smells. The most diffused smells are the one related to size and com-
+plexity such as Long Method, Spaghetti Code, and to some extent Complex Class or
+God Class. This seems to suggests that a simple metric-based monitoring of code qual-
+ity could already give enough indications about the presence of poor design decisions
+or in general of poor code quality. Smells not related to size like Message Chains and
+Lazy Class are less diffused, although there are also cases of such smells with high
+diffuseness, see for example Class Data Should Be Private and Speculative Generality.
+–
+Relation with change- and fault-proneness. Generally speaking, our results confirm
+the results of the previous study by Khomh et al. (2012), i.e., classes affected by code
+smells tend to be more change- and fault-prone than others, and that this is even more
+evident when classes are affected by multiple smells. At the same time, if we analyze
+the fault-proneness results for specific types of smells, we can also notice that high
+
+on software maintenance, code smells are behavioral in nature. Python is widely used for various software
+engineering activities and tends tool to contain code smells that affect its quality. This study investigates
+five code smells diffused in 20 Python software comprising 10550 classes and analyses its severity index
+using metric distribution at the class level. Subsequently, a behavioral analysis has been conducted over the
+considered modification period (phases) for the code smell undergoing class change proneness. Furthermore,
+it helps to investigate the accurate multinomial classifier for mining the severity index. It witnesses the change
+in severity at the class level over the modification period by mapping its characteristics over various statistical
+functions and hypotheses. Our findings reveal that the Cognitive Complexity of code smell is the most severe
+one. The remaining four smells are centered around the moderate range, having an average severity index
+value. The results suggest that the J48 algorithm was the accurate multinomial classifier for classifying the
+severity of code smells with 92.98% accuracy in combination with the AdaBoost method. The findings of
+our empirical evaluation can be beneficial for the software developers to prioritize the code smells in the
+pre-refactoring phase and can help manage the code smells in forthcoming releases, subsequently saving
+ample time and resources spent in the development and maintenance of software projects.
+
+because of maintenance activities (Tufano et al. 2017). Or else, classes where the smell
+was removed, possibly because of refactoring activities (Bavota et al. 2015). For such
+classes, it is of paramount importance to analyze the change- and fault-proneness of the
+class during its evolution, in order to better relate the cause (presence of smell) with the
+possible effect (change- or fault-proneness).
+–
+Lack of a temporal relation analysis between smell presence and fault introduc-
+tion: While previous work correlated the presence of code smells with high fault- and
+change-proneness, one may wonder whether the artifact was smelly when the fault was
+introduced, or whether the fault was introduced before the class became smelly.
+To cope with the aforementioned issues, this paper aims at corroborating previous empir-
+ical research on the impact of code smells by analyzing their diffuseness and effect on
+change- and fault-proneness on a large set of software projects. In the context of this paper,
+the “diffuseness” of a code smell type (e.g., God Class) refers to the percentage of code
+components in a system affected by at least one instance of the code smell type.
+The study was conducted on a total of 395 releases of 30 open source systems,
+and considered 13 different kinds of code smells. More specifically, the study aims at
+investigating:
+1.
+the diffuseness of code smells in open source systems. If the magnitude of the phe-
+nomenon is small—i.e.,
+
+Threats to validity are discussed in Section 6. Finally, in Section 7,
+the conclusion and future works are discussed.
+2. Related work
+This section reviews and discusses the related literature in the
+two areas of the long method code smell detection and the auto-
+matic extract method refactoring, as the most appropriate refac-
+toring resolving long method code smell (Fowler and Beck, 2018).
+The long method, also referred to as the brain method (Sharma
+and Spinellis, 2018), has been recognized as one of the most
+prevalent smells in source code (Agnihotri and Chug, 2020). Con-
+spicuous approaches to long method code smell detection are
+metrics-based and machine learning-based, mainly relying on
+source code metrics. In their famous book, Lanza and Marinescu
+(2006) have used a combination of four source code metrics,
+including lines of code, cyclomatic complexity, maximum nesting
+level of code blocks, and the number of access variables to detect
+long methods. The thresholds for each metric are computed at
+different ranges using statistical analysis on 45 Java projects.
+They manually selected specific thresholds for these metrics to
+identify long methods. Fontana et al. have used a similar approach
+to prioritize the detected smells at different levels of criticality.
+However, manual detection of metrics and their threshold is
+controversial and not accurate.
+Machine learning models can be used to find the best thresh-
+old for each metric automatically. Lanza and Marinescu (2006),
+
+M. Shahidi, M. Ashtiani and M. Zakeri-Nasrabadi
+The Journal of Systems & Software 187 (2022) 111221
+Cedrim, D., et al., Understanding the impact of refactoring on smells: A lon-
+gitudinal study of 23 software projects, in: Proceedings of the 2017 11th
+Joint Meeting on Foundations of Software Engineering, Aug. 2017, 465–475,
+Charalampidou, S., Ampatzoglou, A., Chatzigeorgiou, A., Gkortzis, A., Avgeriou, P.,
+2017. Identifying extract method refactoring opportunities based on func-
+10.1109/TSE.2016.2645572.
+Di Nucci, D., Palomba, F., Tamburri, D.A., Serebrenik, A., De Lucia, A., Detecting
+code smells using machine learning techniques: Are we there yet?, in:
+10.1109/SANER.2018.8330266.
+Fontana, F.A., Ferme, V., Zanoni, M., Roveda, R., Towards a prioritization of
+International Workshop on Managing Technical Debt (MTD), Oct. 2015,
+Fortunato, S., 2010. Community detection in graphs. Phys. Rep. 486 (3–5),
+Fowler, M., Beck, K., 2018. Refactoring: Improving the Design of Existing Code,
+Second Edi. Addison-Wesley.
+2020).
+gousiosg/java-callgraph (accessed May 18, 2021).
+Gu, A., Zhou, X., Li, Z., Li, Q., Li, L., 2017. Measuring object-oriented class
+cohesion based on complex networks. Arab. J. Sci. Eng. 42 (8), 3551–3561.
+Hubert, J., 2019. Implementation of an Automatic Extract Method Refactoring.
+University of Stuttgart.
+Jász, J., Siket, I., Pengő, E., Ságodi, Z., Ferenc, R., Systematic comparison of
+six open-source Java call graph construction tools, in: Proceedings of the
+
+
+---
+
+## PROJECT STRUCTURE (CONTEXTUAL AWARENESS)
+
+
+---
+
+## QUESTION
+Use evidence from the embedded research (INFO ON CODE SMELLS AND TECHNICAL DEBT) to rank ALL code smells by refactoring priority in this project. The smells to consider are: Long Method, Large Class, Long File, High Cyclomatic Complexity, and Feature Envy. For each smell instance, justify its rank using research-backed signals such as change-proneness (e.g., churn and recency), fault/defect-proneness (bug association), severity metrics (e.g., size, cyclomatic or cognitive complexity), propagation risk, and expected refactoring ROI (cost versus long-term maintainability benefit). When the research discusses any of these smells—or closely related concepts such as God Class, Large/God Method, complexity, coupling, or cohesion—explicitly apply those principles to the available project-specific evidence (git statistics, churn, recency, static analysis, and lint results).
+
+Now produce the final ranked prioritization list."

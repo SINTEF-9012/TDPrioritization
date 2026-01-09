@@ -12,12 +12,34 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="project",
         help="Name of the project directory (e.g., cerberus)",
     )
+
     parser.add_argument(
-        "--model",
-        dest="model_name",
-        default="gpt-oss:20b-cloud",
-        help="Which Ollama LLM model to use",
+        "--llm-provider",
+        choices=["ollama", "azure"],
+        default="ollama",
+        help="Determines if the pipeline uses a personal azure deployment or ollama.",
+        dest="llm_provider"
     )
+
+    parser.add_argument(
+        "--ollama-model",
+        default="gpt-oss:20b-cloud",
+        help="Ollama model to use (only when --llm-provider=ollama).",
+        dest="ollama_model"
+    )
+
+    parser.add_argument(
+        "--azure-deployment",
+        help="Azure OpenAI deployment name (only when --llm-provider=azure).",
+    )
+
+    parser.add_argument(
+        "--pipeline",
+        choices=["rag", "agent"],
+        default="rag",
+        help="Which pipeline to run: 'rag' baseline or 'agent' agentic pipeline.",
+    )
+
     parser.add_argument(
         "--outdir",
         dest="output_dir",
@@ -25,12 +47,6 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where the output files should be stored",
     )
 
-    parser.add_argument(
-        "--git-stats",
-        dest="include_git_stats",
-        action="store_true",
-        help="Include Git statistics in the context.",
-    )
     parser.add_argument(
         "--no-git-stats",
         dest="include_git_stats",
@@ -40,12 +56,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.set_defaults(include_git_stats=True)
 
     parser.add_argument(
-        "--pylint-astroid",
-        dest="run_pylint_astroid",
-        action="store_true",
-        help="Perform static analysis using pylint and astroid.",
-    )
-    parser.add_argument(
         "--no-pylint-astroid",
         dest="run_pylint_astroid",
         action="store_false",
@@ -53,12 +63,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.set_defaults(run_pylint_astroid=True)
 
-    parser.add_argument(
-        "--articles",
-        dest="include_articles",
-        action="store_true",
-        help="Enable embedded articles to the LLM.",
-    )
     parser.add_argument(
         "--no-articles",
         dest="include_articles",
@@ -74,6 +78,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Add the project folder structure to the prompt.",
     )
     parser.set_defaults(include_project_structure=False)
+
+    parser.add_argument(
+        "--persistent-storage",
+        dest="persistent_storage",
+        action="store_true",
+        help="Enable persistent storage of embedded articles to chroma db"
+    )
+    parser.set_defaults(persistent_storage=False)
+
+    parser.add_argument(
+        "--code-context",
+        dest="code_context_mode",
+        choices=["analysis", "code"],
+        default="analysis",
+        help="Use AI summaries of code segments or embed the raw code snippets directly."
+    )
 
     return parser
 

@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 # Exit on error
 set -e 
@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_NAME="$1"
-PROJECT_PATH="../src/prioritizer/data/projects/$PROJECT_NAME/"
+PROJECT_PATH="../test_projects/$PROJECT_NAME/"
 
 # Shift so $@ contains only the remaining optional args
 shift
@@ -28,10 +28,8 @@ else
     echo "$PROJECT_NAME" > "$LAST_PROJECT_FILE"   # remember this project
 fi
 
-# time python -m prioritizer.pipelines.baseline_rag.smells_prioritizer gitmetrics --model gpt-oss:20b-cloud --add-project-structur
-
 echo "Running Smells Prioritizer ..."
-time python -m prioritizer.pipelines.baseline_rag.smells_prioritizer "$PROJECT_NAME" "$@"
+time python -m prioritizer "$PROJECT_NAME" "$@"
 
 echo -e "Analysis and prioritization complete!\n"
 

@@ -1,19 +1,12 @@
-from haystack import Document
-from haystack.components.builders.prompt_builder import PromptBuilder
+from prioritizer.analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
+from prioritizer.history.git_history import build_report
 
-from haystack_integrations.document_stores.chroma import ChromaDocumentStore
-from haystack_integrations.components.retrievers.chroma import ChromaQueryTextRetriever
-from haystack.components.embedders import SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder
-from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 import pandas as pd
 from git import Repo
 import random
-
-from analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report
-from history.git_history import build_report
 from typing import List, Any
 
-def read_relevant_code_smells_and_write_to_documents(smell_filter: List[str]) ->  List[dict[str, Any]]:
+def read_and_store_relevant_smells(smell_filter: List[str]) ->  List[dict[str, Any]]: 
     df = pd.read_csv("python_smells_detector/code_quality_report.csv")
     docs: List[dict[str, Any]] = []
 
@@ -82,32 +75,3 @@ def add_further_context(project_name: Repo, code_smells: List[dict], git_stats: 
             smell["code_segment"] = code_cache[key]
 
     return code_smells
-
-def build_haystack_documents(smells: dict[str, Any]) -> List[Document]:
-    docs: List[Document] = []
-    for s in smells:
-        content = (
-            f"SMELL\n"
-            f"- id: {s.get('index')}\n"
-            f"- type_of_smell: {s.get('type_of_smell')}\n"
-            f"- name: {s.get('name')}\n"
-            f"- file_path: {s.get('file_path')}\n"
-            f"- module_or_class: {s.get('module_or_class')}\n"
-            f"- line_number: {s.get('line_number')}\n\n"
-            f"DESCRIPTION\n{s.get('description')}\n\n"
-            f"GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
-            f"PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
-            f"AI SUMMARIZATION OF THE CODE\n{s.get('ai_code_segment_summary', 'N/A')}\n"
-        )
-
-        docs.append(Document(
-            content=content,
-            meta={
-                "type": "smell",
-                "index": s.get("index"),
-                "smell_name": s.get("name"),
-                "file_path": s.get("file_path"),
-                "description": s.get("description"),
-            }
-        ))
-    return docs

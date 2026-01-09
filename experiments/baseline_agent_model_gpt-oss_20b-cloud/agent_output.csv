@@ -1,0 +1,23 @@
+"1|None|Long File|change_proneness.py|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|Large file with 357 lines, multiple responsibilities, low maintainability, high complexity.  
+2|None|Long Method|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|144‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+3|None|Long Method|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|144‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+4|None|Long Method|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|134‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+5|None|Long Method|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|134‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+6|None|Long Method|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|98‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+7|None|Long Method|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|98‑line method with many concerns, high complexity, low maintainability, high defect risk.  
+8|None|Long Method|calculate_co_change_matrix|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|60‑line method bundling multiple concerns, high complexity, high defect risk.  
+9|None|Long Method|calculate_co_change_matrix|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|60‑line method bundling multiple concerns, high complexity, high defect risk.  
+10|None|Long Method|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|69‑line method bundling multiple concerns, high complexity, high defect risk.  
+11|None|Long Method|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|69‑line method bundling multiple concerns, high complexity, high defect risk.  
+12|None|High Cyclomatic Complexity|get_lines_of_code|../test_projects/gitmetrics/gitmetrics/core/repository.py|Cyclomatic complexity 15, many branches, hard to maintain, high defect risk.  
+13|None|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to os, no local logic, hard to test, maintainability suffers.  
+14|None|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to os, no local logic, hard to test, maintainability suffers.  
+15|None|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to os, no local logic, hard to test, maintainability suffers.  
+16|None|Feature Envy|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to os, re, nx, no local logic, hard to test, maintainability suffers.  
+17|None|Feature Envy|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to os, re, nx, no local logic, hard to test, maintainability suffers.  
+18|None|Feature Envy|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|Tightly coupled to commit API, no local logic, hard to test, maintainability suffers.  
+19|None|Feature Envy|get_logger|../test_projects/gitmetrics/gitmetrics/utils/logger.py|Tightly coupled to logging, no local logic, hard to test, maintainability suffers.  
+20|None|Feature Envy|setup_logging|../test_projects/gitmetrics/gitmetrics/utils/logger.py|Tightly coupled to logging, no local logic, hard to test, maintainability suffers.  
+21|None|Feature Envy|main|../test_projects/gitmetrics/gitmetrics/cli.py|Tightly coupled to args, no local logic, hard to test, maintainability suffers.  
+22|None|Feature Envy|parse_args|../test_projects/gitmetrics/gitmetrics/cli.py|Tightly coupled to argparse, no local logic, hard to test, maintainability suffers.  
+23|None|Feature Envy|get_changed_files|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|Tightly coupled to diff, no local logic, hard to test, maintainability suffers."
