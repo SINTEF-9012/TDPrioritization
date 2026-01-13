@@ -4,6 +4,9 @@ from prioritizer.llm.analyze_code_segment import analyze_code_segments_via_ai
 from prioritizer.llm.prompt_template import PROMPT_TEMPLATE
 from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smells, add_further_context
 
+from prioritizer.pipelines.agentic.agent_state import State
+from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT
+
 from pathlib import Path
 import csv
 
@@ -18,71 +21,6 @@ from langchain_ollama import ChatOllama
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
 
-SYSTEM_PROMPT = """\
-You are a prioritization agent specialized in software quality and technical debt management.
-
-Your task is to prioritize ALL given code smells found in a software project.
-Each smell represents a concrete instance of technical debt and must be evaluated independently.
-
-IMPORTANT CONSTRAINTS (READ CAREFULLY):
-- The order in which smells are presented is ARBITRARY and MUST NOT influence prioritization.
-- You must evaluate each smell independently BEFORE producing a global ranking.
-- You must include ALL smells exactly once in the final ranking.
-- Do NOT merge, drop, or group smells, even if they are similar.
-- Use ONLY the provided information. Do not invent missing data.
-
-PHASE 1 — INDEPENDENT EVALUATION (INTERNAL ONLY)
-For each smell (identified by its unique Id), internally assess its priority using:
-- Severity (maintainability/correctness/evolution impact)
-- Change & Fault Risk (change-proneness, churn, defect association evidence)
-- Propagation Risk (impact on other components)
-- Criticality (importance of affected file/module)
-- Refactoring Cost vs Benefit (expected payoff vs effort)
-
-Rules:
-- Each smell MUST be assessed in isolation.
-- Do NOT compare smells during this phase.
-- Do NOT assume relative importance from presentation order.
-- Do NOT output this phase.
-
-PHASE 2 — GLOBAL PRIORITIZATION
-After evaluating all smells independently, produce a single global ranking.
-
-Ranking rules:
-- Higher severity and higher propagation risk rank first.
-- Break ties using: criticality → change/fault risk → refactoring benefit.
-- If still tied, rank broader architectural impact higher.
-
-OUTPUT FORMAT (STRICT)
-Output ONLY the ranked list using the following pipe-separated format:
-
-Rank|Id|Name of Smell|Name|File|Reason for Prioritization
-
-Rules:
-- Rank must start at 1 and be sequential.
-- Id must match the smell Id exactly.
-- The Reason must be concise, technical, and grounded in the provided evidence.
-- Do NOT include any text outside the table.
-"""
-
-
-class State(TypedDict):
-    smell_types: List[str]                      
-    smells: Optional[List[Dict[str, Any]]]
-
-    repo: Repo
-    use_git: bool
-    use_pylint: bool
-    use_code: bool
-
-    llm: BaseChatModel
-
-    output_text: Optional[str]
-    out_dir: Path
-
-    prompt_tokens: Optional[int]
-    completion_tokens: Optional[int]
-    total_tokens: Optional[int]
 
 def load_smells(state: State) -> State:
     smells_to_search_for = state.get("smell_types")
@@ -130,7 +68,7 @@ def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
 
 
     return f"""\
-[{idx}] id={s.get("id")} smell={s.get("name")} category={s.get("type_of_smell")}
+[{idx}], id={s.get("index")}, smell={s.get("name")}, category={s.get("type_of_smell")},
 file={s.get("file_path")} line={s.get("line_number")}
 
 analyzer_description:
@@ -304,8 +242,19 @@ use those highlights in scoring and ranking
 
 This will differentiate agentic pipeline from Haystack baseline clearly.
 
+Implement per-smell structured scoring (map) + global rank synthesis (reduce).
+
+Add an output validator + repair loop to guarantee completeness and rule compliance.
+
+If you still want “external knowledge,” do local RAG over curated references, not live web browsing.
+
+
+
 bash run_analyzer.sh gitmetrics --llm-provider ollama --add-project-structure --pipeline agent --ollama-model gemini-3-flash-preview:cloud
 
 bash run_analyzer.sh gitmetrics --llm-provider azure --add-project-structure --pipeline agent
+
+
+Switch from rank to High, medium and low. MAybe do both and compare the result to each other.
 
 """

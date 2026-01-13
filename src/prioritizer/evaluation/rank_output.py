@@ -9,7 +9,6 @@ import re
 def ndcg(gt, llm):
     relevance_map = {item: len(gt) - i for i, item in enumerate(gt)}
 
-    # Build relevance arrays for each position
     y_true = np.array([[relevance_map[item] for item in gt]])
     y_pred = np.array([[relevance_map.get(item, 0) for item in llm]])
 
@@ -20,9 +19,8 @@ def format_output_from_llm_to_csv_format(llm_output):
     with open(llm_output, "r") as f: 
         raw_text = f.read()
 
-    # --- Step 1: Remove Markdown-style fences (e.g., ```csv or ```text) ---
-    text = re.sub(r"(?s)^.*?```[a-zA-Z]*\s*", "", raw_text)  # remove everything up to and including ```csv
-    text = re.sub(r"\s*```.*$", "", text)                    # remove trailing ```
+    text = re.sub(r"(?s)^.*?```[a-zA-Z]*\s*", "", raw_text)
+    text = re.sub(r"\s*```.*$", "", text)                    
     text = text.strip()
 
     text = (
@@ -49,7 +47,7 @@ def format_output_from_llm_to_csv_format(llm_output):
         if re.match(r"^-+\|(-+\|?)+$", line):  # matches ---|---|--- patterns
             continue
         if line.lower().startswith("rank|") and cleaned_lines and "rank|" in cleaned_lines[0].lower():
-            continue  # skip duplicate headers
+            continue 
         cleaned_lines.append(line)
 
     text = "\n".join(cleaned_lines)

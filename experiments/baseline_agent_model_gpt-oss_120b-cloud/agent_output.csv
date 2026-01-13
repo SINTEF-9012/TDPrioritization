@@ -1,0 +1,24 @@
+"Rank|Id|Name of Smell|Name|File|Severity|Reason for Prioritization
+1|14|Feature Envy|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|Core metric method heavily relies on OS utilities, creating strong propagation risk across the codebase
+2|20|Feature Envy|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|Extremely long method with intensive diff API usage, high coupling and maintenance cost
+3|21|Feature Envy|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|Large method mixing bug‑related logic, tightly coupled to external file‑bug data, high defect risk
+4|13|Feature Envy|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|Relies heavily on commit objects, propagating changes throughout core metric calculations
+5|19|Feature Envy|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|Long method with multiple responsibilities, core metric impact and high change risk
+6|15|Feature Envy|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|Repeated OS calls within core metric, moderate propagation risk
+7|9|Feature Envy|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|HIGH|Matrix‑centric logic tightly bound to external structures, affecting core co‑change analysis
+8|5|Feature Envy|main|../test_projects/gitmetrics/gitmetrics/cli.py|HIGH|CLI entry point tightly coupled to argument namespace, broad application impact
+9|23|Feature Envy|get_logger|../test_projects/gitmetrics/gitmetrics/utils/logger.py|HIGH|Logger factory depends on global logging module, affecting logging throughout the project
+10|22|Feature Envy|setup_logging|../test_projects/gitmetrics/gitmetrics/utils/logger.py|HIGH|Logging configuration manipulates root_logger directly, influencing global logger behavior
+11|8|Feature Envy|get_changed_files|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|HIGH|Method depends on diff objects, increasing coupling in co‑change logic
+12|4|Feature Envy|parse_args|../test_projects/gitmetrics/gitmetrics/cli.py|HIGH|Argument‑parser usage embedded in function, impacting CLI configuration stability
+13|1|High Cyclomatic Complexity|get_lines_of_code|../test_projects/gitmetrics/gitmetrics/core/repository.py|HIGH|Cyclomatic complexity 15 with many branches, raising fault‑injection risk
+14|11|Long Method|calculate_semantic_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|151‑line method with multiple responsibilities, hard to test and maintain
+15|17|Long Method|calculate_change_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|144‑line method, dense logic, high maintenance overhead
+16|18|Long Method|calculate_error_proneness|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|134‑line method mixing error analysis steps, elevated change risk
+17|10|Long Method|calculate_structural_coupling|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|122‑line method intertwining commit handling, costly to refactor
+18|16|Long Method|calculate_change_frequency|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|98‑line method with several concerns, moderate risk
+19|7|Long Method|calculate_co_change_metrics|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|HIGH|69‑line method with nested loops, readability and maintenance concerns
+20|12|Long Method|calculate_cohesion|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|64‑line OS‑heavy method, moderate risk
+21|6|Long Method|calculate_co_change_matrix|../test_projects/gitmetrics/gitmetrics/metrics/co_change.py|HIGH|60‑line method mixing data collection and formatting, moderate risk
+22|3|Long File|change_proneness.py|../test_projects/gitmetrics/gitmetrics/metrics/change_proneness.py|HIGH|357 meaningful lines across three massive functions, high cognitive load
+23|2|Long File|coupling.py|../test_projects/gitmetrics/gitmetrics/metrics/coupling.py|HIGH|333 meaningful lines consolidating multiple metric calculations, difficult navigation and maintenance"

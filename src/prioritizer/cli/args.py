@@ -23,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--ollama-model",
-        default="gpt-oss:20b-cloud",
+        default="gpt-oss:120b-cloud",
         help="Ollama model to use (only when --llm-provider=ollama).",
         dest="ollama_model"
     )
