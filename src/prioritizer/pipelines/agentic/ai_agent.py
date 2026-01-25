@@ -6,6 +6,8 @@ from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smell
 
 from prioritizer.pipelines.agentic.agent_state import State
 from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT
+from prioritizer.pipelines.agentic.reviewing_output import review_output_node
+from prioritizer.pipelines.agentic.repair_node import repair_output_node
 
 from pathlib import Path
 import csv
@@ -122,6 +124,15 @@ Smell instances:
         "output_text": text if text else None
     }
 
+def route_execution_after_review(state: State) -> str: 
+    if state.get("is_valid"):
+        return "write_prioritization_report"
+    
+    if state.get("repair_attempts", 0) > state.get("max_repair_attempts", 2):
+        return "write_prioritization_report"
+    
+    return "repair_output_node"
+
 def write_prioritization_report(state: State) -> State:
     out_dir = state.get("out_dir")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -131,6 +142,9 @@ def write_prioritization_report(state: State) -> State:
         csv.writer(f).writerow([state.get("output_text")])
 
     return state
+
+
+
 
 def run_agent_pipeline(args, smells):
 
@@ -174,13 +188,26 @@ def run_agent_pipeline(args, smells):
     smells_graph.add_node("create_more_context", create_more_context)
     smells_graph.add_node("analyze_code_segments_with_agent", analyze_code_segments_with_agent)
     smells_graph.add_node("prioritize_smells_node", prioritize_smells_node)
+    smells_graph.add_node("review_output_node", review_output_node)
+    smells_graph.add_node("repair_output_node", repair_output_node)
     smells_graph.add_node("write_prioritization_report", write_prioritization_report)
 
     smells_graph.add_edge(START, "load_smells")
     smells_graph.add_edge("load_smells","create_more_context")
     smells_graph.add_edge("create_more_context","analyze_code_segments_with_agent")
     smells_graph.add_edge("analyze_code_segments_with_agent", "prioritize_smells_node")
-    smells_graph.add_edge("prioritize_smells_node", "write_prioritization_report")
+    smells_graph.add_edge("prioritize_smells_node", "review_output_node")
+
+    smells_graph.add_conditional_edges(
+        "review_output_node",
+        route_execution_after_review,
+        {
+            "repair_output_node": "repair_output_node",
+            "write_prioritization_report": "write_prioritization_report",
+        },
+    )
+
+    smells_graph.add_edge("repair_output_node", "review_output_node")
     smells_graph.add_edge("write_prioritization_report", END)
 
     compiled_graph = smells_graph.compile()
@@ -228,8 +255,6 @@ Node B: per-smell scoring (LLM produces strict JSON)
 
 Node C: global ranking (LLM uses the JSON)
 
-Node D: validate output; repair if needed
-
 This is the highest ROI and easiest to justify.
 
 Step 2: Add adaptive RAG per smell
@@ -244,17 +269,8 @@ This will differentiate agentic pipeline from Haystack baseline clearly.
 
 Implement per-smell structured scoring (map) + global rank synthesis (reduce).
 
-Add an output validator + repair loop to guarantee completeness and rule compliance.
-
-If you still want “external knowledge,” do local RAG over curated references, not live web browsing.
-
-
-
 bash run_analyzer.sh gitmetrics --llm-provider ollama --add-project-structure --pipeline agent --ollama-model gemini-3-flash-preview:cloud
 
 bash run_analyzer.sh gitmetrics --llm-provider azure --add-project-structure --pipeline agent
-
-
-Switch from rank to High, medium and low. MAybe do both and compare the result to each other.
 
 """

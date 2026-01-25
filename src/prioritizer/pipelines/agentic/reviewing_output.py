@@ -49,7 +49,6 @@ def review_output_node(state: State) -> State:
     smells = state.get("smells") or []
     expected_ids = [str(s.get("index")) for s in smells]
     expected_id_set = set(expected_ids)
-    print(expected_id_set)
     n = len(expected_ids)
 
     text = (state.get("output_text") or "").strip()
