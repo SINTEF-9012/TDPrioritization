@@ -1,39 +1,28 @@
 # python-smells-prioritizer
 
-This project is part of a master thesis investigating how AI techniques, such as **Retrieval-Augmented Generation (RAG)**, can be used to improve **technical debt prioritization**. The goal is to explore whether large language models in combination with static code analysis, some repository mining and other related AI techniques can provide better insights and prioritization strategies for managing technical debt in source code.
-
-## Project structure
-python-smells-prioritizer/
-│
-├── smells_prioritizer.py         # Main RAG-based prioritization pipeline
-├── chunking.py                   # Document chunking for embeddings
-├── utils/                        # Helper functions for metrics & Git analysis
-├── requirements.txt              # Dependency list
-├── run_analyzer.sh               # Entry-point shell script
-└── README.md
-
+This project is part of a master thesis investigating how AI techniques, such as **Retrieval-Augmented Generation (RAG)**, can be used to improve **technical debt prioritization**. The goal is to explore whether large language models in combination with static code analysis, repository mining and other related AI techniques can provide better insights and prioritization strategies for managing technical debt in source code.
 
 ## Requirements
 
-- Python 3.11+
-- A recent version of **pip** (`pip install --upgrade pip`)
-- Internet access for downloading necessary dependencies
-- Python_smells_detector (A seprate project that must be cloned from `https://github.com/KarthikShivasankar/python_smells_detector`)
+- Python **3.11+**
+- A recent version of `pip` (`pip install --upgrade pip`)
+- Internet access (for dependency downloads and optional cloud-based LLMs)
+- Git (required if repository mining is enabled)
+- An external static analysis tool: **python_smells_detector**
 
 ## Installation
 
 Follow these steps to set up and run the project in a Python virtual environment.
 
-### Clone the repository
-
+### Clone the repository and navigate to the project directory
 ```bash
-git clone git@github.uio.no:jasuhany/python-smells-prioritizer.git
+git clone <repository-url>
 cd python-smells-prioritizer
 ```
 
 ### Create a virtual environment
 
-#### MacOs/Linux
+#### MacOS / Linux
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -45,19 +34,77 @@ python -m venv venv
 .\venv\Scripts\activate
 ```
 
-## Install necessary dependencies and packages:
+### External dependency: python_smells_detector
+
+This project depends on an external static analysis tool for detecting Python code smells.
+
+Clone into the project directory and install it **in the same virtual environment**:
+
+```bash
+git clone https://github.com/KarthikShivasankar/python_smells_detector.git
+cd python_smells_detector
+pip install -e .
+```
+
+### Install necessary dependencies and packages:
 ```bash
 pip install -r requirements.txt
+
+pip install -e .
 ```
 
-## Create a projects folder
-Create a projects folder where you will copy the python code base you wish to analyze. 
+### Model configuration
+
+The analyzer supports both **local** and **cloud-based** LLM providers. Depending on the selected model, additional configuration may be required.
+
+#### Ollama (local models)
+
+- Install and start Ollama separately
+- Ensure the selected model is pulled and available
+
+Example:
+```bash
+ollama pull gpt-oss:20b-cloud
+```
+
+#### Azure OpenAI (optional)
+
+If using Azure OpenAI models, configure the following environment variables:
+
+- AZURE_OPENAI_API_KEY
+- AZURE_OPENAI_ENDPOINT
+- AZURE_OPENAI_DEPLOYMENT_NAME
+
+## Preparing projects for analysis
+Create a folder containing the Python projects you want to analyze:
 
 ```bash
-mkdir projects
+mkdir test_projects
 ```
 
-## Example of how to run from project folder:
+Each project:
+- Should be a valid Python code base
+- Should be a Git repository if the --git_stats option is enabled
+
+Place one or more projects inside the test_projects/ directory.
+
+## Running the analyzer
+The main entry point is the run_analyzer.sh script.
+
+**Basic usage:**
+```bash
+bash run_analyzer.sh <mode> [options]
+```
+
+**Example:**
 ```bash
 bash run_analyzer.sh text_classification --model gpt-oss:20b-cloud --git_stats
 ```
+
+**Common options:**
+- `<project>`: name of the project to be analyzed and prioritized (e.g., `text_classification`).
+- `--llm-provider`: The name of the framework used for deploying models (`ollama` or `azure`).
+- `--model`: LLM model identifier. The model name passed to --model must correspond to an available local or remote model.
+- `--git_stats`: Enable repository mining and Git-based metrics
+
+Available modes and options may evolve as part of ongoing thesis work.
