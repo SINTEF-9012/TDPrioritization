@@ -1,0 +1,16 @@
+Rank|Id|Name of Smell|Name|File|Severity|Reason for Prioritization
+1|101|High Cyclomatic Complexity|route_request|../demo_project/api/router.py|HIGH|Core request routing has many branches, increasing defect risk and making changes brittle.
+2|102|Long Method|train_model|../demo_project/ml/train.py|HIGH|Training routine combines preprocessing, fitting, and evaluation in one block, complicating testing and refactoring.
+3|103|Large Class|ExperimentManager|../demo_project/ml/experiment_manager.py|HIGH|Central class mixes orchestration, persistence, and reporting responsibilities, creating a change hotspot.
+4|104|Feature Envy|parse_args|../demo_project/cli/run.py|MEDIUM|Argument parsing reads and manipulates many external fields, increasing coupling to CLI structure.
+5|105|Long File|pipeline|../demo_project/ml/pipeline.py|HIGH|Pipeline module is large and multi-purpose, making navigation and local reasoning difficult.
+6|106|High Cyclomatic Complexity|validate_config|../demo_project/config/validator.py|MEDIUM|Configuration validation contains many conditional paths, likely to regress with new options.
+7|107|Long Method|predict_batch|../demo_project/ml/inference.py|HIGH|Inference flow mixes I/O, batching, and postprocessing; modifications risk breaking runtime behavior.
+8|108|Feature Envy|save_results|../demo_project/utils/io_utils.py|LOW|Utility function is tightly bound to a specific file format API but impact is localized.
+9|109|God Function|main|../demo_project/app.py|HIGH|Application entrypoint coordinates too many subsystems directly, increasing propagation risk for changes.
+10|110|Duplicated Code|normalize_text|../demo_project/nlp/text_utils.py|MEDIUM|Similar normalization logic appears elsewhere, raising maintenance cost and inconsistency risk.
+11|111|Long Method|compute_metrics|../demo_project/eval/metrics.py|HIGH|Evaluation combines multiple metrics and plotting steps; defects here skew experimental conclusions.
+12|112|Feature Envy|build_payload|../demo_project/api/client.py|MEDIUM|Payload builder depends heavily on external client fields, making it sensitive to API changes.
+13|113|Shotgun Surgery|update_schema|../demo_project/db/migrations.py|HIGH|Schema updates require coordinated edits across many places, increasing refactoring effort and error likelihood.
+14|114|High Cyclomatic Complexity|resolve_dependencies|../demo_project/build/deps.py|MEDIUM|Dependency resolver contains nested conditionals that are hard to validate exhaustively.
+15|115|Long Method|load_dataset|../demo_project/data/loader.py|MEDIUM|Dataset loading handles multiple formats and edge cases in one function, reducing readability and testability.

@@ -1,0 +1,14 @@
+Rank|Id|Name of Smell|Name|File|Severity|Reason for Prioritization
+1|109|God Function|main|../demo_project/app.py|HIGH|Central orchestration logic directly coordinates multiple subsystems and is critical for system stability.
+2|101|High Cyclomatic Complexity|route_request|../demo_project/api/router.py|HIGH|Request routing logic is complex and directly affects API correctness and reliability.
+3|107|Long Method|predict_batch|../demo_project/ml/inference.py|HIGH|Inference routine combines multiple responsibilities and impacts runtime prediction behavior.
+4|111|Long Method|compute_metrics|../demo_project/eval/metrics.py|HIGH|Evaluation logic influences experimental outcomes and must remain correct and maintainable.
+5|102|Long Method|train_model|../demo_project/ml/train.py|HIGH|Training pipeline logic is central to model quality and involves many processing stages.
+6|105|Long File|pipeline|../demo_project/ml/pipeline.py|HIGH|Pipeline module aggregates several concerns and represents a frequent modification hotspot.
+7|113|Shotgun Surgery|update_schema|../demo_project/db/migrations.py|HIGH|Database schema changes propagate across multiple components and are error-prone.
+8|103|Large Class|ExperimentManager|../demo_project/ml/experiment_manager.py|HIGH|This class centralizes experiment logic and tightly couples multiple responsibilities.
+9|106|High Cyclomatic Complexity|validate_config|../demo_project/config/validator.py|MEDIUM|Configuration branching increases risk but is moderately isolated.
+10|115|Long Method|load_dataset|../demo_project/data/loader.py|MEDIUM|Dataset loader handles multiple cases and formats, affecting data consistency.
+11|114|High Cyclomatic Complexity|resolve_dependencies|../demo_project/build/deps.py|MEDIUM|Dependency resolution logic contains nested conditionals with moderate impact.
+12|112|Feature Envy|build_payload|../demo_project/api/client.py|MEDIUM|Payload builder depends heavily on external client state but impact is localized.
+13|104|Feature Envy|parse_args|../demo_project/cli/run.py|MEDIUM|Argument parsing interacts with CLI structure but is not system-critical.
