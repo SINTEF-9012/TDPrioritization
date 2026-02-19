@@ -42,11 +42,14 @@ Ranking rules:
 
 ---
 
-## OUTPUT FORMAT (STRICT)
+OUTPUT FORMAT (STRICT — MUST FOLLOW EXACTLY)
 
-Output ONLY the ranked list using the following pipe-separated format:
+The output MUST be a pipe-separated table.
+The FIRST row MUST be the header shown below.
+ALL subsequent rows MUST be data rows.
 
-Rank|Id|Name of Smell|Name|File|Reason for Prioritization
+HEADER (MUST BE INCLUDED AS FIRST ROW — COPY EXACTLY):
+Rank|Id|Name of Smell|Name|File|Severity|Reason for Prioritization
 
 Rules:
 - Rank must start at 1 and be sequential.
