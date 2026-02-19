@@ -14,6 +14,8 @@ import csv
 
 from git import Repo
 
+import argparse
+
 import os
 from typing import TypedDict, List, Dict, Any, Optional
 from langgraph.graph import StateGraph, START, END
@@ -146,7 +148,7 @@ def write_prioritization_report(state: State) -> State:
 
 
 
-def run_agent_pipeline(args, smells):
+def run_agent_pipeline(args: argparse.Namespace, smells) -> Path:
 
     safe_model = args.ollama_model.replace(":", "_").replace("/", "_") if args.llm_provider == "ollama" else "azure"
     folder_name = f"{args.output_dir}_agent_model_{safe_model}"
@@ -230,6 +232,8 @@ def run_agent_pipeline(args, smells):
     (experiments_dir / "agent_graph.png").write_bytes(
         compiled_graph.get_graph().draw_mermaid_png()
     )
+
+    return experiments_dir
 
 
 """
