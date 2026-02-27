@@ -50,3 +50,5 @@ langchain==1.1.2
 langhraph==1.0.5
 
 langchain-ollama==1.0.0
+
+pydriller==2.9

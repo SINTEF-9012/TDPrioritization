@@ -1,5 +1,5 @@
 from prioritizer.analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
-from prioritizer.history.git_history import build_report
+from prioritizer.history.git_file_data_retrieval import build_git_input_for_llm
 
 import pandas as pd
 from git import Repo
@@ -37,7 +37,7 @@ def read_and_store_relevant_smells(smell_filter: List[str]) ->  List[dict[str, A
 
     return docs
 
-def add_further_context(project_name: Repo, code_smells: List[dict], git_stats: bool = True, pylint: bool = True, code_segment: bool = True) -> List[dict]:
+def add_further_context(project_name: str, code_smells: List[dict], git_stats: bool = True, pylint: bool = True, code_segment: bool = True) -> List[dict]:
     git_cache: dict[str, str] = {}
     pylint_cache: dict[str, str] = {}
     code_cache: dict[tuple[str, int], str] = {}
@@ -48,16 +48,17 @@ def add_further_context(project_name: Repo, code_smells: List[dict], git_stats: 
 
         if file_path.startswith("../"):
             normalized_path = file_path[3:]
+            file_path = file_path.split(project_name+"/")[-1]
         else:
             normalized_path = file_path
 
         if git_stats:
-            if normalized_path not in git_cache:
-                git_cache[normalized_path] = build_report(
+            if file_path not in git_cache:
+                git_cache[file_path] = build_git_input_for_llm(
                     project_name, 
-                    normalized_path,
+                    file_path,
                 )
-            smell["git_analysis"] = git_cache[normalized_path]
+            smell["git_analysis"] = git_cache[file_path]
 
         if pylint:
             if normalized_path not in pylint_cache:

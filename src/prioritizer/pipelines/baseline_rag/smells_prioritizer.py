@@ -106,10 +106,7 @@ def ensure_articles_indexed(
     print(f"Embedded {len(embedded_docs)} article chunks and wrote them to Chroma.")
 
 
-def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore) -> Path:
-    # TODO Put this in dispatcher since the same code snippet is used in ai_agent.py as well.
-    project_repo = Repo(f"test_projects/{args.project_name}")
-
+def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str) -> Path:
     safe_model = args.ollama_model.replace(":", "_").replace("/", "_")
     folder_name = f"{args.output_dir}_rag_model_{safe_model}"
     experiments_dir = Path("experiments") / folder_name
@@ -125,7 +122,7 @@ def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStor
     send_code_analysis = code_context_mode == "analysis"
     code_smells_dic = read_and_store_relevant_smells(smells)
     code_smells_dic = add_further_context(
-        project_repo, 
+        project_path, 
         code_smells_dic, 
         args.include_git_stats, 
         args.run_pylint_astroid, 

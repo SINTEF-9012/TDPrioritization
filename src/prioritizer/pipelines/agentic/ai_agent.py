@@ -88,6 +88,12 @@ ai_code_segment_summary:
 {s.get("ai_code_segment_summary")}
 """.strip()
 
+def retrieve_augmented_information_with_rag():
+    ...
+
+def retrieve_git_repo_data():
+    ...
+
 def prioritize_smells_node(state: State) -> State:
     smells = state.get("smells") or []
     llm = state.get("llm")
@@ -148,7 +154,7 @@ def write_prioritization_report(state: State) -> State:
 
 
 
-def run_agent_pipeline(args: argparse.Namespace, smells) -> Path:
+def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str) -> Path:
 
     safe_model = args.ollama_model.replace(":", "_").replace("/", "_") if args.llm_provider == "ollama" else "azure"
     folder_name = f"{args.output_dir}_agent_model_{safe_model}"
@@ -220,7 +226,7 @@ def run_agent_pipeline(args: argparse.Namespace, smells) -> Path:
         "use_git": args.include_git_stats,
         "use_pylint": args.run_pylint_astroid,
         "use_code": use_code,
-        "repo": Repo(f"test_projects/{args.project_name}"),
+        "repo": project_path,
         "llm": llm,
         "out_dir": experiments_dir,
         "output_text": None,
