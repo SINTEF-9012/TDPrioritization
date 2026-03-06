@@ -1,8 +1,12 @@
 import os
 import fitz
 import re
+from typing import List, Dict, Any
 
 from haystack import Document
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document as LCDocument
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 REFERENCE_HEADINGS = [
@@ -22,10 +26,55 @@ BOILERPLATE_PATTERNS = [
     r"^\s*\d{5,}\s*$",   # long numeric lines (page ids)
 ]
 
+BOILERPLATE_REGEXES = [re.compile(p, re.IGNORECASE) for p in BOILERPLATE_PATTERNS]
+
+
 REF_SIGNAL = re.compile(
     r"(\bet al\.\b|\bvol\.\b|\bpp\.\b|\bproc\.\b|\btrans\.\b|\bdoi\b|http[s]?://|\(\d{4}\)|\[\d+\])",
     re.IGNORECASE
 )
+
+def convert_chunked_text_to_langchain_documents(
+    pdf_dir: str = "src/prioritizer/data/articles",
+    *,
+    chunk_size: int = 1500,
+    chunk_overlap: int = 250,
+    separators: List[str] | None = None,
+) -> List[LCDocument]:
+    pdf_info = convert_pdf_files_to_text_pages(pdf_dir=pdf_dir)
+    documents: List[LCDocument] = []
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=separators or ["\n\n", "\n", ". ", " ", ""],
+    )
+
+    for file_name, file_info in pdf_info.items():
+        base_meta: Dict[str, Any] = dict(file_info.get("metadata") or {})
+        base_meta.pop("encryption", None)
+        base_meta.update({"chunked": True, "type": "article", "file_name": file_name})
+
+        for p in file_info.get("pages", []):
+            page_text = (p.get("text") or "").strip()
+            if not page_text:
+                continue
+
+            page_meta = {**base_meta, "page": p.get("page")}
+            chunks = splitter.split_text(p["text"])
+
+            for c in chunks:
+                if not is_good_chunk(c):
+                    continue
+
+                documents.append(
+                    LCDocument(
+                        page_content=c,
+                        metadata=dict(page_meta or {}),
+                    )
+                )
+
+    return documents
 
 def convert_chunked_text_to_haystack_documents(chunk_size=1500, chunk_overlap=250):
     pdf_info = convert_pdf_files_to_text_pages()
@@ -44,11 +93,12 @@ def convert_chunked_text_to_haystack_documents(chunk_size=1500, chunk_overlap=25
 
         for p in file_info["pages"]:
             page_meta = {**base_meta, "page": p["page"]}
-            lc_docs = splitter.create_documents([p["text"]], metadatas=[page_meta])
-            for d in lc_docs:
-                if not is_good_chunk(d.page_content):
+            chunks = splitter.split_text(p["text"])
+
+            for ch in chunks:
+                if not is_good_chunk(ch):
                     continue
-                documents.append(Document(content=d.page_content, meta=d.metadata))
+                documents.append(Document(content=ch, meta=page_meta))
 
     return documents
 
@@ -73,15 +123,13 @@ def convert_pdf_files_to_text_pages(pdf_dir="src/prioritizer/data/articles") -> 
         out[filename] = {"metadata": doc.metadata, "pages": pages}
     return out
 
+REFERENCE_HEADING_SET = {"references", "bibliography", "reference"}
+
 def strip_references(text: str) -> str:
     lines = text.splitlines()
-    cut_idx = None
     for i, line in enumerate(lines):
-        if any(re.match(pat, line.strip().lower()) for pat in REFERENCE_HEADINGS):
-            cut_idx = i
-            break
-    if cut_idx is not None:
-        return "\n".join(lines[:cut_idx])
+        if line.strip().lower() in REFERENCE_HEADING_SET:
+            return "\n".join(lines[:i])
     return text
 
 def strip_boilerplate(text: str) -> str:
@@ -92,12 +140,11 @@ def strip_boilerplate(text: str) -> str:
             cleaned.append(line)
             continue
 
-        low = l.lower()
-        if any(re.search(p, low, flags=re.IGNORECASE) for p in BOILERPLATE_PATTERNS):
+        if any(rx.search(l) for rx in BOILERPLATE_REGEXES):
             continue
 
         # Drop lines that are mostly punctuation / separators
-        if len(l) >= 8 and sum(ch.isalnum() for ch in l) / len(l) < 0.35:
+        if len(l) >= 8 and (sum(ch.isalnum() for ch in l) / len(l)) < 0.35:
             continue
 
         cleaned.append(line)
@@ -105,7 +152,7 @@ def strip_boilerplate(text: str) -> str:
 
 def is_good_chunk(s: str) -> bool:
     s = s.strip()
-    if len(s) < 500:  # too short to carry an argument
+    if len(s) < 500: 
         return False
 
     # Reference/citation density
@@ -115,7 +162,6 @@ def is_good_chunk(s: str) -> bool:
     dois = len(re.findall(r"\bdoi\b", s, flags=re.IGNORECASE))
     etal = len(re.findall(r"\bet al\.\b", s, flags=re.IGNORECASE))
 
-    # If it looks like a bibliography chunk, discard
     if bracket_cites + year_cites + urls + dois + etal >= 12:
         return False
 
@@ -132,23 +178,26 @@ def is_good_chunk(s: str) -> bool:
     return True
 
 def strip_reference_blocks(text: str, window_lines: int = 20, min_hits: int = 10) -> str:
-    """
-    Remove long blocks that resemble bibliographies, even if there is no 'References' heading.
-    Looks for a window of lines with high density of reference signals.
-    """
     lines = text.splitlines()
     n = len(lines)
+    if n < window_lines:
+        return text
 
-    # scan for first likely reference block
-    for start in range(0, max(0, n - window_lines)):
-        window = lines[start:start + window_lines]
-        hits = sum(1 for line in window if REF_SIGNAL.search(line or ""))
+    sig = [1 if REF_SIGNAL.search(line or "") else 0 for line in lines]
+
+    pref = [0] * (n + 1)
+    for i in range(n):
+        pref[i + 1] = pref[i] + sig[i]
+
+    for start in range(0, n - window_lines + 1):
+        hits = pref[start + window_lines] - pref[start]
         if hits >= min_hits:
-            # drop from start of that block to end
             return "\n".join(lines[:start]).rstrip()
 
     return text
 
 if __name__ == "__main__":
     docs = convert_chunked_text_to_haystack_documents()
+    docs = convert_chunked_text_to_langchain_documents()
     print(docs)
+    print(len(docs))

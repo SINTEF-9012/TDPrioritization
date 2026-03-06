@@ -1,30 +1,26 @@
 from prioritizer.analysis import build_project_structure, get_code_segment_from_file_based_on_line_number
-from prioritizer.ingestion.chunking import convert_chunked_text_to_haystack_documents
 from prioritizer.llm.analyze_code_segment import analyze_code_segments_via_ai
 from prioritizer.llm.prompt_template import PROMPT_TEMPLATE
 from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smells, add_further_context
+from prioritizer.ingestion.chunking import convert_chunked_text_to_langchain_documents
 
 from prioritizer.pipelines.agentic.agent_state import State
 from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT
 from prioritizer.pipelines.agentic.reviewing_output import review_output_node
 from prioritizer.pipelines.agentic.repair_node import repair_output_node
+from prioritizer.pipelines.agentic.embedding_retrieval import index_documents_into_chroma
 
 from pathlib import Path
 import csv
-
-from git import Repo
-
 import argparse
-
 import os
 from typing import TypedDict, List, Dict, Any, Optional
+
 from langgraph.graph import StateGraph, START, END
 
 from langchain_openai import AzureChatOpenAI
 from langchain_ollama import ChatOllama
-from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
-
 
 def load_smells(state: State) -> State:
     smells_to_search_for = state.get("smell_types")
@@ -62,6 +58,19 @@ def analyze_code_segments_with_agent(state: State) -> State:
         "smells": smells
     }
 
+def _format_rag_results(s: Dict[str, Any], max_chars: int = 700) -> str:
+    ev = s.get("rag_results") or []
+    if not ev:
+        return "rag_results:\n<none>"
+
+    lines = ["rag_results:"]
+    for i, e in enumerate(ev, 1):
+        meta = e.get("metadata") or {}
+        src = meta.get("file_name") or meta.get("source") or "unknown"
+        snippet = (e.get("text") or "").strip().replace("\n", " ")
+        lines.append(f"- ({i}) src={src} score={e.get('score'):.4f}: {snippet[:max_chars]}")
+    return "\n".join(lines)
+
 def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
     code_block = "\n"
 
@@ -86,10 +95,62 @@ pylint_report:
 {code_block}
 ai_code_segment_summary:
 {s.get("ai_code_segment_summary")}
+
+Retrieved RAG info:
+{_format_rag_results(s)}
 """.strip()
 
-def retrieve_augmented_information_with_rag():
-    ...
+
+def build_article_query(smell: Dict[str, Any], include_code: bool) -> str:
+    parts = [
+        f"code smell: {smell.get('name','')}",
+        f"category: {smell.get('type_of_smell','')}",
+        f"file: {smell.get('file_path','')} line: {smell.get('line_number','')}",
+        smell.get("description", ""),
+        smell.get("ai_code_segment_summary", ""),
+    ]
+
+    if smell.get("git_analysis"):
+        parts.append(smell["git_analysis"])
+    if smell.get("pylint_report"):
+        parts.append(smell["pylint_report"])
+    if include_code and smell.get("code_segment"):
+        parts.append(smell["code_segment"])
+
+    return "\n".join([p.strip() for p in parts if p and str(p).strip()])
+
+
+def retrieve_processed_data_from_articles(state: State) -> State:
+    store = state.get("store")
+    smells = state.get("smells") or []
+    top_k = 4
+    include_code = bool(state.get("use_code"))
+
+    if store is None or not smells:
+        return { **state }
+
+    new_smells: List[Dict[str, Any]] = []
+    for s in smells:
+        query = build_article_query(s, include_code=include_code)
+
+        if not query.strip():
+            new_smells.append({**s, "rag_results": []})
+            continue
+
+        retrieved_results = store.similarity_search_with_score(query, k=top_k)
+
+        evidence = []
+        for doc, score in retrieved_results:
+            evidence.append({
+                "text": doc.page_content,
+                "metadata": doc.metadata or {},
+                "score": float(score),
+            })
+
+        new_smells.append({**s, "rag_results": evidence, "rag_query": query})
+
+    return {**state, "smells": new_smells}
+
 
 def retrieve_git_repo_data():
     ...
@@ -190,11 +251,21 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
             temperature=0,
         )
 
+    docs = convert_chunked_text_to_langchain_documents()
+
+    store, _ = index_documents_into_chroma(
+        docs,
+        collection_name="articles",
+        embedding_model="sentence-transformers/all-mpnet-base-v2",
+        batch_size=128,
+    )
+
     smells_graph = StateGraph(State)
 
     smells_graph.add_node("load_smells", load_smells)
     smells_graph.add_node("create_more_context", create_more_context)
     smells_graph.add_node("analyze_code_segments_with_agent", analyze_code_segments_with_agent)
+    smells_graph.add_node("retrieve_processed_data_from_articles", retrieve_processed_data_from_articles)
     smells_graph.add_node("prioritize_smells_node", prioritize_smells_node)
     smells_graph.add_node("review_output_node", review_output_node)
     smells_graph.add_node("repair_output_node", repair_output_node)
@@ -203,7 +274,8 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
     smells_graph.add_edge(START, "load_smells")
     smells_graph.add_edge("load_smells","create_more_context")
     smells_graph.add_edge("create_more_context","analyze_code_segments_with_agent")
-    smells_graph.add_edge("analyze_code_segments_with_agent", "prioritize_smells_node")
+    smells_graph.add_edge("analyze_code_segments_with_agent", "retrieve_processed_data_from_articles")
+    smells_graph.add_edge("retrieve_processed_data_from_articles", "prioritize_smells_node")
     smells_graph.add_edge("prioritize_smells_node", "review_output_node")
 
     smells_graph.add_conditional_edges(
@@ -228,12 +300,13 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "use_code": use_code,
         "repo": project_path,
         "llm": llm,
+        "store": store,
         "out_dir": experiments_dir,
         "output_text": None,
         "prompt_tokens": 0,
         "completion_tokens": 0,
         "total_tokens": 0,
-          })
+    })
 
     (experiments_dir / "agent_graph.png").write_bytes(
         compiled_graph.get_graph().draw_mermaid_png()
@@ -282,5 +355,7 @@ Implement per-smell structured scoring (map) + global rank synthesis (reduce).
 bash run_analyzer.sh gitmetrics --llm-provider ollama --add-project-structure --pipeline agent --ollama-model gemini-3-flash-preview:cloud
 
 bash run_analyzer.sh gitmetrics --llm-provider azure --add-project-structure --pipeline agent
+
+analyze test coverage - if a function has low test coverage its ranked should be lowered.
 
 """

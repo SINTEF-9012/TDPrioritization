@@ -1,18 +1,20 @@
 from typing import TypedDict, List, Dict, Any, Optional
-from git import Repo
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_chroma import Chroma
+
 from pathlib import Path
 
 class State(TypedDict):
     smell_types: List[str]                      
     smells: Optional[List[Dict[str, Any]]]
 
-    repo: Repo
+    repo: str
     use_git: bool
     use_pylint: bool
     use_code: bool
 
     llm: BaseChatModel
+    store: Chroma
 
     output_text: Optional[str]
     out_dir: Path

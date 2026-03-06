@@ -31,7 +31,6 @@ def read_and_store_relevant_smells(smell_filter: List[str]) ->  List[dict[str, A
 
         i += 1
 
-    # Randomize the list
     random.seed(42)
     random.shuffle(docs)
 
