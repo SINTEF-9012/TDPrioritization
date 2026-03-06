@@ -24,8 +24,8 @@ EXPECTED_COLS: List[str] = [
 
 SEVERITY_MAP: Dict[str, int] = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 
-def gain(r): # (2**r - 1)
-    return (2**r - 1) #np.log2(1 + r)
+def gain(r):
+    return 2**r - 1 
 
 def _ranks_with_missing_penalty(
     gt_ids: Sequence[str],
@@ -251,6 +251,9 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
     if metrics is None:
         raise ValueError("ranking_computation returned None (likely missing/hallucinated IDs)")
 
+    llm_df = format_output_from_llm_to_csv_format(llm_file)
+    llm_output_records = llm_df.to_dict(orient="records")
+
     report = {
         "timestamp": datetime.now().isoformat(),
         "project name": args.project_name,
@@ -265,6 +268,7 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
         "use_code": (getattr(args, "code_context_mode", "analysis") == "code"),
 
         "metrics": metrics,
+        "output": llm_output_records,
     }
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -272,6 +276,13 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     return report_path
+
+def mrr_for_high_severity(llm_ids, relevance_by_id):
+    """Rank of first HIGH severity item in LLM output."""
+    for i, id_ in enumerate(llm_ids):
+        if relevance_by_id.get(id_, 0) == 3:
+            return 1.0 / (i + 1)
+    return 0.0
 
 if __name__ == "__main__":
     args = argparse.Namespace(
