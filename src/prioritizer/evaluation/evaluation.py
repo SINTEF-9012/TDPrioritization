@@ -2,7 +2,7 @@ import pandas as pd
 from io import StringIO
 from scipy.stats import kendalltau, spearmanr
 import numpy as np
-from sklearn.metrics import ndcg_score
+from sklearn.metrics import accuracy_score, cohen_kappa_score
 import rbo
 import re
 from pathlib import Path
@@ -69,28 +69,76 @@ def ndcg_ranking_using_only_id(gt_ids: Sequence[str], llm_ids: Sequence[str]) ->
 
     return float(dcg_pred / idcg) if idcg > 0 else 0.0
 
-
-def ndcg_based_on_severity_of_smells(llm_ids: Sequence[str], relevance_by_id: Dict[str, int], k: int | None = None) -> float:
+def severity_label_accuracy(gt_df: pd.DataFrame, llm_df: pd.DataFrame) -> dict:
     """
-    Standard severity-based NDCG. Missing items implicitly get 0 relevance.
+    Measures how accurately the LLM assigned severity labels compared to ground truth.
+    Matches smells by Id.
     """
-    if k is None:
-        k = len(llm_ids)
-
-    def dcg(ids: Sequence[str]) -> float:
-        score = 0.0
-        for i, id_ in enumerate(ids[:k]):
-            r = relevance_by_id.get(id_, 0)
-            score += gain(r) / np.log2(i + 2)
-        return score
+    merged = gt_df.merge(llm_df[["Id", "Severity"]], on="Id", suffixes=("_gt", "_llm"))
     
-    ideal_ids = sorted(relevance_by_id.keys(), key=lambda x: relevance_by_id.get(x, 0), reverse=True)
+    gt_labels  = merged["Severity_gt"].str.strip().str.upper().tolist()
+    llm_labels = merged["Severity_llm"].str.strip().str.upper().tolist()
 
-    dcg_pred = dcg(llm_ids)
-    idcg = dcg(ideal_ids)
+    return {
+        "accuracy": accuracy_score(gt_labels, llm_labels),
+        "cohen_kappa": cohen_kappa_score(gt_labels, llm_labels),
+        "n_matched": len(merged),
+        "n_unmatched": len(gt_df) - len(merged),
+    }
 
-    return float(dcg_pred / idcg) if idcg > 0 else 0.0
+def severity_label_accuracy_ordinal(gt_df: pd.DataFrame, llm_df: pd.DataFrame) -> dict:
+    """
+    Measures severity label accuracy with ordinal penalties.
+    A label that is 2 steps away (HIGH vs LOW) penalises more than 1 step away (HIGH vs MEDIUM).
+    
+    Ordinal scale: LOW=1, MEDIUM=2, HIGH=3
+    Penalty per smell = |gt_rank - llm_rank| / max_possible_distance (2)
+    Score per smell   = 1 - penalty  (1.0 = exact, 0.5 = one step off, 0.0 = two steps off)
+    """
+    MAX_DISTANCE = 2
 
+    merged = gt_df.merge(llm_df[["Id", "Severity"]], on="Id", suffixes=("_gt", "_llm"))
+
+    gt_labels  = merged["Severity_gt"].str.strip().str.upper().tolist()
+    llm_labels = merged["Severity_llm"].str.strip().str.upper().tolist()
+
+    scores = []
+    details = []
+    for id_, gt, llm in zip(merged["Id"].tolist(), gt_labels, llm_labels):
+        gt_rank  = SEVERITY_MAP.get(gt,  None)
+        llm_rank = SEVERITY_MAP.get(llm, None)
+
+        if gt_rank is None or llm_rank is None:
+            continue
+
+        distance = abs(gt_rank - llm_rank)
+        score    = 1.0 - (distance / MAX_DISTANCE)
+        scores.append(score)
+        details.append({"id": id_, "gt": gt, "llm": llm, "distance": distance, "score": score})
+
+    ordinal_accuracy = float(np.mean(scores)) if scores else 0.0
+
+    gt_numeric  = [SEVERITY_MAP[l] for l in gt_labels  if l in SEVERITY_MAP]
+    llm_numeric = [SEVERITY_MAP[l] for l in llm_labels if l in SEVERITY_MAP]
+    try:
+        weighted_kappa = float(cohen_kappa_score(gt_numeric, llm_numeric, weights="linear"))
+    except Exception:
+        weighted_kappa = float("nan")
+
+    exact     = sum(1 for d in details if d["distance"] == 0)
+    one_off   = sum(1 for d in details if d["distance"] == 1)
+    two_off   = sum(1 for d in details if d["distance"] == 2)
+
+    return {
+        "ordinal_accuracy": ordinal_accuracy,
+        "weighted_kappa": weighted_kappa,
+        "exact_matches": exact,
+        "one_step_off": one_off,
+        "two_steps_off": two_off,
+        "n_matched": len(scores),
+        "n_unmatched": len(gt_df) - len(scores),
+        "details": details,
+    }
 
 _NORMALIZE_CHARS = str.maketrans({
     "“": '"',
@@ -195,37 +243,47 @@ def _load_ground_truth_df(ground_truth: str | Path) -> pd.DataFrame:
     return pd.read_csv(gt_path, sep="|", engine="python")
 
 
-def ranking_computation(ground_truth: str | Path, llm_output: str | Path) -> Optional[dict]:
+def ranking_computation(ground_truth: str | Path,llm_output: str | Path) -> Optional[dict]:
     llm_df = format_output_from_llm_to_csv_format(llm_output)
     gt_df = _load_ground_truth_df(ground_truth)
 
     llm_ids = [str(x) for x in llm_df["Id"].tolist()]
-    gt_ids = [str(x) for x in gt_df["Id"].tolist()]
-
-    relevance_by_id = {
-        str(row["Id"]): SEVERITY_MAP[str(row["Severity"]).strip()]
-        for _, row in gt_df.iterrows()
-    }
+    gt_ids  = [str(x) for x in gt_df["Id"].tolist()]
 
     ranks_llm, ranks_gt, missing = _ranks_with_missing_penalty(gt_ids, llm_ids)
-
     tau, _ = kendalltau(ranks_llm, ranks_gt)
     rho, _ = spearmanr(ranks_llm, ranks_gt)
 
+    severity_acc         = severity_label_accuracy(gt_df, llm_df)
+    severity_acc_ordinal = severity_label_accuracy_ordinal(gt_df, llm_df)
+
     metrics = {
-        "tau": float(tau) if tau is not None else float("nan"),
-        "rho": float(rho) if rho is not None else float("nan"),
-        "ndcg": float(ndcg_ranking_using_only_id(gt_ids, llm_ids)),
-        "ndcg based on smell severity": float(ndcg_based_on_severity_of_smells(llm_ids, relevance_by_id)),
-        "rbo": float(rbo.RankingSimilarity(llm_ids, gt_ids).rbo()),
-        "n_gt": int(len(gt_ids)),
-        "n_llm": int(len(llm_ids)),
-        "n_missing": int(len(missing)),
-        "missing_ids": missing,
+        "ranking": {
+            "ndcg": float(ndcg_ranking_using_only_id(gt_ids, llm_ids)),
+            "kendall_tau": float(tau) if tau is not None else float("nan"),
+            "spearman_rho": float(rho) if rho is not None else float("nan"),
+            "rbo": float(rbo.RankingSimilarity(llm_ids, gt_ids).rbo()),
+        },
+        "severity_labelling": {
+            "accuracy": severity_acc["accuracy"],
+            "cohen_kappa": severity_acc["cohen_kappa"],
+            "ordinal_accuracy": severity_acc_ordinal["ordinal_accuracy"],
+            "weighted_kappa": severity_acc_ordinal["weighted_kappa"],
+            "exact_matches": severity_acc_ordinal["exact_matches"],
+            "one_step_off": severity_acc_ordinal["one_step_off"],
+            "two_steps_off": severity_acc_ordinal["two_steps_off"],
+        },
+        "coverage": {
+            "n_gt": int(len(gt_ids)),
+            "n_llm": int(len(llm_ids)),
+            "n_matched": severity_acc["n_matched"],
+            "n_unmatched": severity_acc["n_unmatched"],
+            "n_missing": int(len(missing)),
+            "missing_ids": missing,
+        },
     }
 
     return metrics
-
 
 def order_prioritized_smells_by_rank_asc(file: str | Path) -> None:
     """
@@ -265,6 +323,8 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
 
         "use_git": args.include_git_stats,
         "use_pylint": args.run_pylint_astroid,
+        "use_rag": args.use_rag,
+
         "use_code": (getattr(args, "code_context_mode", "analysis") == "code"),
 
         "metrics": metrics,
