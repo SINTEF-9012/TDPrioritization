@@ -64,14 +64,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.set_defaults(run_pylint_astroid=True)
 
     parser.add_argument(
-        "--no-articles",
-        dest="include_articles",
-        action="store_false",
-        help="Disable embedding of articles to the LLM.",
-    )
-    parser.set_defaults(include_articles=True)
-
-    parser.add_argument(
         "--add-project-structure",
         dest="include_project_structure",
         action="store_true",
@@ -94,6 +86,14 @@ def build_parser() -> argparse.ArgumentParser:
         default="analysis",
         help="Use AI summaries of code segments or embed the raw code snippets directly."
     )
+
+    parser.add_argument(
+        "--rag",
+        dest="use_rag",
+        action="store_true",
+        help="Use rag to retrieve additional contextual information from scientific journals.",
+    )
+    parser.set_defaults(use_rag=False)
 
     return parser
 

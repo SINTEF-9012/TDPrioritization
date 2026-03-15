@@ -9,9 +9,11 @@ class State(TypedDict):
     smells: Optional[List[Dict[str, Any]]]
 
     repo: str
+
     use_git: bool
     use_pylint: bool
     use_code: bool
+    use_rag: bool
 
     llm: BaseChatModel
     store: Chroma

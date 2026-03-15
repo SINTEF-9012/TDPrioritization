@@ -59,17 +59,41 @@ def analyze_code_segments_with_agent(state: State) -> State:
     }
 
 def _format_rag_results(s: Dict[str, Any], max_chars: int = 700) -> str:
+    """
+    Formats RAG results as numbered document blocks with clear source attribution
+    and snippet boundaries, making it easier for the LLM to reference and reason
+    about individual pieces of evidence.
+    """
     ev = s.get("rag_results") or []
     if not ev:
-        return "rag_results:\n<none>"
+        return "## BACKGROUND KNOWLEDGE\n<No documents retrieved>"
 
-    lines = ["rag_results:"]
+    blocks = ["## BACKGROUND KNOWLEDGE (GENERAL GUIDANCE ONLY)",
+              "The following documents provide general insights about technical debt and code smells.",
+              "Treat these as reference material ONLY — do NOT use them as smell-specific evidence.",
+              ""]
+
     for i, e in enumerate(ev, 1):
-        meta = e.get("metadata") or {}
-        src = meta.get("file_name") or meta.get("source") or "unknown"
-        snippet = (e.get("text") or "").strip().replace("\n", " ")
-        lines.append(f"- ({i}) src={src} score={e.get('score'):.4f}: {snippet[:max_chars]}")
-    return "\n".join(lines)
+        meta     = e.get("metadata") or {}
+        src      = meta.get("file_name") or meta.get("source") or "unknown"
+        page     = meta.get("page_number") or meta.get("page")
+        score    = meta.get("score") or meta.get("similarity")
+
+        snippet  = (e.get("text") or "").strip()
+
+        header_parts = [f"source={src}"]
+        if page:
+            header_parts.append(f"page={page}")
+        if score:
+            header_parts.append(f"relevance={score:.2f}")
+
+        blocks.append(f"[DOC {i} | {' | '.join(header_parts)}]")
+        blocks.append(snippet[:max_chars])
+        if len(snippet) > max_chars:
+            blocks.append(f"... [truncated, {len(snippet) - max_chars} chars omitted]")
+        blocks.append("")  
+
+    return "\n".join(blocks)
 
 def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
     code_block = "\n"
@@ -202,6 +226,13 @@ def route_execution_after_review(state: State) -> str:
     
     return "repair_output_node"
 
+def route_execution_to_rag_node(state: State) -> str: 
+    if state.get("use_rag"):
+        return "retrieve_processed_data_from_articles"
+    else:
+        return "prioritize_smells_node"
+    
+
 def write_prioritization_report(state: State) -> State:
     out_dir = state.get("out_dir")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -274,7 +305,16 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
     smells_graph.add_edge(START, "load_smells")
     smells_graph.add_edge("load_smells","create_more_context")
     smells_graph.add_edge("create_more_context","analyze_code_segments_with_agent")
-    smells_graph.add_edge("analyze_code_segments_with_agent", "retrieve_processed_data_from_articles")
+
+    smells_graph.add_conditional_edges(
+        "analyze_code_segments_with_agent",
+        route_execution_to_rag_node,
+        {
+            "retrieve_processed_data_from_articles": "retrieve_processed_data_from_articles",
+            "prioritize_smells_node": "prioritize_smells_node",
+        },
+    )
+
     smells_graph.add_edge("retrieve_processed_data_from_articles", "prioritize_smells_node")
     smells_graph.add_edge("prioritize_smells_node", "review_output_node")
 
@@ -298,6 +338,7 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "use_git": args.include_git_stats,
         "use_pylint": args.run_pylint_astroid,
         "use_code": use_code,
+        "use_rag": args.use_rag,
         "repo": project_path,
         "llm": llm,
         "store": store,
