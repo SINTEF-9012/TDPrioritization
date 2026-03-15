@@ -7,7 +7,7 @@ from pathlib import Path
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 
 from prioritizer.cli.args import parse_args
-from prioritizer.pipelines.baseline_rag.smells_prioritizer import run_rag_pipeline
+from prioritizer.pipelines.haystack.smells_prioritizer import run_rag_pipeline
 from prioritizer.pipelines.agentic.ai_agent import run_agent_pipeline
 from prioritizer.evaluation.evaluation import write_evaluation_report
 

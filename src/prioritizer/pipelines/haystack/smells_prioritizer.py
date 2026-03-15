@@ -15,10 +15,8 @@ from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRe
 from langchain_ollama import ChatOllama
 
 import csv
-from git import Repo
 from pathlib import Path
-
-from typing import List, Any
+from typing import List, Any, Optional
 
 
 def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "analysis") -> List[Document]:
@@ -60,35 +58,20 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
         ))
     return docs
 
-def load_embedder_pair(model_name="sentence-transformers/all-MiniLM-L6-v2") -> tuple[SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder]:
+
+def load_embedder_pair(
+    model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
+) -> tuple[SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder]:
     doc_embedder = SentenceTransformersDocumentEmbedder(model=model_name)
     query_embedder = SentenceTransformersTextEmbedder(model=model_name)
     doc_embedder.warm_up()
     query_embedder.warm_up()
     return doc_embedder, query_embedder
 
-def build_rag_pipeline(document_store, prompt_template, model_name, prompt_file, provider) -> Pipeline:
-    retriever = ChromaEmbeddingRetriever(document_store=document_store)
-    prompt_builder = PromptBuilder(template=prompt_template, required_variables={"question", "documents", "smells", "project_structure"})
-    
-    if provider == "ollama":
-        llm = OllamaGenerator(model=model_name, full_prompt_file=prompt_file)
-    else:
-        llm = AzureOpenAIGenerator(full_prompt_file=prompt_file)
-
-    pipeline = Pipeline()
-    pipeline.add_component("retriever", retriever)
-    pipeline.add_component("prompt_builder", prompt_builder)
-    pipeline.add_component("llm", llm)
-
-    pipeline.connect("retriever", "prompt_builder.documents")
-    pipeline.connect("prompt_builder.prompt", "llm.prompt")
-
-    return pipeline
 
 def ensure_articles_indexed(
-    document_store: ChromaDocumentStore, 
-    doc_embedder: SentenceTransformersDocumentEmbedder, 
+    document_store: ChromaDocumentStore,
+    doc_embedder: SentenceTransformersDocumentEmbedder,
     include_articles: bool,
     persistent_storage: bool,
 ) -> None:
@@ -96,7 +79,7 @@ def ensure_articles_indexed(
         print("Articles disabled; proceeding without embedded literature.")
         return
 
-    if document_store.count_documents() > 0 and persistent_storage is True:
+    if document_store.count_documents() > 0 and persistent_storage:
         print(f"Reusing existing article embeddings ({document_store.count_documents()} docs).")
         return
 
@@ -106,37 +89,58 @@ def ensure_articles_indexed(
     print(f"Embedded {len(embedded_docs)} article chunks and wrote them to Chroma.")
 
 
-def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str) -> Path:
-    safe_model = args.ollama_model.replace(":", "_").replace("/", "_")
-    folder_name = f"{args.output_dir}_rag_model_{safe_model}"
-    experiments_dir = Path("experiments") / folder_name
-    experiments_dir.mkdir(parents=True, exist_ok=True)
+def retrieve_documents(
+    query_embedder: SentenceTransformersTextEmbedder,
+    document_store: ChromaDocumentStore,
+    question: str,
+) -> List[Document]:
+    """Embeds the question and retrieves relevant documents from the store."""
+    query_embedding = query_embedder.run(question)["embedding"]
+    retriever = ChromaEmbeddingRetriever(document_store=document_store)
+    return retriever.run(query_embedding=query_embedding)["documents"]
 
-    full_prompt_file = experiments_dir / "full_prompt.txt"
 
-    rag_pipeline = build_rag_pipeline(document_store, PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider)
-    llm = ChatOllama(model=args.ollama_model, temperature=0, seed=42)
+def build_llm(provider: str, model_name: str, prompt_file: Path):
+    if provider == "ollama":
+        return OllamaGenerator(model=model_name, full_prompt_file=prompt_file)
+    return AzureOpenAIGenerator(full_prompt_file=prompt_file)
 
+
+def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, provider: str) -> Pipeline:
+    prompt_builder = PromptBuilder(
+        template=prompt_template,
+        required_variables=["question", "smells"],
+    )
+    llm = build_llm(provider, model_name, prompt_file)
+
+    pipeline = Pipeline()
+    pipeline.add_component("prompt_builder", prompt_builder)
+    pipeline.add_component("llm", llm)
+    pipeline.connect("prompt_builder.prompt", "llm.prompt")
+
+    return pipeline
+
+
+def prepare_smells(args, smells: List[str], project_path: str, llm) -> List[Document]:
+    """Loads, enriches, and builds Haystack documents from raw smell data."""
     code_context_mode = getattr(args, "code_context_mode", "analysis")
-    send_code_segment = code_context_mode in ("analysis", "code")
+    send_code_segment  = code_context_mode in ("analysis", "code")
     send_code_analysis = code_context_mode == "analysis"
+
     code_smells_dic = read_and_store_relevant_smells(smells)
     code_smells_dic = add_further_context(
-        project_path, 
-        code_smells_dic, 
-        args.include_git_stats, 
-        args.run_pylint_astroid, 
-        send_code_segment
+        project_path,
+        code_smells_dic,
+        args.include_git_stats,
+        args.run_pylint_astroid,
+        send_code_segment,
     )
-
     code_smells_dic = analyze_code_segments_via_ai(code_smells_dic, llm, send_code_analysis)
-    documents = build_haystack_documents(code_smells_dic, code_context_mode)
+    return build_haystack_documents(code_smells_dic, code_context_mode)
 
-    if not documents:
-        print("The project does not contain any of the code smells you inquired about.")
-        return experiments_dir
-    
-    question = (
+
+def build_question() -> str:
+    return (
         "Use evidence from the embedded research (INFO ON CODE SMELLS AND TECHNICAL DEBT) to rank ALL code smells "
         "by refactoring priority in this project. The smells to consider are: Long Method, Large Class, Long File, "
         "High Cyclomatic Complexity, and Feature Envy. "
@@ -149,53 +153,46 @@ def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStor
         "available project-specific evidence (git statistics, churn, recency, static analysis, and lint results)."
     )
 
-    document_store = ChromaDocumentStore(persist_path="src/prioritizer/data/embeddings_db")
 
-    doc_embedder, query_embedder = load_embedder_pair()
-    ensure_articles_indexed(document_store, doc_embedder, args.include_articles, args.persistent_storage)
-    query_embedding = query_embedder.run(question)["embedding"]
+def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str) -> Path:
+    safe_model     = args.ollama_model.replace(":", "_").replace("/", "_")
+    experiments_dir = Path("experiments") / f"{args.output_dir}_rag_model_{safe_model}"
+    experiments_dir.mkdir(parents=True, exist_ok=True)
+    full_prompt_file = experiments_dir / "full_prompt.txt"
 
+    pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider)
+    llm_client = ChatOllama(model=args.ollama_model, temperature=0, seed=42)
+
+    documents = prepare_smells(args, smells, project_path, llm_client)
+    if not documents:
+        print("The project does not contain any of the code smells you inquired about.")
+        return experiments_dir
+
+    question = build_question()
+
+    retrieved_documents: List[Document] = []
+    if args.use_rag:
+        doc_embedder, query_embedder = load_embedder_pair()
+        ensure_articles_indexed(document_store, doc_embedder, args.use_rag, args.persistent_storage)
+        retrieved_documents = retrieve_documents(query_embedder, document_store, question)
+
+    prompt_inputs = {
+        "question":          question,
+        "smells":            documents,
+        "documents":         retrieved_documents,
+        "project_structure": build_project_structure(
+            f"src/prioritizer/data/projects/{args.project_name}"
+        ) if args.include_project_structure else "Not included.",
+    }
 
     print("Running model:", args.ollama_model)
-    results = rag_pipeline.run(
-        {
-            "retriever": {"query_embedding": query_embedding},
-            "prompt_builder": {
-                "question": question,
-                "smells": documents,
-                "project_structure": build_project_structure(
-                    f"src/prioritizer/data/projects/{args.project_name}"
-                )
-                if args.include_project_structure
-                else "Not included.",
-            },
-        }
-    )["llm"]
+    results = pipeline.run({"prompt_builder": prompt_inputs})["llm"]
 
-    llm_output_file = experiments_dir / "llm_output"
-    with open(llm_output_file.with_suffix(".csv"), "w", encoding="utf-8") as f2:
-        csv.writer(f2).writerow([results["response"]])
+    llm_output_file = experiments_dir / "llm_output.csv"
+    with open(llm_output_file, "w", encoding="utf-8") as f:
+        csv.writer(f).writerow([results["response"]])
 
-    if args.llm_provider == "azure": print(results["prompt_tokens"])
+    if args.llm_provider == "azure":
+        print(results["prompt_tokens"])
 
     return experiments_dir
-
-
-"""
-Plasubility score - defined by myself - should be justified. 
-
-Ranking - function (is it correct)
-Run 10 times (minimum).
-
-personification - Assign the role (minimal responsibility) - work as a prioritizing agent. 
-google cli - coding agents - gemini CLI and claude CLI to evaluate againt my prototype. 
-
-Cumulative lift chart
-
-Sekvens diagram for agentene (kanskje ogsa rag?)
-
-
-TODO 
-research if pydriller can be used to retrieve git data from projects.
-move repo to sintef repo
-"""
