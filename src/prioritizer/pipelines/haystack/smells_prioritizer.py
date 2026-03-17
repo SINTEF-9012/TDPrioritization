@@ -43,6 +43,7 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             f"DESCRIPTION\n{s.get('description')}\n\n"
             f"GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
             f"PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
+            f"TEST_COVERAGE\n{s.get('test_coverage_report', 'N/A')}\n\n"
             f"{context_label}\n{code_context or 'N/A'}\n"
         )
 
@@ -134,6 +135,7 @@ def prepare_smells(args, smells: List[str], project_path: str, llm) -> List[Docu
         args.include_git_stats,
         args.run_pylint_astroid,
         send_code_segment,
+        args.use_test_coverage,
     )
     code_smells_dic = analyze_code_segments_via_ai(code_smells_dic, llm, send_code_analysis)
     return build_haystack_documents(code_smells_dic, code_context_mode)

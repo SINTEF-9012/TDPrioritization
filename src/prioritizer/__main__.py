@@ -10,12 +10,16 @@ from prioritizer.cli.args import parse_args
 from prioritizer.pipelines.haystack.smells_prioritizer import run_rag_pipeline
 from prioritizer.pipelines.agentic.ai_agent import run_agent_pipeline
 from prioritizer.evaluation.evaluation import write_evaluation_report
+from prioritizer.analysis.test_coverage import run_coverage_analysis
 
 def main() -> Path:
     args = parse_args()
     smells = ['Long Method', 'Large Class', 'Long File', 'High Cyclomatic Complexity', 'Feature Envy', 'Cyclic Dependency'] # 'Cyclic Dependency' 
     document_store = ChromaDocumentStore(persist_path="src/prioritizer/data/embeddings_db")
     project_path = f"test_projects/{args.project_name}"
+
+    if args.use_test_coverage:
+        run_coverage_analysis(project_path)
 
     if args.pipeline == "rag":
         output_path = run_rag_pipeline(args, smells, document_store, project_path)

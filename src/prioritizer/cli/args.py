@@ -95,6 +95,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.set_defaults(use_rag=False)
 
+    parser.add_argument(
+        "--test-coverage",
+        dest="use_test_coverage",
+        action="store_true",
+        help="Measure test coverage and use it as context for the llm.",
+    )
+    parser.set_defaults(use_rag=False)
+
     return parser
 
 

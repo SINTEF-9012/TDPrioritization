@@ -1,4 +1,4 @@
-from prioritizer.analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, build_project_structure
+from prioritizer.analysis import get_code_segment_from_file_based_on_line_number, build_llm_analysis_report, return_test_coverage_analysis_for_file
 from prioritizer.history.git_file_data_retrieval import build_git_input_for_llm
 
 import pandas as pd
@@ -36,7 +36,15 @@ def read_and_store_relevant_smells(smell_filter: List[str]) ->  List[dict[str, A
 
     return docs
 
-def add_further_context(project_name: str, code_smells: List[dict], git_stats: bool = True, pylint: bool = True, code_segment: bool = True) -> List[dict]:
+def add_further_context(
+        project_name: str, 
+        code_smells: List[dict], 
+        git_stats: bool = True, 
+        pylint: bool = True, 
+        code_segment: bool = True,
+        test_coverage: bool = True,
+    ) -> List[dict]:
+
     git_cache: dict[str, str] = {}
     pylint_cache: dict[str, str] = {}
     code_cache: dict[tuple[str, int], str] = {}
@@ -74,6 +82,10 @@ def add_further_context(project_name: str, code_smells: List[dict], git_stats: b
                     file_path=normalized_path,
                 ) or ""
             smell["code_segment"] = code_cache[key]
+
+        if test_coverage:
+            file_coverage_report = return_test_coverage_analysis_for_file(project_name, file_path)
+            smell["test_coverage_report"] = file_coverage_report
 
     return code_smells
 

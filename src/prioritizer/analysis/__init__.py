@@ -4,6 +4,7 @@ from .static_metrics import analyze_file
 from .pylint_analysis import get_pylint_metadata, get_pylinter_singleton
 from .llm_reports import build_llm_analysis_report
 from .project_structure import build_project_structure
+from .test_coverage import run_coverage_analysis, return_test_coverage_analysis_for_file
 
 __all__ = [
     "get_code_segment_from_file_based_on_line_number",
@@ -12,4 +13,6 @@ __all__ = [
     "get_pylinter_singleton",
     "build_llm_analysis_report",
     "build_project_structure",
+    "run_coverage_analysis",
+    "return_test_coverage_analysis_for_file"
 ]

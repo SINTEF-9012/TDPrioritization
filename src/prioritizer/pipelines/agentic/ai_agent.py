@@ -38,8 +38,9 @@ def create_more_context(state: State) -> State:
     git_stats = state.get("use_git")
     pylint = state.get("use_pylint")
     repo = state.get("repo")
+    test_coverage = state.get("use_test_coverage")
 
-    smells = add_further_context(repo, smells, git_stats, pylint)
+    smells = add_further_context(repo, smells, git_stats, pylint, True, test_coverage)
 
     return {
         **state,
@@ -99,7 +100,7 @@ def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
     code_block = "\n"
 
     if state.get("use_code"): code_block = f"""\
-    \nCode segment:
+    Code segment:
     {s.get("code_segment")}\n
     """.strip()
 
@@ -116,7 +117,12 @@ git_analysis:
 
 pylint_report:
 {s.get("pylint_report")}
+
+test_coverage
+{s.get("test_coverage_report")}
+
 {code_block}
+
 ai_code_segment_summary:
 {s.get("ai_code_segment_summary")}
 
@@ -339,6 +345,7 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "use_pylint": args.run_pylint_astroid,
         "use_code": use_code,
         "use_rag": args.use_rag,
+        "use_test_coverage": args.use_test_coverage,
         "repo": project_path,
         "llm": llm,
         "store": store,
@@ -357,46 +364,6 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
 
 
 """
-What “agentic advantage” should mean in your context
-
-An agent is useful when it can:
-
-decompose the ranking task into smaller reasoning tasks,
-
-iterate with checks and corrections,
-
-adaptively fetch missing evidence, and
-
-produce structured intermediate outputs you can evaluate.
-
-Your baseline RAG cannot do these cleanly because it is one-shot.
-
-Step 1: Add structure + validation (fast and immediately “agentic”)
-
-Node A: build smell evidence cards (deterministic)
-
-Node B: per-smell scoring (LLM produces strict JSON)
-
-Node C: global ranking (LLM uses the JSON)
-
-This is the highest ROI and easiest to justify.
-
-Step 2: Add adaptive RAG per smell
-
-Node: retrieve_research(smell_type) for each smell
-
-compress retrieved chunks into “evidence highlights”
-
-use those highlights in scoring and ranking
-
-This will differentiate agentic pipeline from Haystack baseline clearly.
-
-Implement per-smell structured scoring (map) + global rank synthesis (reduce).
-
-bash run_analyzer.sh gitmetrics --llm-provider ollama --add-project-structure --pipeline agent --ollama-model gemini-3-flash-preview:cloud
-
-bash run_analyzer.sh gitmetrics --llm-provider azure --add-project-structure --pipeline agent
-
-analyze test coverage - if a function has low test coverage its ranked should be lowered.
+bash run_analyzer.sh simapy  --llm-provider ollama --add-project-structure --pipeline agent --test-coverage --rag
 
 """

@@ -14,6 +14,7 @@ class State(TypedDict):
     use_pylint: bool
     use_code: bool
     use_rag: bool
+    use_test_coverage: bool
 
     llm: BaseChatModel
     store: Chroma
