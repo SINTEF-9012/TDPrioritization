@@ -12,7 +12,7 @@ class State(TypedDict):
 
     use_git: bool
     use_pylint: bool
-    use_code: bool
+    code_context: str
     use_rag: bool
     use_test_coverage: bool
 

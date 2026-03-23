@@ -30,21 +30,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--azure-deployment",
+        choices=["gpt-3.5", "codex"],
+        dest="deployment",
+        default="gpt-3.5",
         help="Azure OpenAI deployment name (only when --llm-provider=azure).",
     )
 
     parser.add_argument(
         "--pipeline",
-        choices=["rag", "agent"],
-        default="rag",
-        help="Which pipeline to run: 'rag' baseline or 'agent' agentic pipeline.",
-    )
-
-    parser.add_argument(
-        "--outdir",
-        dest="output_dir",
-        default="baseline",
-        help="Directory where the output files should be stored",
+        choices=["haystack", "agent"],
+        default="haystack",
+        help="Which pipeline to run: 'haystack' or 'agent' pipeline.",
     )
 
     parser.add_argument(
@@ -82,7 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--code-context",
         dest="code_context_mode",
-        choices=["analysis", "code"],
+        choices=["analysis", "code", "none"],
         default="analysis",
         help="Use AI summaries of code segments or embed the raw code snippets directly."
     )
@@ -108,3 +104,5 @@ def build_parser() -> argparse.ArgumentParser:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return build_parser().parse_args(argv)
+
+# TODO No code or analysis option
