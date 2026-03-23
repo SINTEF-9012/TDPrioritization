@@ -6,7 +6,7 @@ Core package for technical-debt prioritization based on code smells, static anal
 evolutionary (git) signals, and LLM-based reasoning. The package exposes two main
 pipelines:
 
-- Baseline RAG prioritization
+- RAG prioritization
 - Agentic (tool-using) prioritization
 
 Most users will interact with a prioritizer implementation rather than importing
@@ -15,7 +15,6 @@ the underlying modules directly.
 
 from importlib.metadata import version
 
-# Expose version if package is installed
 try:
     __version__ = version("prioritizer")
 except Exception:

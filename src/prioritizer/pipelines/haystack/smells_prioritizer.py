@@ -23,7 +23,7 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
     docs: List[Document] = []
     use_ai_analysis = code_context_mode == "analysis"
     include_raw_code = code_context_mode == "code"
-    context_label = "AI SUMMARIZATION OF THE CODE" if use_ai_analysis else "CODE SEGMENT"
+    context_label = "## AI SUMMARIZATION OF THE CODE" if use_ai_analysis else "## CODE SEGMENT"
 
     for s in smells:
         code_context = None
@@ -33,17 +33,18 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             code_context = s.get("code_segment")
 
         content = (
-            f"SMELL\n"
-            f"- id: {s.get('index')}\n"
-            f"- type_of_smell: {s.get('type_of_smell')}\n"
-            f"- name: {s.get('name')}\n"
-            f"- file_path: {s.get('file_path')}\n"
-            f"- module_or_class: {s.get('module_or_class')}\n"
-            f"- line_number: {s.get('line_number')}\n\n"
-            f"DESCRIPTION\n{s.get('description')}\n\n"
-            f"GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
-            f"PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
-            f"TEST_COVERAGE\n{s.get('test_coverage_report', 'N/A')}\n\n"
+            f"# SMELL\n"
+            f"Id: {s.get('index')}\n"
+            f"Yype of smell: {s.get('type_of_smell')}\n"
+            f"Name: {s.get('name')}\n"
+            f"File path: {s.get('file_path')}\n"
+            f"Module/class: {s.get('module_or_class')}\n"
+            f"Line Number: {s.get('line_number')}\n"
+            f"\n"
+            f"## DESCRIPTION\n{s.get('description') if s.get('pylint_report') else 'N/A'}\n\n"
+            f"## GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
+            f"## PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
+            f"## TEST_COVERAGE\n{s.get('test_coverage_report', 'N/A')}\n\n"
             f"{context_label}\n{code_context or 'N/A'}\n"
         )
 
@@ -124,9 +125,9 @@ def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, pro
 
 def prepare_smells(args, smells: List[str], project_path: str, llm) -> List[Document]:
     """Loads, enriches, and builds Haystack documents from raw smell data."""
-    code_context_mode = getattr(args, "code_context_mode", "analysis")
-    send_code_segment  = code_context_mode in ("analysis", "code")
-    send_code_analysis = code_context_mode == "analysis"
+
+    use_code_segment = args.code_context_mode == "code"
+    use_ai_analysis = args.code_context_mode == "analysis"
 
     code_smells_dic = read_and_store_relevant_smells(smells)
     code_smells_dic = add_further_context(
@@ -134,11 +135,11 @@ def prepare_smells(args, smells: List[str], project_path: str, llm) -> List[Docu
         code_smells_dic,
         args.include_git_stats,
         args.run_pylint_astroid,
-        send_code_segment,
+        use_code_segment,
         args.use_test_coverage,
     )
-    code_smells_dic = analyze_code_segments_via_ai(code_smells_dic, llm, send_code_analysis)
-    return build_haystack_documents(code_smells_dic, code_context_mode)
+    code_smells_dic = analyze_code_segments_via_ai(code_smells_dic, llm, use_ai_analysis)
+    return build_haystack_documents(code_smells_dic, args.code_context_mode)
 
 
 def build_question() -> str:

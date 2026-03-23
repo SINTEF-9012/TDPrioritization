@@ -25,13 +25,10 @@ else
     cd python_smells_detector
     analyze_code_quality "$PROJECT_PATH" --config code_quality_config.yaml
     cd ..
-    echo "$PROJECT_NAME" > "$LAST_PROJECT_FILE"   # remember this project
+    echo "$PROJECT_NAME" > "$LAST_PROJECT_FILE"
 fi
 
 echo "Running Smells Prioritizer ..."
 time python -m prioritizer "$PROJECT_NAME" "$@"
 
 echo -e "Analysis and prioritization complete!\n"
-
-#echo "Attempting to calculate similarity between ground truth and the llm's output:"
-#python3 rank_output.py
