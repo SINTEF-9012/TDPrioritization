@@ -48,6 +48,39 @@ def _ranks_with_missing_penalty(
     missing = [id_ for id_ in gt_ids if id_ not in pos]
     return ranks_llm, ranks_gt, missing
 
+def _keep_only_table_block(text: str) -> str:
+    lines = text.splitlines()
+    kept = []
+    started = False
+
+    for line in lines:
+        stripped = line.strip()
+        normalized = stripped.lower().replace(" ", "")
+
+        if not started and normalized.startswith("rank|id|nameofsmell|"):
+            started = True
+            kept.append(stripped)
+            continue
+
+        if started:
+            if "|" in stripped:
+                kept.append(stripped)
+            else:
+                break
+
+    return "\n".join(kept).strip() if kept else text.strip()
+
+def _normalize_eval_df(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    df.columns = [str(c).strip() for c in df.columns]
+
+    df["Id"] = pd.to_numeric(df["Id"], errors="raise").astype(int)
+
+    if "Severity" in df.columns:
+        df["Severity"] = df["Severity"].astype(str).str.strip().str.upper()
+
+    return df
 
 def ndcg_ranking_using_only_id(gt_ids: Sequence[str], llm_ids: Sequence[str]) -> float:
     """
@@ -184,22 +217,28 @@ def _clean_lines(text: str) -> str:
 
 
 def _finalize_df(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
     df = df.dropna(axis=1, how="all")
     df.columns = [str(c).strip() for c in df.columns]
 
     for col in df.columns:
         if df[col].dtype == "object":
-            df[col] = df[col].map(
+            df.loc[:, col] = df[col].map(
                 lambda x: x.strip().strip("'").strip('"') if isinstance(x, str) else x
             )
+
     return df
 
+def _drop_embedded_header_rows(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    for col_name in ("Rank", "Id", "Severity"):
+        if col_name in df.columns:
+            df = df[df[col_name].astype(str).str.strip().str.upper() != col_name.upper()].copy()
+
+    return df
 
 def format_output_from_llm_to_csv_format(llm_output: str | Path) -> pd.DataFrame:
-    """
-    Parses the LLM output file into a DataFrame with EXPECTED_COLS, using '|'
-    as delimiter and supporting both header-present and headerless outputs.
-    """
     llm_output = Path(llm_output)
     raw_text = llm_output.read_text(encoding="utf-8")
 
@@ -207,6 +246,7 @@ def format_output_from_llm_to_csv_format(llm_output: str | Path) -> pd.DataFrame
     text = text.translate(_NORMALIZE_CHARS).replace('""', '"').strip()
     text = _strip_wrapping_quotes(text)
     text = _clean_lines(text)
+    text = _keep_only_table_block(text)
 
     parse_errors: List[Exception] = []
 
@@ -215,13 +255,15 @@ def format_output_from_llm_to_csv_format(llm_output: str | Path) -> pd.DataFrame
             df = pd.read_csv(StringIO(text), sep=r"\|", engine="python", header=header_setting)
             df = _finalize_df(df)
 
-            # Case 1: header is present and matches (or includes) expected cols
             if set(EXPECTED_COLS).issubset(set(df.columns)):
-                return df[EXPECTED_COLS]
+                df = df[EXPECTED_COLS].copy()
+                df = _drop_embedded_header_rows(df)
+                return df
 
-            # Case 2: no header, but column count matches expected
             if header_setting is None and df.shape[1] == len(EXPECTED_COLS):
+                df = df.copy()
                 df.columns = EXPECTED_COLS
+                df = _drop_embedded_header_rows(df)
                 return df
 
         except Exception as e:
@@ -246,6 +288,9 @@ def _load_ground_truth_df(ground_truth: str | Path) -> pd.DataFrame:
 def ranking_computation(ground_truth: str | Path,llm_output: str | Path) -> Optional[dict]:
     llm_df = format_output_from_llm_to_csv_format(llm_output)
     gt_df = _load_ground_truth_df(ground_truth)
+
+    llm_df = _normalize_eval_df(llm_df)
+    gt_df = _normalize_eval_df(gt_df)
 
     llm_ids = [str(x) for x in llm_df["Id"].tolist()]
     gt_ids  = [str(x) for x in gt_df["Id"].tolist()]
@@ -302,7 +347,7 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
     default LLM output filename.
     """
     out_dir = Path(out_dir)
-    llm_filename = "agent_output.csv" if args.pipeline == "agent" else "llm_output.csv"
+    llm_filename = "output.csv" if args.pipeline == "agent" else "output.csv"
     llm_file = out_dir / llm_filename
 
     metrics = ranking_computation(ground_truth, llm_file)
@@ -318,14 +363,16 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
 
         "pipeline": args.pipeline,
         "llm_provider": args.llm_provider,
+        "model": args.ollama_model if args.llm_provider == "ollama" else args.deployment,
         "temperature": getattr(args, "temperature", None),
         "max_tokens": getattr(args, "max_tokens", None),
 
-        "use_git": args.include_git_stats,
-        "use_pylint": args.run_pylint_astroid,
-        "use_rag": args.use_rag,
+        "Git data included": args.include_git_stats,
+        "Pylint analysis included": args.run_pylint_astroid,
+        "RAG included": args.use_rag,
+        "Test coverage report": args.use_test_coverage,
 
-        "use_code": (getattr(args, "code_context_mode", "analysis") == "code"),
+        "Code context": args.code_context_mode,
 
         "metrics": metrics,
         "output": llm_output_records,
@@ -354,10 +401,13 @@ if __name__ == "__main__":
         code_context_mode="analysis",
         temperature=1.0,
         max_tokens=40000,
+        deployment = "o4-mini",
+        use_rag = False,
+        use_test_coverage = False,
     )
 
     write_evaluation_report(
         "src/prioritizer/data/ground_truth/prioritized_smells_simapy.csv", 
-        "experiments/baseline_rag_model_gpt-oss_120b-cloud", 
+        "experiments/agent_pipeline_azure_o4-mini", 
         args
     )
