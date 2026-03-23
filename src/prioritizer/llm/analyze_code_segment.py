@@ -1,8 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
-from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.language_models.chat_models import BaseChatModel
-
 
 _SUMMARY_CACHE: dict[Tuple[str, str, str, str], str] = {}
 
@@ -18,7 +16,6 @@ Return ONLY the summary text.
 """
 
 def _cache_key(smell: Dict[str, Any]) -> Tuple[str, str, str, str]:
-    # Keyed by smell type + file + line + snippet hash
     snippet = smell.get("code_segment") or ""
     return (
         str(smell.get("type_of_smell", "")),
@@ -27,7 +24,32 @@ def _cache_key(smell: Dict[str, Any]) -> Tuple[str, str, str, str]:
         str(hash(snippet)),
     )
 
-def analyze_code_segments_via_ai(smells: List[Dict[str, Any]], llm: BaseChatModel, enabled: bool = True) -> List[Dict[str, Any]]:
+def extract_text_content(content: Any) -> str:
+    if content is None:
+        return ""
+
+    if isinstance(content, str):
+        return content.strip()
+
+    if isinstance(content, list):
+        parts: List[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                if item.get("type") in {"text", "output_text"} and "text" in item:
+                    parts.append(str(item["text"]))
+                elif isinstance(item.get("content"), str):
+                    parts.append(item["content"])
+        return "\n".join(p.strip() for p in parts if p and str(p).strip()).strip()
+
+    return str(content).strip()
+
+def analyze_code_segments_via_ai(
+    smells: List[Dict[str, Any]],
+    llm: BaseChatModel,
+    enabled: bool = True,
+) -> List[Dict[str, Any]]:
     if not enabled:
         for s in smells:
             s["ai_code_segment_summary"] = None
@@ -41,7 +63,7 @@ def analyze_code_segments_via_ai(smells: List[Dict[str, Any]], llm: BaseChatMode
 
         key = _cache_key(smell)
         if key in _SUMMARY_CACHE:
-            smell["ai_code_segment_summary"] = _SUMMARY_CACHE[key]
+            smell["ai_code_segment_summary"] = _SUMMARY_CACHE[key] or None
             continue
 
         user_prompt = f"""\
@@ -60,7 +82,7 @@ Code snippet:
             HumanMessage(content=user_prompt),
         ])
 
-        summary = (resp.content or "").strip()
+        summary = extract_text_content(resp.content)
         smell["ai_code_segment_summary"] = summary if summary else None
         _SUMMARY_CACHE[key] = smell["ai_code_segment_summary"] or ""
 

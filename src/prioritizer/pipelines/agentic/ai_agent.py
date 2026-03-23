@@ -1,14 +1,14 @@
-from prioritizer.analysis import build_project_structure, get_code_segment_from_file_based_on_line_number
 from prioritizer.llm.analyze_code_segment import analyze_code_segments_via_ai
-from prioritizer.llm.prompt_template import PROMPT_TEMPLATE
 from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smells, add_further_context
 from prioritizer.ingestion.chunking import convert_chunked_text_to_langchain_documents
 
 from prioritizer.pipelines.agentic.agent_state import State
-from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT
+from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT, SYSTEM_PROMPT2
 from prioritizer.pipelines.agentic.reviewing_output import review_output_node
 from prioritizer.pipelines.agentic.repair_node import repair_output_node
 from prioritizer.pipelines.agentic.embedding_retrieval import index_documents_into_chroma
+from prioritizer.pipelines.agentic.llm_model_factory import build_llm
+from prioritizer.llm.analyze_code_segment import extract_text_content
 
 from pathlib import Path
 import csv
@@ -49,7 +49,8 @@ def create_more_context(state: State) -> State:
 
 def analyze_code_segments_with_agent(state: State) -> State:
     smells = state.get("smells") or []
-    use_analysis = state.get("use_code") == False
+    use_analysis = state.get("code_context") == "analysis"
+
     smells = analyze_code_segments_via_ai(smells, state.get("llm"), use_analysis)
     prompt_tokens = state.get("prompt_tokens")
 
@@ -97,41 +98,47 @@ def _format_rag_results(s: Dict[str, Any], max_chars: int = 700) -> str:
     return "\n".join(blocks)
 
 def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
-    code_block = "\n"
+    code_block = ""
 
-    if state.get("use_code"): code_block = f"""\
+    if state.get("code_context") == "code": code_block = f"""\
     Code segment:
     {s.get("code_segment")}\n
     """.strip()
+        
+    git_report = s.get("git_analysis") if s.get("git_analysis") != None else "<Unknown>"
+    pylint_report = s.get("pylint_report") if s.get("pylint_report") != None else "<Unknown>"
+    test_coverage_report = s.get("test_coverage_report") if s.get("test_coverage_report") != None else "<Unknown>"
+    ai_summary = s.get("ai_code_segment_summary") if s.get("ai_code_segment_summary") != None else "<Unknown>"
 
 
     return f"""\
-[{idx}], id={s.get("index")}, smell={s.get("name")}, category={s.get("type_of_smell")},
-file={s.get("file_path")} line={s.get("line_number")}
+# SMELL REPORT [NR. {idx}]
+id={s.get("index")}, smell={s.get("name")}, category={s.get("type_of_smell")},
+file={s.get("file_path")}, line={s.get("line_number")}
 
-analyzer_description:
-{s.get("description")}
+## GENERAL DESCRIPTION:
+{s.get("description") if state.get("use_pylint") else "<No description provided.>"}
 
-git_analysis:
-{s.get("git_analysis")}
+## GIT ANALYSIS:
+{git_report}
 
-pylint_report:
-{s.get("pylint_report")}
+## PYLINT REPORT
+{pylint_report}
 
-test_coverage
-{s.get("test_coverage_report")}
+## TEST COVERAGE
+{test_coverage_report}
 
 {code_block}
 
-ai_code_segment_summary:
-{s.get("ai_code_segment_summary")}
+## AI SUMMARIZATION OF FILE
+{ai_summary}
 
-Retrieved RAG info:
+## RETRIEVED INFORMATION FROM RAG
 {_format_rag_results(s)}
 """.strip()
 
 
-def build_article_query(smell: Dict[str, Any], include_code: bool) -> str:
+def build_article_query(smell: Dict[str, Any], include_code: str) -> str:
     parts = [
         f"code smell: {smell.get('name','')}",
         f"category: {smell.get('type_of_smell','')}",
@@ -144,7 +151,7 @@ def build_article_query(smell: Dict[str, Any], include_code: bool) -> str:
         parts.append(smell["git_analysis"])
     if smell.get("pylint_report"):
         parts.append(smell["pylint_report"])
-    if include_code and smell.get("code_segment"):
+    if include_code == "code" and smell.get("code_segment"):
         parts.append(smell["code_segment"])
 
     return "\n".join([p.strip() for p in parts if p and str(p).strip()])
@@ -154,7 +161,7 @@ def retrieve_processed_data_from_articles(state: State) -> State:
     store = state.get("store")
     smells = state.get("smells") or []
     top_k = 4
-    include_code = bool(state.get("use_code"))
+    include_code = state.get("code_context")
 
     if store is None or not smells:
         return { **state }
@@ -181,9 +188,6 @@ def retrieve_processed_data_from_articles(state: State) -> State:
 
     return {**state, "smells": new_smells}
 
-
-def retrieve_git_repo_data():
-    ...
 
 def prioritize_smells_node(state: State) -> State:
     smells = state.get("smells") or []
@@ -212,11 +216,11 @@ Smell instances:
 """
 
     resp = llm.invoke([
-        SystemMessage(content=SYSTEM_PROMPT),
+        SystemMessage(content=SYSTEM_PROMPT2),
         HumanMessage(content=user_prompt),
     ])
 
-    text = (resp.content or "").strip()
+    text = extract_text_content(resp.content)
 
     return {
         **state, 
@@ -242,7 +246,7 @@ def route_execution_to_rag_node(state: State) -> str:
 def write_prioritization_report(state: State) -> State:
     out_dir = state.get("out_dir")
     out_dir.mkdir(parents=True, exist_ok=True)
-    llm_output_file = out_dir / "agent_output.csv"
+    llm_output_file = out_dir / "output.csv"
 
     with open(llm_output_file, "w", encoding="utf-8") as f:
         csv.writer(f).writerow([state.get("output_text")])
@@ -250,43 +254,30 @@ def write_prioritization_report(state: State) -> State:
     return state
 
 
+def draw_graph(dir: Path, graph: Any) -> None:
+    graph_path = dir / "agent_graph.png"
+    mermaid_path = dir / "agent_graph.mmd"
 
-
-def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str) -> Path:
-
-    safe_model = args.ollama_model.replace(":", "_").replace("/", "_") if args.llm_provider == "ollama" else "azure"
-    folder_name = f"{args.output_dir}_agent_model_{safe_model}"
-    experiments_dir = Path("experiments") / folder_name
- 
-    api_key = os.environ.get("UIO_SE_GROUP_GPT_API_KEY")
-    resource_name = os.environ.get("UIO_SE_GROUP_GPT_RESOURCE_NAME")
-    deployment_name = os.environ.get("UIO_SE_GROUP_GPT_DEPLOYMENT_NAME")
-    api_version = os.environ.get("UIO_SE_GROUP_API_VERSION")
-
-    endpoint_url = (
-        f"https://{resource_name}.openai.azure.com/"
-    )
-
-    code_context_mode = getattr(args, "code_context_mode", "analysis")
-    use_code = code_context_mode == "code"
-
-    if args.llm_provider == "azure":
-        llm = AzureChatOpenAI(
-            azure_endpoint=endpoint_url,
-            api_key=api_key,
-            azure_deployment=deployment_name,
-            api_version=api_version,
-            temperature=1,
-            max_tokens=40000,
-            timeout=None,
-            max_retries=2,
-        )
+    if graph_path.exists():
+        print(f"[INFO] Graph image already exists at {graph_path}, skipping render.")
     else:
-        llm = ChatOllama(
-            model=args.ollama_model,
-            validate_model_on_init=True,
-            temperature=0,
-        )
+        graph = graph.get_graph()
+        try:
+            graph_png = graph.draw_mermaid_png()
+            graph_path.write_bytes(graph_png)
+        except Exception as e:
+            print(f"[WARNING] Failed to render graph PNG: {e}")
+            try:
+                if not mermaid_path.exists():
+                    mermaid_path.write_text(graph.draw_mermaid(), encoding="utf-8")
+                    print(f"[INFO] Saved Mermaid graph source to {mermaid_path}")
+            except Exception as inner_e:
+                print(f"[WARNING] Failed to save Mermaid source: {inner_e}")
+
+
+
+def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str, experiments_dir: Path, deployment_name: str) -> Path:    
+    llm = build_llm(args)
 
     docs = convert_chunked_text_to_langchain_documents()
 
@@ -343,7 +334,7 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "smells": None,
         "use_git": args.include_git_stats,
         "use_pylint": args.run_pylint_astroid,
-        "use_code": use_code,
+        "code_context": args.code_context_mode,
         "use_rag": args.use_rag,
         "use_test_coverage": args.use_test_coverage,
         "repo": project_path,
@@ -356,14 +347,14 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "total_tokens": 0,
     })
 
-    (experiments_dir / "agent_graph.png").write_bytes(
-        compiled_graph.get_graph().draw_mermaid_png()
-    )
+    draw_graph(experiments_dir, compiled_graph)
 
     return experiments_dir
 
 
 """
-bash run_analyzer.sh simapy  --llm-provider ollama --add-project-structure --pipeline agent --test-coverage --rag
+bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment gpt-3.5 --test-coverage --rag
+
+bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment gpt-3.5 --no-git-stats --no-pylint-astroid --code-context none
 
 """

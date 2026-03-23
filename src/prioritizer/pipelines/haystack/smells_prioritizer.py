@@ -101,18 +101,18 @@ def retrieve_documents(
     return retriever.run(query_embedding=query_embedding)["documents"]
 
 
-def build_llm(provider: str, model_name: str, prompt_file: Path):
+def build_llm(provider: str, model_name: str, prompt_file: Path, deployment: str):
     if provider == "ollama":
         return OllamaGenerator(model=model_name, full_prompt_file=prompt_file)
-    return AzureOpenAIGenerator(full_prompt_file=prompt_file)
+    return AzureOpenAIGenerator(deployment, full_prompt_file=prompt_file)
 
 
-def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, provider: str) -> Pipeline:
+def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, provider: str, deployment_name: str) -> Pipeline:
     prompt_builder = PromptBuilder(
         template=prompt_template,
         required_variables=["question", "smells"],
     )
-    llm = build_llm(provider, model_name, prompt_file)
+    llm = build_llm(provider, model_name, prompt_file, deployment_name)
 
     pipeline = Pipeline()
     pipeline.add_component("prompt_builder", prompt_builder)
@@ -156,13 +156,12 @@ def build_question() -> str:
     )
 
 
-def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str) -> Path:
-    safe_model     = args.ollama_model.replace(":", "_").replace("/", "_")
-    experiments_dir = Path("experiments") / f"{args.output_dir}_rag_model_{safe_model}"
+def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str, experiments_dir: Path, deployment_name: str) -> Path:
+    
     experiments_dir.mkdir(parents=True, exist_ok=True)
-    full_prompt_file = experiments_dir / "full_prompt.txt"
+    full_prompt_file = experiments_dir / "prompt.txt"
 
-    pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider)
+    pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider, deployment_name)
     llm_client = ChatOllama(model=args.ollama_model, temperature=0, seed=42)
 
     documents = prepare_smells(args, smells, project_path, llm_client)
@@ -182,15 +181,12 @@ def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStor
         "question":          question,
         "smells":            documents,
         "documents":         retrieved_documents,
-        "project_structure": build_project_structure(
-            f"src/prioritizer/data/projects/{args.project_name}"
-        ) if args.include_project_structure else "Not included.",
     }
 
     print("Running model:", args.ollama_model)
     results = pipeline.run({"prompt_builder": prompt_inputs})["llm"]
 
-    llm_output_file = experiments_dir / "llm_output.csv"
+    llm_output_file = experiments_dir / "output.csv"
     with open(llm_output_file, "w", encoding="utf-8") as f:
         csv.writer(f).writerow([results["response"]])
 
