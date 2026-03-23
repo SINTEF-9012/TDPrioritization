@@ -341,7 +341,7 @@ def order_prioritized_smells_by_rank_asc(file: str | Path) -> None:
     df.to_csv(file, sep="|", index=False)
 
 
-def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argparse.Namespace) -> Path:
+def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argparse.Namespace, runtime: float) -> Path:
     """
     Writes a minimal JSON evaluation report into out_dir, using the pipeline-specific
     default LLM output filename.
@@ -360,6 +360,7 @@ def write_evaluation_report(ground_truth: str, out_dir: str | Path, args: argpar
     report = {
         "timestamp": datetime.now().isoformat(),
         "project name": args.project_name,
+        "Runtime (in seconds)": runtime,
 
         "pipeline": args.pipeline,
         "llm_provider": args.llm_provider,
