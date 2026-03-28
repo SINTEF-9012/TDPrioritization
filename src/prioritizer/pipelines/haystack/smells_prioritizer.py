@@ -102,18 +102,18 @@ def retrieve_documents(
     return retriever.run(query_embedding=query_embedding)["documents"]
 
 
-def build_llm(provider: str, model_name: str, prompt_file: Path, deployment: str):
+def build_llm(provider: str, model_name: str, prompt_file: Path, deployment: str, seed_number: int):
     if provider == "ollama":
-        return OllamaGenerator(model=model_name, full_prompt_file=prompt_file)
-    return AzureOpenAIGenerator(deployment, full_prompt_file=prompt_file)
+        return OllamaGenerator(model=model_name, full_prompt_file=prompt_file, seed_number = seed_number)
+    return AzureOpenAIGenerator(deployment, full_prompt_file=prompt_file, seed_number = seed_number)
 
 
-def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, provider: str, deployment_name: str) -> Pipeline:
+def build_pipeline(prompt_template: str, model_name: str, prompt_file: Path, provider: str, deployment_name: str, seed_number: str) -> Pipeline:
     prompt_builder = PromptBuilder(
         template=prompt_template,
         required_variables=["question", "smells"],
     )
-    llm = build_llm(provider, model_name, prompt_file, deployment_name)
+    llm = build_llm(provider, model_name, prompt_file, deployment_name, seed_number=seed_number)
 
     pipeline = Pipeline()
     pipeline.add_component("prompt_builder", prompt_builder)
@@ -157,12 +157,12 @@ def build_question() -> str:
     )
 
 
-def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str, experiments_dir: Path, deployment_name: str) -> Path:
+def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStore, project_path: str, experiments_dir: Path, deployment_name: str, seed_number: int) -> Path:
     
     experiments_dir.mkdir(parents=True, exist_ok=True)
     full_prompt_file = experiments_dir / "prompt.txt"
 
-    pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider, deployment_name)
+    pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider, deployment_name, seed_number=seed_number)
     llm_client = ChatOllama(model=args.ollama_model, temperature=0, seed=42)
 
     documents = prepare_smells(args, smells, project_path, llm_client)

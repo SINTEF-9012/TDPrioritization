@@ -1,6 +1,7 @@
 # src/prioritizer/pipelines/__main__.py
 import os
 import time
+import random
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -40,7 +41,7 @@ def resolve_azure_deployment_name(deployment_arg: str) -> str:
     """
     Resolve the Azure deployment name from environment variables based on the CLI deployment argument.
     """
-    if deployment_arg == "gpt-3.5":
+    if deployment_arg == "o4-mini":
         env_var = "UIO_SE_GROUP_GPT_DEPLOYMENT_NAME"
     else:
         env_var = "UIO_SE_GROUP_CODEX_DEPLOYMENT_NAME"
@@ -78,7 +79,7 @@ def maybe_run_test_coverage(args, project_path: str) -> None:
         run_coverage_analysis(project_path)
 
 
-def run_selected_pipeline(args, smells: list[str], project_path: str, experiments_dir: Path) -> Path:
+def run_selected_pipeline(args, smells: list[str], project_path: str, experiments_dir: Path, seed_number: int) -> Path:
     """
     Dispatch to the selected pipeline and return the output path.
     """
@@ -91,6 +92,7 @@ def run_selected_pipeline(args, smells: list[str], project_path: str, experiment
             project_path=project_path,
             experiments_dir=experiments_dir,
             deployment_name=args.deployment,
+            seed_number = seed_number,
         )
 
     if args.pipeline == "agent":
@@ -101,6 +103,7 @@ def run_selected_pipeline(args, smells: list[str], project_path: str, experiment
             project_path=project_path,
             experiments_dir=experiments_dir,
             deployment_name=deployment_name,
+            seed_number = seed_number,
         )
 
     raise ValueError(f"Unknown pipeline mode: {args.pipeline!r}")
@@ -114,16 +117,18 @@ def main() -> Path:
 
     maybe_run_test_coverage(args, project_path)
 
+    seed_number = random.randint(0, 1000000)
+
     deployment_name = None
     if args.llm_provider == "azure":
         deployment_name = resolve_azure_deployment_name(args.deployment)
 
     experiments_dir = build_experiments_dir(args, deployment_name=deployment_name)
-    output_path = run_selected_pipeline(args, SMELLS, project_path, experiments_dir)
+    output_path = run_selected_pipeline(args, SMELLS, project_path, experiments_dir, seed_number)
 
     total_runtime = time.perf_counter() - start_time
 
-    return write_evaluation_report(GROUND_TRUTH_PATH, output_path, args, total_runtime)
+    return write_evaluation_report(GROUND_TRUTH_PATH, output_path, args, total_runtime, seed_number)
 
 
 if __name__ == "__main__":

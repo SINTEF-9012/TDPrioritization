@@ -276,8 +276,8 @@ def draw_graph(dir: Path, graph: Any) -> None:
 
 
 
-def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str, experiments_dir: Path, deployment_name: str) -> Path:    
-    llm = build_llm(args)
+def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str, experiments_dir: Path, deployment_name: str, seed_number: int) -> Path:    
+    llm = build_llm(args, seed_number=seed_number)
 
     docs = convert_chunked_text_to_langchain_documents()
 
@@ -353,8 +353,8 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
 
 
 """
-bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment gpt-3.5 --test-coverage --rag
+bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment o4-mini --test-coverage --rag
 
-bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment gpt-3.5 --no-git-stats --no-pylint-astroid --code-context none
+bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment o4-mini --no-git-stats --no-pylint-astroid --code-context none
 
 """

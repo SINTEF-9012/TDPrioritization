@@ -30,9 +30,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--azure-deployment",
-        choices=["gpt-3.5", "codex"],
+        choices=["o4-mini", "codex"],
         dest="deployment",
-        default="gpt-3.5",
+        default="o4-mini",
         help="Azure OpenAI deployment name (only when --llm-provider=azure).",
     )
 

@@ -3,19 +3,20 @@ from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain_ollama import ChatOllama
 
 
-def build_llm(args):
+def build_llm(args, seed_number: int):
 
     if args.llm_provider == "ollama":
         return ChatOllama(
             model=args.ollama_model,
             validate_model_on_init=True,
             temperature=0,
+            seed=seed_number
         )
 
     resource_name = os.environ["UIO_SE_GROUP_GPT_RESOURCE_NAME"]
     api_key = os.environ["UIO_SE_GROUP_GPT_API_KEY"]
 
-    if args.deployment == "gpt-3.5":
+    if args.deployment == "o4-mini":
         deployment = os.environ["UIO_SE_GROUP_GPT_DEPLOYMENT_NAME"]
         api_version = os.environ["UIO_SE_GROUP_API_VERSION"]
 
@@ -28,6 +29,7 @@ def build_llm(args):
             max_tokens=40000,
             timeout=None,
             max_retries=2,
+            seed=seed_number,
         )
 
     if args.deployment == "codex":

@@ -27,6 +27,7 @@ class AzureOpenAIGenerator:
     def __init__(
         self,
         deployment: str,
+        seed_number: int,
         full_prompt_file: Optional[str] = None,
         temperature: float = 1.0,
         max_completion_tokens: Optional[int] = 40000,
@@ -40,8 +41,9 @@ class AzureOpenAIGenerator:
         self.max_completion_tokens = max_completion_tokens
         self.full_prompt_file = full_prompt_file
         self.deployment = None
+        self.seed_number = seed_number
 
-        if self.deployment_name == "gpt-3.5":
+        if self.deployment_name == "o4-mini":
             self.api_version = os.environ.get("UIO_SE_GROUP_API_VERSION")
             self.deployment = os.environ.get("UIO_SE_GROUP_GPT_DEPLOYMENT_NAME")
 
@@ -57,7 +59,7 @@ class AzureOpenAIGenerator:
                 "Missing Azure OpenAI configuration. Ensure these are set."
             )
 
-        if self.deployment_name == "gpt-3.5":
+        if self.deployment_name == "o4-mini":
             self.endpoint_url = (
                 f"https://{self.resource_name}.openai.azure.com/"
                 f"openai/deployments/{self.deployment}/chat/completions"
@@ -78,16 +80,16 @@ class AzureOpenAIGenerator:
             }
 
     def _build_body(self, prompt: str) -> Dict[str, Any]:
-        if self.deployment_name == "gpt-3.5":
+        if self.deployment_name == "o4-mini":
             body: Dict[str, Any] = {
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": self.temperature,
+                "seed": self.seed_number,
             }
             if self.max_completion_tokens is not None:
                 body["max_completion_tokens"] = self.max_completion_tokens
             return body
 
-        # Responses API mode
         body = {
             "model": self.deployment,
             "input": [{"role": "user", "content": prompt}],
@@ -121,7 +123,7 @@ class AzureOpenAIGenerator:
     def _extract_usage(self, resp_json: Dict[str, Any]) -> Dict[str, Optional[int]]:
         usage = resp_json.get("usage", {}) or {}
 
-        if self.deployment_name == "gpt-3.5":
+        if self.deployment_name == "o4-mini":
             return {
                 "prompt_tokens": usage.get("prompt_tokens"),
                 "completion_tokens": usage.get("completion_tokens"),
@@ -169,7 +171,7 @@ class AzureOpenAIGenerator:
                 f"Azure OpenAI API error (status={resp.status_code}). Details:\n{json.dumps(err, indent=2)}"
             )
 
-        if self.deployment_name == "gpt-3.5":
+        if self.deployment_name == "o4-mini":
             content = self._extract_chat_text(resp_json)
         else:
             content = self._extract_responses_text(resp_json)
