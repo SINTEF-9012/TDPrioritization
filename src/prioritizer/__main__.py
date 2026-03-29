@@ -68,10 +68,10 @@ def build_experiments_dir(args, deployment_name: str | None = None) -> Path:
         if not deployment_name:
             raise ValueError("deployment_name is required when llm_provider='azure'")
         model_part = get_model_prefix(deployment_name)
-        return EXPERIMENTS_ROOT / f"{args.pipeline}_pipeline_azure_{model_part}"
+        return EXPERIMENTS_ROOT / f"{args.pipeline}_pipeline_azure_{model_part}_{args.out_dir}"
 
     safe_model = args.ollama_model.replace(":", "_").replace("/", "_")
-    return EXPERIMENTS_ROOT / f"{args.pipeline}_pipeline_ollama_{safe_model}"
+    return EXPERIMENTS_ROOT / f"{args.pipeline}_pipeline_ollama_{safe_model}_{args.out_dir}"
 
 
 def maybe_run_test_coverage(args, project_path: str) -> None:

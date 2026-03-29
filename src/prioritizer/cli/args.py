@@ -99,10 +99,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.set_defaults(use_rag=False)
 
+    parser.add_argument(
+        "--out-dir",
+        default="baseline",
+        help="Suffix to add to the output directory to distinguish between experiments using the same pipeline and model.",
+        dest="out_dir"
+    )
+
     return parser
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return build_parser().parse_args(argv)
-
-# TODO No code or analysis option
