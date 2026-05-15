@@ -1,11 +1,63 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "prioritizer"
 version = "0.1.0"
-requires-python = ">=3.11"
+description = "An LLM-based artifact for context-augmented code smell prioritization."
+requires-python = ">=3.11,<3.13"
+
+dependencies = [
+    # --- Core numerical / evaluation stack ---
+    "numpy>=1.23.0,<3.0",
+    "pandas>=2.0.0,<3.0",
+    "scipy>=1.11.0,<2.0",
+    "scikit-learn>=1.3.0,<2.0",
+    "rbo==0.1.3",
+    "networkx>=3.3,<4.0",
+
+    # --- Code analysis, repository mining, and configuration ---
+    "radon>=6.0.1",
+    "pylint>=3.0.0,<5.0",
+    "astroid>=3.1.0,<5.0",
+    "GitPython==3.1.50",
+    "pydriller==2.9",
+    "PyYAML>=6.0,<7.0",
+
+    # --- RAG, embeddings, and document ingestion ---
+    "sentence-transformers>=3.0.1,<6.0",
+    "haystack-ai==2.19.0",
+    "chroma-haystack>=3.0.0",
+    "chromadb>=1.2.0,<2.0.0",
+    "nltk>=3.9.1",
+    "PyMuPDF>=1.24.0,<2.0",
+
+    # --- LangChain / LangGraph orchestration ---
+    "langchain==1.1.2",
+    "langchain-core>=1.0.0,<2.0.0",
+    "langchain-text-splitters==1.0.0",
+    "langchain-huggingface==1.2.0",
+    "langchain-openai>=1.0.0,<2.0.0",
+    "langchain-ollama==1.0.0",
+    "langchain-chroma==1.1.0",
+    "langgraph==1.0.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0,<9.0",
+    "pytest-cov==7.0.0",
+]
+
+plots = [
+    "matplotlib>=3.8.0,<4.0",
+    "seaborn>=0.13.0,<1.0",
+]
+
+experiments = [
+    "codecarbon>=3.0.8,<4.0",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
