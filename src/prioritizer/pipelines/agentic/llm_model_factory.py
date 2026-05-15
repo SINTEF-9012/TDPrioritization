@@ -9,7 +9,7 @@ def build_llm(args, seed_number: int):
         return ChatOllama(
             model=args.ollama_model,
             validate_model_on_init=True,
-            temperature=0,
+            temperature=1.0,
             seed=seed_number
         )
 
@@ -25,7 +25,7 @@ def build_llm(args, seed_number: int):
             api_key=api_key,
             azure_deployment=deployment,
             api_version=api_version,
-            temperature=1,
+            temperature=1.0,
             max_tokens=40000,
             timeout=None,
             max_retries=2,
@@ -41,7 +41,7 @@ def build_llm(args, seed_number: int):
             base_url=f"https://{resource_name}.openai.azure.com/openai/v1/",
             api_key=api_key,
             use_responses_api=True,
-            temperature=1,
+            temperature=1.0,
             max_tokens=40000,
             timeout=None,
             max_retries=2,
