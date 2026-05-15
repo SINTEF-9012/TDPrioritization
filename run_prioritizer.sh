@@ -3,7 +3,6 @@
 # Exit on error
 set -e 
 
-# Check if the project name was provided
 if [ -z "$1" ]; then
     echo "Usage: $0 <project-name> [--model <model>] [--output <file>]"
     exit 1
@@ -17,18 +16,17 @@ shift
 
 LAST_PROJECT_FILE=".last_project"
 
-# Check if detector needs to run
 if [ -f "$LAST_PROJECT_FILE" ] && [ "$(cat $LAST_PROJECT_FILE)" = "$PROJECT_NAME" ]; then
-    echo "Skipping detector - project '$PROJECT_NAME' already analyzed."
+    echo "[INFO] Skipping detector - project '$PROJECT_NAME' already analyzed."
 else
-    echo "Running Python Smells Detector on $PROJECT_NAME ..."
+    echo "[INFO] Running Python Smells Detector on $PROJECT_NAME ..."
     cd python_smells_detector
     analyze_code_quality "$PROJECT_PATH" --config code_quality_config.yaml
     cd ..
     echo "$PROJECT_NAME" > "$LAST_PROJECT_FILE"
 fi
 
-echo "Running Smells Prioritizer ..."
-time python -m prioritizer "$PROJECT_NAME" "$@"
+echo "[INFO] Running smells prioritizer ..."
+python -m prioritizer "$PROJECT_NAME" "$@"
 
-echo -e "Analysis and prioritization complete!\n"
+echo -e "[DONE] Analysis and prioritization complete!\n"
