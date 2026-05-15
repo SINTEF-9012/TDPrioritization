@@ -7,6 +7,8 @@ from typing import Any, Dict, Iterable, List
 
 import pandas as pd
 
+from prioritizer.cli.args import parse_statistics_args
+
 METRIC_LABELS = {
     "metrics.ranking.ndcg": "nDCG",
     "metrics.ranking.kendall_tau": "Kendall tau",
@@ -528,25 +530,43 @@ def run(
     print(f"[INFO] Wrote outputs to {output_dir}")
     print("[DONE] Process complete.\n")
 
-def generate_statistics_for_experiments_folder():
+def generate_statistics_for_experiments_folder(report_dir: Path | None = None) -> None:
     experiments_dir = Path("experiments")
     stats_dir = Path("statistics")
+
+    if report_dir is not None:
+        report_dir = Path(report_dir)
+
+        if not report_dir.exists():
+            raise FileNotFoundError(
+                f"Evaluation report directory does not exist: {report_dir}"
+            )
+
+        if not report_dir.is_dir():
+            raise NotADirectoryError(
+                f"Expected a directory containing evaluation reports, got: {report_dir}"
+            )
+
+        output_dir = stats_dir / f"statistics_summary_{report_dir.name}"
+
+        print(f"[INFO] Processing {report_dir} -> {output_dir}")
+        run(reports_dir=report_dir, output_dir=output_dir)
+        return
 
     if not experiments_dir.exists():
         raise FileNotFoundError(f"Experiments directory does not exist: {experiments_dir}")
 
     stats_dir.mkdir(parents=True, exist_ok=True)
 
-    subfolders = sorted(p for p in experiments_dir.iterdir() if p.is_dir())
+    if report_dir is None:
+        subfolders = sorted(p for p in experiments_dir.iterdir() if p.is_dir())
 
-    for report_dir in subfolders:
-        output_dir = stats_dir / f"statistics_summary_{report_dir.name}"
-        print(f"[INFO] Processing {report_dir} -> {output_dir}")
-        
-        run(reports_dir=report_dir, output_dir=output_dir)
-
-
-
+        for report_dir in subfolders:
+            output_dir = stats_dir / f"statistics_summary_{report_dir.name}"
+            print(f"[INFO] Processing {report_dir} -> {output_dir}")
+            
+            run(reports_dir=report_dir, output_dir=output_dir)
 
 if __name__ == "__main__":
-    generate_statistics_for_experiments_folder()
+    args = parse_statistics_args()
+    generate_statistics_for_experiments_folder(report_dir=args.report_dir)

@@ -132,4 +132,7 @@ def main() -> Path:
 
 
 if __name__ == "__main__":
-    main()
+    evaluation_report_path = main()
+    evaluation_dir = evaluation_report_path.parent
+
+    print(f"EVALUATION_DIR={evaluation_dir}")

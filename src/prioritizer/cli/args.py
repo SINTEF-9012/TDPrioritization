@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -108,6 +109,24 @@ def build_parser() -> argparse.ArgumentParser:
 
     return parser
 
-
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return build_parser().parse_args(argv)
+
+
+def parse_statistics_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate aggregated statistics from evaluation report directories."
+    )
+
+    parser.add_argument(
+        "report_dir",
+        nargs="?",
+        type=Path,
+        default=None,
+        help=(
+            "Optional path to a specific directory containing evaluation JSON reports. "
+            "If omitted, all experiment folders under experiments/ are processed."
+        ),
+    )
+
+    return parser.parse_args()

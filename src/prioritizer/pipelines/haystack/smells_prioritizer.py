@@ -184,7 +184,6 @@ def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStor
         "documents":         retrieved_documents,
     }
 
-    print("Running model:", args.ollama_model)
     results = pipeline.run({"prompt_builder": prompt_inputs})["llm"]
 
     llm_output_file = experiments_dir / "output.csv"

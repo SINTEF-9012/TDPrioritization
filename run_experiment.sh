@@ -1,37 +1,118 @@
 #!/bin/bash
 
-# Exit on error
+# Exit immediately if any command fails
 set -e
 
-N=1
+# -------------------------------------------------------------------
+# Experiment settings
+# -------------------------------------------------------------------
 
-CONFIGS=(
-  "--llm-provider ollama --pipeline agent --no-git-stats --no-pylint-astroid --code-context none --out-dir baseline"
+# Number of times the same experiment configuration should be repeated
+N=5
+
+# Name of the project under test_projects/
+PROJECT="simapy"
+
+# Output folder name for this experiment configuration
+OUT_DIR="baseline"
+
+# -------------------------------------------------------------------
+# Available configuration flags
+# -------------------------------------------------------------------
+#
+# LLM provider:
+#   --llm-provider ollama
+#   --llm-provider azure
+#
+# Pipeline:
+#   --pipeline agent
+#   --pipeline haystack
+#
+# Model selection:
+#   --model <ollama-model-name>
+#   --azure-deployment <azure-deployment-name>
+#
+# Repository-mining context:
+#   --git-stats
+#   --no-git-stats
+#
+# Static-analysis context:
+#   --pylint-astroid
+#   --no-pylint-astroid
+#
+# Code context:
+#   --code-context none
+#   --code-context code
+#   --code-context analysis
+#
+# Additional contextual signals:
+#   --test-coverage
+#   --rag
+#
+# Output:
+#   --out-dir <folder-name>
+#
+# -------------------------------------------------------------------
+# Prioritizer configuration
+# -------------------------------------------------------------------
+# Edit these flags to define the experiment setup.
+
+FLAGS=(
+    --llm-provider azure
+    --pipeline haystack
+    --code-context none
+    --no-pylint-astroid
+    --no-git-stats
 )
 
-: << 'COMMENT'    
-FLAGS:   
---llm-provider azure \
---pipeline agent \
---azure-deployment o4-mini \
---no-git-stats \
---no-pylint-astroid \
---code-context code \
---test-coverage \
---out-dir code_segment
---rag
-COMMENT
+echo "[INFO] Starting experiment"
+echo "[INFO] Project: $PROJECT"
+echo "[INFO] Repetitions: $N"
+echo
 
-for((i=1; i<=N; i++)); do
-    echo "[INFO] Running experiment $i of $N" 
-    bash run_prioritizer.sh simapy \
-        --llm-provider ollama \
-        --pipeline agent \
-        --code-context analysis \
-        --no-git-stats \
-        --out-dir pylint_analysis \
+
+# Store the directory containing the generated evaluation reports
+EVALUATION_DIR=""
+
+for ((i=1; i<=N; i++)); do
+    echo "[INFO] Running experiment $i of $N"
+
+    RUN_OUTPUT=$(
+        bash run_prioritizer.sh "$PROJECT" \
+            "${FLAGS[@]}" \
+            --out-dir "$OUT_DIR" \
+            | tee /dev/tty
+    )
+
+    CURRENT_EVALUATION_DIR=$(
+        echo "$RUN_OUTPUT" \
+            | grep '^EVALUATION_DIR=' \
+            | tail -n 1 \
+            | cut -d'=' -f2-
+    )
+
+    if [[ -z "$CURRENT_EVALUATION_DIR" ]]; then
+        echo "[ERROR] Could not determine evaluation directory from prioritizer output."
+        exit 1
+    fi
+
+    if [[ -z "$EVALUATION_DIR" ]]; then
+        EVALUATION_DIR="$CURRENT_EVALUATION_DIR"
+    fi
+
+    echo "[INFO] Evaluation directory: $CURRENT_EVALUATION_DIR"
+    echo "[INFO] Completed experiment $i of $N"
+    echo
 
     sleep 1
 done
 
-python3 src/prioritizer/evaluation/statistics_collector.py
+# -------------------------------------------------------------------
+# Aggregate statistics
+# -------------------------------------------------------------------
+
+echo "[INFO] Collecting experiment statistics"
+
+python src/prioritizer/evaluation/statistics_collector.py "$EVALUATION_DIR"
+
+echo "[INFO] Experiment completed successfully"
