@@ -116,10 +116,10 @@ def _format_smell_for_prompt(s: Dict[str, Any], idx: int, state: State) -> str:
 id={s.get("index")}, smell={s.get("name")}, category={s.get("type_of_smell")},
 file={s.get("file_path")}, line={s.get("line_number")}
 
-## GENERAL DESCRIPTION:
+## GENERAL DESCRIPTION
 {s.get("description") if state.get("use_pylint") else "<No description provided.>"}
 
-## GIT ANALYSIS:
+## GIT ANALYSIS
 {git_report}
 
 ## PYLINT REPORT

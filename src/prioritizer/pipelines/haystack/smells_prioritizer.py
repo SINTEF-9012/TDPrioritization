@@ -1,9 +1,9 @@
 from prioritizer.analysis import build_project_structure
 from prioritizer.ingestion.chunking import convert_chunked_text_to_haystack_documents
 from prioritizer.llm.analyze_code_segment import analyze_code_segments_via_ai
-from prioritizer.llm.prompt_template import PROMPT_TEMPLATE
-from prioritizer.llm.ollama_client import OllamaGenerator
-from prioritizer.llm.azure_component import AzureOpenAIGenerator
+from prioritizer.pipelines.haystack.prompt_template import PROMPT_TEMPLATE
+from prioritizer.pipelines.haystack.ollama_client import OllamaGenerator
+from prioritizer.pipelines.haystack.azure_component import AzureOpenAIGenerator
 from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smells, add_further_context
 
 from haystack import Pipeline, Document
@@ -33,7 +33,7 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             code_context = s.get("code_segment")
 
         content = (
-            f"# SMELL\n"
+            f"# SMELL REPORT [NR. {idx}]\n"
             f"Id: {s.get('index')}\n"
             f"Yype of smell: {s.get('type_of_smell')}\n"
             f"Name: {s.get('name')}\n"
@@ -41,7 +41,7 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             f"Module/class: {s.get('module_or_class')}\n"
             f"Line Number: {s.get('line_number')}\n"
             f"\n"
-            f"## DESCRIPTION\n{s.get('description') if s.get('pylint_report') else '<Uknown>'}\n\n"
+            f"## GENERAL DESCRIPTION\n{s.get('description') if s.get('pylint_report') else '<Uknown>'}\n\n"
             f"## GIT_ANALYSIS\n{s.get('git_analysis', '<Unknown>')}\n\n"
             f"## PYLINT_REPORT\n{s.get('pylint_report', '<Unknown>')}\n\n"
             f"## TEST_COVERAGE\n{s.get('test_coverage_report', '<Unknown>')}\n\n"
