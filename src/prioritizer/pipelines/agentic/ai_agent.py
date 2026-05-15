@@ -3,7 +3,7 @@ from prioritizer.ingestion.smells_ingestion import read_and_store_relevant_smell
 from prioritizer.ingestion.chunking import convert_chunked_text_to_langchain_documents
 
 from prioritizer.pipelines.agentic.agent_state import State
-from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT, SYSTEM_PROMPT2
+from prioritizer.pipelines.agentic.system_prompt import SYSTEM_PROMPT
 from prioritizer.pipelines.agentic.reviewing_output import review_output_node
 from prioritizer.pipelines.agentic.repair_node import repair_output_node
 from prioritizer.pipelines.agentic.embedding_retrieval import index_documents_into_chroma
@@ -68,9 +68,9 @@ def _format_rag_results(s: Dict[str, Any], max_chars: int = 700) -> str:
     """
     ev = s.get("rag_results") or []
     if not ev:
-        return "## BACKGROUND KNOWLEDGE\n<No documents retrieved>"
+        return "### BACKGROUND KNOWLEDGE\n<No documents retrieved>"
 
-    blocks = ["## BACKGROUND KNOWLEDGE (GENERAL GUIDANCE ONLY)",
+    blocks = ["### BACKGROUND KNOWLEDGE (GENERAL GUIDANCE ONLY)",
               "The following documents provide general insights about technical debt and code smells.",
               "Treat these as reference material ONLY — do NOT use them as smell-specific evidence.",
               ""]
@@ -214,17 +214,27 @@ Smell instances:
 {smells_block}
 
 """
-
+    
     resp = llm.invoke([
-        SystemMessage(content=SYSTEM_PROMPT2),
+        SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=user_prompt),
     ])
 
     text = extract_text_content(resp.content)
+    usage = extract_token_usage(resp)
+
+    token_usage_file = out_dir  / "token_usage.txt"
+
+    with open(token_usage_file, "w", encoding="utf-8") as f:
+        f.write(str(usage))
+
 
     return {
-        **state, 
-        "output_text": text if text else None
+        **state,
+        "output_text": text if text else None,
+        "prompt_tokens": state.get("prompt_tokens", 0) + usage["prompt_tokens"],
+        "completion_tokens": state.get("completion_tokens", 0) + usage["completion_tokens"],
+        "total_tokens": state.get("total_tokens", 0) + usage["total_tokens"],
     }
 
 def route_execution_after_review(state: State) -> str: 
@@ -273,6 +283,30 @@ def draw_graph(dir: Path, graph: Any) -> None:
                     print(f"[INFO] Saved Mermaid graph source to {mermaid_path}")
             except Exception as inner_e:
                 print(f"[WARNING] Failed to save Mermaid source: {inner_e}")
+
+
+def extract_token_usage(resp) -> Dict[str, int]:
+    """
+    Extract token usage from a LangChain AIMessage returned by AzureChatOpenAI.
+    Falls back to response_metadata if needed.
+    """
+    usage = getattr(resp, "usage_metadata", None)
+
+    if usage:
+        return {
+            "prompt_tokens": usage.get("input_tokens", 0),
+            "completion_tokens": usage.get("output_tokens", 0),
+            "total_tokens": usage.get("total_tokens", 0),
+        }
+
+    response_metadata = getattr(resp, "response_metadata", {}) or {}
+    token_usage = response_metadata.get("token_usage", {}) or {}
+
+    return {
+        "prompt_tokens": token_usage.get("prompt_tokens", 0),
+        "completion_tokens": token_usage.get("completion_tokens", 0),
+        "total_tokens": token_usage.get("total_tokens", 0),
+    }
 
 
 
@@ -329,6 +363,7 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
 
     compiled_graph = smells_graph.compile()
 
+    print("[INFO] Running agent pipeline")
     compiled_graph.invoke({
         "smell_types": smells,
         "smells": None,
@@ -347,14 +382,6 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "total_tokens": 0,
     })
 
-    draw_graph(experiments_dir, compiled_graph)
+    #draw_graph(experiments_dir, compiled_graph)
 
     return experiments_dir
-
-
-"""
-bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment o4-mini --test-coverage --rag
-
-bash run_analyzer.sh simapy  --llm-provider azure  --pipeline agent --azure-deployment o4-mini --no-git-stats --no-pylint-astroid --code-context none
-
-"""
