@@ -41,11 +41,11 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             f"Module/class: {s.get('module_or_class')}\n"
             f"Line Number: {s.get('line_number')}\n"
             f"\n"
-            f"## DESCRIPTION\n{s.get('description') if s.get('pylint_report') else 'N/A'}\n\n"
-            f"## GIT_ANALYSIS\n{s.get('git_analysis', 'N/A')}\n\n"
-            f"## PYLINT_REPORT\n{s.get('pylint_report', 'N/A')}\n\n"
-            f"## TEST_COVERAGE\n{s.get('test_coverage_report', 'N/A')}\n\n"
-            f"{context_label}\n{code_context or 'N/A'}\n"
+            f"## DESCRIPTION\n{s.get('description') if s.get('pylint_report') else '<Uknown>'}\n\n"
+            f"## GIT_ANALYSIS\n{s.get('git_analysis', '<Unknown>')}\n\n"
+            f"## PYLINT_REPORT\n{s.get('pylint_report', '<Unknown>')}\n\n"
+            f"## TEST_COVERAGE\n{s.get('test_coverage_report', '<Unknown>')}\n\n"
+            f"{context_label}\n{code_context or '<Unknown>'}\n"
         )
 
         docs.append(Document(
@@ -163,7 +163,7 @@ def run_rag_pipeline(args, smells: List[str], document_store: ChromaDocumentStor
     full_prompt_file = experiments_dir / "prompt.txt"
 
     pipeline   = build_pipeline(PROMPT_TEMPLATE, args.ollama_model, full_prompt_file, args.llm_provider, deployment_name, seed_number=seed_number)
-    llm_client = ChatOllama(model=args.ollama_model, temperature=0, seed=42)
+    llm_client = ChatOllama(model=args.ollama_model, temperature=1.0, seed=seed_number)
 
     documents = prepare_smells(args, smells, project_path, llm_client)
     if not documents:
