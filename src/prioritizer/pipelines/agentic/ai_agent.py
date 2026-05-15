@@ -382,6 +382,4 @@ def run_agent_pipeline(args: argparse.Namespace, smells: List, project_path: str
         "total_tokens": 0,
     })
 
-    #draw_graph(experiments_dir, compiled_graph)
-
     return experiments_dir

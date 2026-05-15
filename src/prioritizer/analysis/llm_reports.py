@@ -19,7 +19,7 @@ def _pick_top_pylint_messages(pylint_msgs: List[Dict[str, Any]], k: int = 3) -> 
     Prefer higher-severity / more informative messages.
     This assumes common pylint keys; degrade gracefully if missing.
     """
-    # Pylint msg categories are not strict severities, but errors/warnings tend to matter more than conventions.
+
     category_weight = {
         "fatal": 5,
         "error": 4,
@@ -32,7 +32,7 @@ def _pick_top_pylint_messages(pylint_msgs: List[Dict[str, Any]], k: int = 3) -> 
     def score(msg: Dict[str, Any]) -> Tuple[int, int]:
         cat = str(msg.get("category", "")).lower()
         w = category_weight.get(cat, 0)
-        # Prefer messages with a symbol/message-id if present (often more specific)
+
         has_symbol = 1 if msg.get("symbol") or msg.get("message-id") else 0
         return (w, has_symbol)
 
@@ -66,7 +66,6 @@ def format_llm_file_context_concise(
     err = int(pylint_summary.get("error", 0) or 0)
     fatal = int(pylint_summary.get("fatal", 0) or 0)
 
-    # Flags (keep short, machine-ish)
     flags: List[str] = []
     if avg_cc >= 10: flags.append("HIGH_CC")
     elif avg_cc >= 7: flags.append("MED_CC")

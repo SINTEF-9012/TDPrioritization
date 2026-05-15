@@ -25,7 +25,7 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
     include_raw_code = code_context_mode == "code"
     context_label = "## AI SUMMARIZATION OF THE CODE" if use_ai_analysis else "## CODE SEGMENT"
 
-    for s in smells:
+    for idx, s in enumerate(smells):
         code_context = None
         if use_ai_analysis:
             code_context = s.get("ai_code_segment_summary")
@@ -33,12 +33,12 @@ def build_haystack_documents(smells: dict[str, Any], code_context_mode: str = "a
             code_context = s.get("code_segment")
 
         content = (
-            f"# SMELL REPORT [NR. {idx}]\n"
-            f"Id: {s.get('index')}\n"
-            f"Yype of smell: {s.get('type_of_smell')}\n"
+            f"# SMELL REPORT [NR. {idx+1}]\n"
+            f"Id: {s.get('index')}, "
+            f"Type of smell: {s.get('type_of_smell')}, "
             f"Name: {s.get('name')}\n"
-            f"File path: {s.get('file_path')}\n"
-            f"Module/class: {s.get('module_or_class')}\n"
+            f"File path: {s.get('file_path')}, "
+            f"Module/class: {s.get('module_or_class')}, "
             f"Line Number: {s.get('line_number')}\n"
             f"\n"
             f"## GENERAL DESCRIPTION\n{s.get('description') if s.get('pylint_report') else '<Uknown>'}\n\n"

@@ -41,7 +41,7 @@ def _ranks_with_missing_penalty(
       missing:   list of missing GT ids
     """
     pos = {id_: idx for idx, id_ in enumerate(llm_ids)}
-    worst = len(llm_ids)  # missing items are treated as bottom
+    worst = len(llm_ids)
 
     ranks_llm = [pos.get(id_, worst) for id_ in gt_ids]
     ranks_gt = list(range(len(gt_ids)))
@@ -210,7 +210,7 @@ def _clean_lines(text: str) -> str:
         if re.match(r"^-+\|(-+\|?)+$", line):  # markdown table separators
             continue
         if line.lower().startswith("rank|") and cleaned and "rank|" in cleaned[0].lower():
-            continue  # skip duplicate header
+            continue
         cleaned.append(line)
 
     return "\n".join(cleaned)
@@ -392,24 +392,3 @@ def mrr_for_high_severity(llm_ids, relevance_by_id):
         if relevance_by_id.get(id_, 0) == 3:
             return 1.0 / (i + 1)
     return 0.0
-
-if __name__ == "__main__":
-    args = argparse.Namespace(
-        pipeline="rag",
-        project_name="simapy",
-        llm_provider="azure",
-        include_git_stats=True,
-        run_pylint_astroid=False,
-        code_context_mode="analysis",
-        temperature=1.0,
-        max_tokens=40000,
-        deployment = "o4-mini",
-        use_rag = False,
-        use_test_coverage = False,
-    )
-
-    write_evaluation_report(
-        "src/prioritizer/data/ground_truth/prioritized_smells_simapy.csv", 
-        "experiments/agent_pipeline_azure_o4-mini", 
-        args
-    )

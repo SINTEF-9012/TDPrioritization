@@ -114,7 +114,7 @@ def write_docs_to_file() -> None:
         sanitized["line_number"] = _normalize_line_number(smell.get("line_number"))
         code_value = smell.get("code_segment")
         if isinstance(code_value, str) and code_value.strip():
-            # Wrap code in a small schema to signal its nature.
+
             sanitized["code_segment"] = {
                 "language": "python",
                 "code": code_value

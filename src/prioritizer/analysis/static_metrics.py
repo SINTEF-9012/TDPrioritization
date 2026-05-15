@@ -48,7 +48,6 @@ def analyze_file(file_path: str) -> Dict[str, Any]:
 
     maintainability_index = radon_metrics.mi_visit(code, True)
 
-    # Per-class metrics (for potential future use)
     classes: List[Dict[str, Any]] = []
     for c in (n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)):
         methods = [n for n in c.body if isinstance(n, ast.FunctionDef)]

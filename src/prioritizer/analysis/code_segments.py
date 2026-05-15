@@ -32,7 +32,7 @@ def get_code_segment_from_file_based_on_line_number(start_line: float, file_path
     elif code is None:
         raise ValueError("Either `file_path` or `code` must be provided.")
 
-    # Handle NaN line numbers (e.g., for smells not tied to a specific line).
+    # Handle NaN line numbers
     if isinstance(start_line, float) and math.isnan(start_line):
         return code
 

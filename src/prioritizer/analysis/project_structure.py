@@ -26,9 +26,3 @@ def build_project_structure(root_dir) -> str:
         for f in files:
             structure.append(f"{indent_str}│   ├── {f}")
     return "\n".join(structure)
-
-
-# Testing and debugging
-if __name__ == "__main__":
-    project_structure = build_project_structure("projects/text_classification")
-    print(project_structure)

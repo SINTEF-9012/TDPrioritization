@@ -27,7 +27,6 @@ Rank|Id|Name of Smell|Name|File|Severity|Reason for Prioritization
 
 
 def test_format_output_without_header(tmp_path: Path):
-    # LLM sometimes omits header; function should assign EXPECTED_COLS when column count matches.
     llm_text = """\
 1|7|Long File|alpha|alpha.py|Low|Large file
 2|8|Cyclic Dependency|beta|beta.py|High|Dependency cycle

@@ -155,7 +155,6 @@ def is_good_chunk(s: str) -> bool:
     if len(s) < 500: 
         return False
 
-    # Reference/citation density
     bracket_cites = len(re.findall(r"\[\d+\]", s))
     year_cites = len(re.findall(r"\(\d{4}\)", s))
     urls = len(re.findall(r"http[s]?://", s, flags=re.IGNORECASE))
@@ -165,7 +164,6 @@ def is_good_chunk(s: str) -> bool:
     if bracket_cites + year_cites + urls + dois + etal >= 12:
         return False
 
-    # If too many lines look like citations (short, comma-heavy, year-heavy)
     lines = [ln.strip() for ln in s.splitlines() if ln.strip()]
     if lines:
         refy = 0
