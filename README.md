@@ -203,7 +203,11 @@ Each execution stores generated artifacts in the configured experiment/output di
 - The LLM-generated output
 - Evaluation reports containing metrics, runtime information, and configuration metadata
 
+## Architecture
+![alt text](architecture.png) 
+
 ## Notes
 - The artifact is intended as a research prototype developed for thesis experimentation.
 - Available modes, providers, and configuration options may evolve during continued development.
 - For reproducible use, ensure that the Python version and installed dependencies match the project configuration.
+- The evaluation module depends on project-specific ground truth rankings. At present, the evaluation workflow is configured for the `simapy` project and uses its corresponding ground truth file. Evaluation results for other projects are not valid unless appropriate ground truth data is provided and the evaluation module is updated accordingly.
