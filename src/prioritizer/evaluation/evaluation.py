@@ -307,7 +307,7 @@ def ranking_computation(ground_truth: str | Path,llm_output: str | Path) -> Opti
             "ndcg": float(ndcg_ranking_using_only_id(gt_ids, llm_ids)),
             "kendall_tau": float(tau) if tau is not None else float("nan"),
             "spearman_rho": float(rho) if rho is not None else float("nan"),
-            "rbo": float(rbo.RankingSimilarity(llm_ids, gt_ids).rbo()),
+            "rbo": float(rbo.RankingSimilarity(llm_ids, gt_ids).rbo(p=0.9)),
         },
         "severity_labelling": {
             "accuracy": severity_acc["accuracy"],
