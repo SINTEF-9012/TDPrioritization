@@ -4,6 +4,7 @@ __pycache__/
 
 # Ignore virtual environment
 vir_env/
+.venv
 
 .DS_Store
 
@@ -11,6 +12,7 @@ prioritizer.egg-info
 
 # Ignore the projects we use to test the prioritizer as they are cloned from other open-source repos. 
 test_projects/
+statistics/
 
 # Ignore chroma db if user is using persistent storage of embeddings
 embeddings_db
